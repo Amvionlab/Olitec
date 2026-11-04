@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* OLITEC brand tokens — same values as website/src/app/globals.css so the shop matches the main site. */
+@theme {
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: #fff8eb;
+  --color-brand-100: #feecc7;
+  --color-brand-200: #fdd78a;
+  --color-brand-300: #fdbd15;
+  --color-brand-400: #fbaf19;
+  --color-brand-500: #f99f1e;
+  --color-brand-600: #dd7a07;
+  --color-brand-700: #b75708;
+  --color-brand-800: #94430e;
+  --color-brand-900: #7a380f;
+
+  --color-leaf: #44ab48;
+  --color-forest: #253d2f;
+  --color-ink: #3d3d3d;
+  --color-muted: #6d6d6d;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+}
+
+@layer utilities {
+  .brand-gradient {
+    background-image: linear-gradient(to right, #f99f1e, #fdbd15);
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}

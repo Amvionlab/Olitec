@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/* Design tokens — kept in sync with the customer website so both apps share one visual language. */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: #eef5ff;
+  --color-brand-100: #d9e8ff;
+  --color-brand-200: #bcd6ff;
+  --color-brand-300: #8ebcff;
+  --color-brand-400: #5996ff;
+  --color-brand-500: #3370fb;
+  --color-brand-600: #1d50f0;
+  --color-brand-700: #163cdc;
+  --color-brand-800: #1932b2;
+  --color-brand-900: #1a308c;
+
+  --color-surface: #f4f6fa;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-slate-800 antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+}

@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens from the OLITEC Figma file (ROUGTH, node 3470:2).
+ * Fonts: the design uses Faktum (licensed, not on Google Fonts). Figtree is a close stand-in —
+ * to use Faktum, load it with next/font/local in app/layout.tsx and point --font-display at it.
+ */
+@theme {
+  --font-sans: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-nav: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  /* OLITEC orange (Figma #F99F1E → #FDBD15 gradient, nav accent #FBAF19) */
+  --color-brand-50: #fff8eb;
+  --color-brand-100: #feecc7;
+  --color-brand-200: #fdd78a;
+  --color-brand-300: #fdbd15;
+  --color-brand-400: #fbaf19;
+  --color-brand-500: #f99f1e;
+  --color-brand-600: #dd7a07;
+  --color-brand-700: #b75708;
+  --color-brand-800: #94430e;
+  --color-brand-900: #7a380f;
+
+  --color-leaf: #44ab48;
+  --color-forest: #253d2f;
+  --color-ink: #3d3d3d;
+  --color-muted: #6d6d6d;
+  --color-surface: #ffffff;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-surface text-slate-800 antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer utilities {
+  /* Figma frosted-glass panels: white border, backdrop blur and a soft white radial glow. */
+  .glass-panel {
+    border: 1px solid #fff;
+    backdrop-filter: blur(6.4px);
+    background: radial-gradient(ellipse 100% 160% at 100% 0%, rgb(255 255 255 / 0.4), rgb(255 255 255 / 0) 100%);
+  }
+
+  /*
+   * Same look as .glass-panel without backdrop blur, for chips and cards that sit on top of an animated
+   * illustration: blurring a moving background is recomputed every frame and slows the page down.
+   */
+  .glass-chip {
+    border: 1px solid #fff;
+    background: radial-gradient(ellipse 100% 160% at 100% 0%, rgb(255 255 255 / 0.4), rgb(255 255 255 / 0.08) 100%);
+  }
+
+  .glass-card {
+    border: 1px solid #fff;
+    background: radial-gradient(ellipse 100% 160% at 100% 0%, rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.55) 100%);
+  }
+
+  .brand-gradient {
+    background-image: linear-gradient(to right, #f99f1e, #fdbd15);
+  }
+}
+
+@keyframes slide-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* Animated illustration overlays, copied from the Olitec HTML design. */
+.olx *{transform-box:view-box}
+@keyframes olDash{to{stroke-dashoffset:-48}
+}
+@keyframes olMove{from{offset-distance:0%}
+to{offset-distance:100%}
+}
+@keyframes olPulse{0%,100%{opacity:.55;transform:scale(1)}
+50%{opacity:1;transform:scale(1.07)}
+}
+@keyframes olShimmer{0%,100%{opacity:.15}
+50%{opacity:.6}
+}
+@keyframes olDrift{from{transform:translateX(-90px)}
+to{transform:translateX(90px)}
+}
+@keyframes olGlint{0%,70%,100%{opacity:0;transform:scale(.3) rotate(0deg)}
+80%{opacity:1;transform:scale(1) rotate(45deg)}
+}
+@keyframes olRise{0%{transform:translateY(0);opacity:0}
+15%{opacity:.8}
+100%{transform:translateY(-260px);opacity:0}
+}
+@keyframes olBlink{0%,100%{opacity:1}
+50%{opacity:.15}
+}
+@keyframes olCharge{0%{transform:scaleX(.08);opacity:.4}
+80%{transform:scaleX(1);opacity:1}
+100%{transform:scaleX(1);opacity:0}
+}
+@keyframes olSpin{to{transform:rotate(360deg)}
+}
+@keyframes olSmoke{0%{transform:translate(0,0) scale(.6);opacity:0}
+20%{opacity:1}
+100%{transform:translate(30px,-130px) scale(2.2);opacity:0}
+}
+@keyframes olStep{0%,100%{opacity:0;transform:scale(.8)}
+10%{opacity:1;transform:scale(1)}
+25%{opacity:0;transform:scale(1.25)}
+}
+@keyframes olRipple{0%{transform:scale(.35);opacity:.8}
+100%{transform:scale(1.15);opacity:0}
+}
+.ol-flow{stroke-dasharray:3 9;animation:olDash 1.2s linear infinite}
+.ol-flow-fast{stroke-dasharray:14 34;animation:olDash .9s linear infinite}
+.ol-move{animation:olMove 2s linear infinite}
+.ol-pulse{animation:olPulse 4s ease-in-out infinite}
+.ol-shimmer{animation:olShimmer 5s ease-in-out infinite}
+.ol-drift{animation:olDrift 40s ease-in-out infinite alternate}
+.ol-glint{opacity:0;animation:olGlint 5s ease-in-out infinite}
+.ol-rise{animation:olRise 7s ease-out infinite}
+.ol-blink{animation:olBlink 1.6s ease-in-out infinite}
+.ol-charge{animation:olCharge 2.5s ease-out infinite}
+.ol-spin{animation:olSpin 40s linear infinite}
+.ol-spin-rev{animation:olSpin 70s linear infinite reverse}
+.ol-smoke{opacity:0;animation:olSmoke 6s ease-out infinite}
+.ol-step{opacity:0;animation:olStep 5s ease-out infinite}
+.ol-ripple{animation:olRipple 3.6s ease-out infinite}
+.ol-ripple-slow{animation:olRipple 8s ease-out infinite}
+.hp1{offset-path:path('M1000 640 Q1040 600 1080 615');offset-rotate:0deg}
+.hp2{offset-path:path('M1160 615 Q1200 615 1200 605');offset-rotate:0deg}
+.hp3{offset-path:path('M1400 560 Q1450 560 1480 440');offset-rotate:0deg}
+.hp4{offset-path:path('M1524 194 Q1590 254 1664 243');offset-rotate:0deg}
+.hp5{offset-path:path('M1736 243 Q1760 283 1800 263');offset-rotate:0deg}
+.ep1{offset-path:path('M820 720 Q860 700 900 700');offset-rotate:0deg}
+.ep2{offset-path:path('M1020 640 Q1020 560 760 470');offset-rotate:0deg}
+.ep3{offset-path:path('M797 273 Q845 318 899 306');offset-rotate:0deg}
+.ep4{offset-path:path('M961 306 Q990 336 1070 355');offset-rotate:0deg}
+.pw1{offset-path:path('M640 400 H1030');offset-rotate:0deg}
+.pw2{offset-path:path('M330 600 Q380 560 490 520');offset-rotate:0deg}
+.pw3{offset-path:path('M640 420 Q950 500 1140 520');offset-rotate:0deg}
+.tk1{offset-path:path('M600 210 A250 250 0 1 1 599.9 210');offset-rotate:0deg}
+.sy1{offset-path:path('M420 320 Q660 135 900 170');offset-rotate:0deg}
+.sy2{offset-path:path('M900 170 Q1140 145 1380 340');offset-rotate:0deg}
+.sy3{offset-path:path('M1380 340 Q900 220 420 320');offset-rotate:0deg}
+@media (prefers-reduced-motion: reduce){.olx *{animation:none!important}
+}
+.olx[data-paused] *{animation-play-state:paused}

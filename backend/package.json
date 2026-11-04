@@ -1,0 +1,30 @@
+{
+  "name": "warranty-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Warranty API service (MySQL when DB_* is set, otherwise mock data)",
+  "type": "module",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:migrate:status": "tsx src/db/migrate.ts --status",
+    "db:seed:dev": "tsx src/db/seed-ecommerce-dev.ts && tsx src/db/seed-warranty-dev.ts",
+    "test": "node --import tsx --test \"src/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@fastify/cors": "11.3.1",
+    "fastify": "5.12.7",
+    "mysql2": "3.24.5"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
