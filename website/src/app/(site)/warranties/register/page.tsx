@@ -23,13 +23,13 @@ export default async function RegisterWarrantyPage({ searchParams }: RegisterWar
   const defaultProductModel = product ? (getProductById(product)?.model ?? "") : "";
 
   return (
-    <div className="bg-slate-50 px-4 py-12 font-sans sm:py-16">
-      <header className="mb-10 text-center">
-        <p className="mb-3 text-sm font-bold uppercase tracking-[0.12em] text-orange-600">{warrantyRegistrationHero.eyebrow}</p>
-        <h1 className="mb-3 text-3xl font-bold text-slate-900 sm:text-[32px]">{warrantyRegistrationHero.title}</h1>
-        <p className="text-[15px] text-slate-600">{warrantyRegistrationHero.lead}</p>
+    <div className="bg-white px-4 py-12 font-sans sm:py-16">
+      <header className="reveal-on-scroll mx-auto mb-10 max-w-[848px] text-center">
+        <p className="mb-3 text-sm font-bold uppercase tracking-[0.12em] text-brand-600">{warrantyRegistrationHero.eyebrow}</p>
+        <h1 className="mb-3 text-[34px] font-semibold leading-tight text-black sm:text-[40px]">{warrantyRegistrationHero.title}</h1>
+        <p className="text-base leading-6 text-muted">{warrantyRegistrationHero.lead}</p>
       </header>
-      <div className="mx-auto max-w-[848px] rounded-2xl bg-white px-5 py-8 shadow-[0_1px_3px_rgb(15_23_42/0.06),0_1px_2px_rgb(15_23_42/0.04)] sm:px-9 sm:py-10">
+      <div className="reveal-on-scroll reveal-delay-1 mx-auto max-w-[848px] rounded-[25.528px] border-[0.912px] border-[#e6e6e6] bg-white px-5 py-8 shadow-[0_8px_32px_rgb(0_0_0/0.04)] sm:px-9 sm:py-10">
         <WarrantyRegistrationForm defaultProductModel={defaultProductModel} />
       </div>
     </div>

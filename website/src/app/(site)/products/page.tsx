@@ -1,23 +1,19 @@
-/** Products — from the Olitec HTML design (Olitec-Website/products.html). */
+/** Products — Olitec engineering lineup. */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { productsPage } from "@/content/pages";
 import {
-  BulletList,
-  DefinitionRows,
   FeatureCard,
-  IconTile,
-  LegacyCard,
   LegacyPage,
   PageHero,
   Section,
   SectionHeading,
-  headingFont,
   legacyButton,
   legacyButtonSecondary,
   legacyContainer,
 } from "@/components/legacy/ui";
 import { cn } from "@/lib/cn";
+import { ProductSeriesList } from "@/components/products/ProductSeriesList";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -42,50 +38,20 @@ export default function ProductsPage() {
 
       <section className="bg-white">
         <div className={cn(legacyContainer, "pb-[72px] pt-6")}>
-          {series.map((item, index) => (
-            <article
-              key={item.title}
-              className={cn("flex flex-wrap gap-12 border-t border-[#e6e6e6] py-14", index === series.length - 1 && "border-b")}
-            >
-              <div className="min-w-0 flex-[1.1_1_440px]">
-                <div className="mb-[18px] flex items-center gap-4">
-                  <IconTile icon={item.icon} tone={item.tone} />
-                  <p className={cn("text-sm font-semibold uppercase tracking-[0.14em]", item.tone === "green" ? "text-leaf" : "text-brand-600")}>
-                    {item.eyebrow}
-                  </p>
-                </div>
-                <h2 className={cn(headingFont, "mb-2 text-[36px] font-semibold leading-[1.12]")}>{item.title}</h2>
-                <p className="mb-4 text-[20px] font-semibold text-ink">{item.tagline}</p>
-                <p className="mb-[18px]">{item.body}</p>
-                <BulletList items={item.bullets} />
-                <ul className="mb-[26px] mt-[22px] flex flex-wrap gap-2" aria-label="Models">
-                  {item.models.map((model) => (
-                    <li key={model} className="rounded-full border border-[#b7b7b7] px-3 py-[5px] text-sm font-semibold text-black">
-                      {model}
-                    </li>
-                  ))}
-                </ul>
-                <a className={legacyButton} href={item.datasheet} target="_blank" rel="noopener noreferrer">
-                  Download datasheet
-                </a>
-              </div>
-              <div className="min-w-0 flex-[1_1_340px]">
-                <LegacyCard className="bg-white">
-                  <h3 className={cn(headingFont, "mb-2 text-[18px] font-semibold")}>Key figures</h3>
-                  <DefinitionRows rows={item.figures} />
-                </LegacyCard>
-              </div>
-            </article>
-          ))}
+          <ProductSeriesList series={series} />
         </div>
       </section>
 
       <Section muted>
-        <SectionHeading>{platform.title}</SectionHeading>
-        <p className="mb-9 max-w-[720px] text-[19px]">{platform.lead}</p>
+        <div className="reveal-on-scroll">
+          <SectionHeading>{platform.title}</SectionHeading>
+          <p className="mb-9 max-w-[720px] text-[19px]">{platform.lead}</p>
+        </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {platform.steps.map((step) => (
-            <FeatureCard key={step.title} {...step} />
+          {platform.steps.map((step, idx) => (
+            <div key={step.title} className={cn("reveal-on-scroll", `reveal-delay-${(idx % 4) + 1}`)}>
+              <FeatureCard {...step} />
+            </div>
           ))}
         </div>
       </Section>

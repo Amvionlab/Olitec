@@ -29,22 +29,25 @@ export default async function WarrantiesPage({ searchParams }: WarrantiesPagePro
 
   return (
     <Container>
-      <PageHeader
-        title="My warranties"
-        description="Warranty status for every product registered to your account."
-        actions={
-          <>
-            <ButtonLink href="/profile" variant="secondary">
-              My profile
-            </ButtonLink>
-            <ButtonLink href="/warranties/register">
-              <Plus className="size-4" aria-hidden /> Register a product
-            </ButtonLink>
-          </>
-        }
-      />
+      <div className="reveal-on-scroll">
+        <PageHeader
+          title="My warranties"
+          description="Warranty status for every product registered to your account."
+          actions={
+            <>
+              <ButtonLink href="/profile" variant="secondary">
+                My profile
+              </ButtonLink>
+              <ButtonLink href="/warranties/register">
+                <Plus className="size-4" aria-hidden /> Register a product
+              </ButtonLink>
+            </>
+          }
+        />
+      </div>
 
-      <Card>
+      <div className="reveal-on-scroll reveal-delay-1">
+        <Card>
         <nav className="flex gap-1 overflow-x-auto border-b border-slate-100 px-3 pt-3" aria-label="Filter by status">
           {tabs.map((tab) => {
             const active = tab.value === status;
@@ -75,6 +78,7 @@ export default async function WarrantiesPage({ searchParams }: WarrantiesPagePro
           />
         )}
       </Card>
+      </div>
     </Container>
   );
 }

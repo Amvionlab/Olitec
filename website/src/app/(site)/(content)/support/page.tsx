@@ -18,15 +18,17 @@ export default async function SupportPage() {
 
   return (
     <Container>
-      <PageHeader title="Support" description="Installation, repairs, warranty claims and general questions." />
+      <div className="reveal-on-scroll">
+        <PageHeader title="Support" description="Installation, repairs, warranty claims and general questions." />
+      </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         {[
           { icon: Phone, label: "Toll-free helpline", value: siteConfig.supportPhone, href: `tel:${siteConfig.supportPhone.replace(/\s/g, "")}` },
           { icon: Mail, label: "Email", value: siteConfig.supportEmail, href: `mailto:${siteConfig.supportEmail}` },
           { icon: Clock, label: "Working hours", value: siteConfig.supportHours },
-        ].map(({ icon: Icon, label, value, href }) => (
-          <div key={label} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        ].map(({ icon: Icon, label, value, href }, idx) => (
+          <div key={label} className={`reveal-on-scroll reveal-delay-${idx + 1} flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm`}>
             <span className="flex size-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
               <Icon className="size-5" aria-hidden />
             </span>
@@ -44,11 +46,13 @@ export default async function SupportPage() {
         ))}
       </div>
 
-      <SupportCenter
-        customer={customer}
-        initialRequests={requests}
-        warrantyNumbers={warranties.filter((w) => w.status === "Active" || w.status === "Pending").map((w) => w.warrantyNumber)}
-      />
+      <div className="reveal-on-scroll reveal-delay-2">
+        <SupportCenter
+          customer={customer}
+          initialRequests={requests}
+          warrantyNumbers={warranties.filter((w) => w.status === "Active" || w.status === "Pending").map((w) => w.warrantyNumber)}
+        />
+      </div>
     </Container>
   );
 }

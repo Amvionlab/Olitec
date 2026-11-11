@@ -12,8 +12,8 @@ import { legacyOverlays } from "@/content/legacy-overlays";
 import { AnimatedIllustration } from "./AnimatedIllustration";
 import { LegacyIcon, type LegacyIconName } from "./icons";
 
-/** Figma page grid: content 113px from the edges on desktop. */
-export const legacyContainer = "mx-auto box-border w-full max-w-[1440px] px-4 sm:px-8 xl:px-[113px]";
+/** Figma expansive page grid: wide and spacious. */
+export const legacyContainer = "mx-auto box-border w-full max-w-[1600px] 2xl:max-w-[1680px] px-4 sm:px-8 xl:px-12 2xl:px-16";
 
 /** Figma orange gradient pill. */
 export const legacyButton =
@@ -62,7 +62,7 @@ export function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <section className="mx-auto max-w-[1440px] px-4 sm:px-8 xl:px-[82px]">
+    <section className="mx-auto max-w-[1600px] 2xl:max-w-[1680px] px-4 sm:px-8 xl:px-12">
       <AnimatedIllustration
         src={ART_IMAGES[art]}
         alt=""
@@ -74,10 +74,10 @@ export function PageHero({
         <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black from-[14.57%] to-[rgb(37_37_37/0.15)]" aria-hidden />
         <div className="relative z-[2] px-6 py-12 sm:px-10 xl:px-[60px] xl:py-[72px]">
           <p className="glass-chip inline-flex rounded-full px-4 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-white">{eyebrow}</p>
-          <h1 className="mt-5 max-w-[760px] text-[36px] font-semibold leading-[42px] text-white sm:text-[48px] sm:leading-[56px] xl:text-[60px] xl:leading-[66px]">
+          <h1 className="motion-rise mt-5 max-w-[760px] text-[36px] font-semibold leading-[42px] text-white sm:text-[48px] sm:leading-[56px] xl:text-[60px] xl:leading-[66px]">
             {title}
           </h1>
-          <p className="mt-5 max-w-[640px] text-base font-medium leading-6 text-white sm:text-lg sm:leading-7">{lead}</p>
+          <p className="motion-rise motion-rise-delay-1 mt-5 max-w-[640px] text-base font-medium leading-6 text-white sm:text-lg sm:leading-7">{lead}</p>
           {subnav && (
             <nav aria-label="Section" className="mt-8 flex flex-wrap gap-3">
               {subnav.map((item) => {

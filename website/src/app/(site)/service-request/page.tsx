@@ -22,7 +22,7 @@ export default function ServiceRequestPage() {
         current="/service-request"
       />
       <Section>
-        <div className="flex flex-wrap items-start gap-12">
+        <div className="reveal-on-scroll flex flex-wrap items-start gap-12">
           <div className="min-w-0 flex-[1.6_1_520px]">
             <EnquiryForm kind="service" />
           </div>

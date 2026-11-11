@@ -23,16 +23,20 @@ export default function HomesAndBusinessesPage() {
       />
 
       <Section>
-        <SectionHeading className="mb-9">How it works</SectionHeading>
+        <div className="reveal-on-scroll">
+          <SectionHeading className="mb-9">How it works</SectionHeading>
+        </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {homesPage.steps.map((item, index) => (
-            <FeatureCard key={item.title} step={`Step ${index + 1}`} {...item} />
+            <div key={item.title} className={cn("reveal-on-scroll", `reveal-delay-${(index % 4) + 1}`)}>
+              <FeatureCard step={`Step ${index + 1}`} {...item} />
+            </div>
           ))}
         </div>
       </Section>
 
       <Section muted>
-        <div className="flex flex-wrap items-start gap-12">
+        <div className="reveal-on-scroll flex flex-wrap items-start gap-12">
           <div className="min-w-0 flex-[1.6_1_520px]">
             <SectionHeading className="mb-6">Request a consultation</SectionHeading>
             <EnquiryForm kind="consultation" />

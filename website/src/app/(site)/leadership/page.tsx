@@ -32,7 +32,8 @@ export default function LeadershipPage() {
             <li
               key={leader.name}
               className={cn(
-                "rounded-[25.528px] border-[3px] border-[#d9d9d9] bg-white p-7 sm:p-10",
+                "reveal-on-scroll rounded-[25.528px] border-[3px] border-[#d9d9d9] bg-white p-7 sm:p-10",
+                `reveal-delay-${(index % 2) + 1}`,
                 index === leaders.length - 1 && leaders.length % 2 === 1 && "lg:col-span-2",
               )}
             >

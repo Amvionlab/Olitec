@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
  * or 83px for the wide image panels ("wide").
  */
 export function HomeContainer({ wide, className, ...props }: HTMLAttributes<HTMLDivElement> & { wide?: boolean }) {
-  return <div className={cn("mx-auto w-full max-w-[1440px] px-4 sm:px-8", wide ? "xl:px-[83px]" : "xl:px-[113px]", className)} {...props} />;
+  return <div className={cn("mx-auto w-full max-w-[1600px] 2xl:max-w-[1680px] px-4 sm:px-8 xl:px-12 2xl:px-16", className)} {...props} />;
 }
 
 export function SectionTitle({ children, className, id }: { children: ReactNode; className?: string; id?: string }) {

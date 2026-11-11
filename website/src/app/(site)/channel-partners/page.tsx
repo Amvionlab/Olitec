@@ -24,19 +24,25 @@ export default function ChannelPartnersPage() {
       />
 
       <Section>
-        <SectionHeading className="mb-9">Who we partner with</SectionHeading>
+        <div className="reveal-on-scroll">
+          <SectionHeading className="mb-9">Who we partner with</SectionHeading>
+        </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {partnerTypes.map((item) => (
-            <FeatureCard key={item.title} {...item} />
+          {partnerTypes.map((item, idx) => (
+            <div key={item.title} className={cn("reveal-on-scroll", `reveal-delay-${(idx % 4) + 1}`)}>
+              <FeatureCard {...item} />
+            </div>
           ))}
         </div>
       </Section>
 
       <Section muted>
-        <SectionHeading className="mb-9">Why partner with Olitec</SectionHeading>
+        <div className="reveal-on-scroll">
+          <SectionHeading className="mb-9">Why partner with Olitec</SectionHeading>
+        </div>
         <div className="grid gap-x-10 gap-y-6 md:grid-cols-2">
-          {benefits.map((item) => (
-            <div key={item.title} className="flex gap-4">
+          {benefits.map((item, idx) => (
+            <div key={item.title} className={cn("reveal-on-scroll flex gap-4", `reveal-delay-${(idx % 2) + 1}`)}>
               <IconTile icon="check" tone="green" size={44} />
               <div>
                 <h3 className={cn(headingFont, "mb-1 text-[20px] font-semibold")}>{item.title}</h3>
@@ -48,7 +54,7 @@ export default function ChannelPartnersPage() {
       </Section>
 
       <Section id="become-a-partner">
-        <div className="flex flex-wrap items-start gap-12">
+        <div className="reveal-on-scroll flex flex-wrap items-start gap-12">
           <div className="min-w-0 flex-[1_1_300px]">
             <SectionHeading>Become a partner</SectionHeading>
             <BulletList items={steps} ordered />

@@ -90,7 +90,7 @@ function validate(values: Values, files: Files, today: string): Errors {
 }
 
 const inputClass =
-  "block w-full rounded-md border bg-white px-4 text-[15px] text-slate-900 placeholder:text-slate-400 transition focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20";
+  "block w-full rounded-[12px] border bg-white px-4 text-[15px] text-ink placeholder:text-muted/70 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100";
 
 function Field({
   id,
@@ -111,9 +111,9 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-2 block text-sm text-slate-700">
+      <label htmlFor={id} className="mb-2 block text-sm font-semibold text-ink">
         {label}
-        {required && " *"}
+        {required && <span className="ml-0.5 text-brand-600" aria-hidden>*</span>}
       </label>
       {children}
       {error ? (
@@ -121,14 +121,14 @@ function Field({
           {error}
         </p>
       ) : (
-        hint && <p className="mt-1.5 text-xs text-slate-400">{hint}</p>
+        hint && <p className="mt-1.5 text-xs text-muted">{hint}</p>
       )}
     </div>
   );
 }
 
 function SectionTitle({ children }: { children: ReactNode }) {
-  return <h2 className="mb-6 border-b border-slate-800 pb-4 text-lg font-bold text-slate-900">{children}</h2>;
+  return <h2 className="mb-6 border-b border-[#e6e6e6] pb-4 text-lg font-semibold text-black">{children}</h2>;
 }
 
 /** Public warranty registration (no account needed). Saved through POST /api/warranty-registrations. */
@@ -162,7 +162,7 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
       value: values[field],
       "aria-invalid": errors[field] ? true : undefined,
       "aria-describedby": errors[field] ? `${field}-error` : undefined,
-      className: cn(inputClass, "h-11", errors[field] ? "border-red-500" : "border-slate-300"),
+      className: cn(inputClass, "h-11", errors[field] ? "border-red-500" : "border-[#b7b7b7]"),
     };
   }
 
@@ -217,26 +217,26 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
   if (submitted) {
     return (
       <div role="status" className="space-y-4 text-center">
-        <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-green-100 text-2xl text-green-700" aria-hidden>
+        <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-leaf/10 text-2xl text-leaf" aria-hidden>
           ✓
         </div>
-        <h2 className="text-xl font-bold text-slate-900">Warranty registration submitted</h2>
-        <p className="text-[15px] text-slate-600">
-          Your registration number is <strong className="text-slate-900">{submitted.registrationNumber}</strong> for serial number{" "}
-          <strong className="text-slate-900">{submitted.serialNumber}</strong>. Status: <strong className="text-slate-900">Pending</strong>.
+        <h2 className="text-xl font-semibold text-black">Warranty registration submitted</h2>
+        <p className="text-[15px] text-muted">
+          Your registration number is <strong className="text-black">{submitted.registrationNumber}</strong> for serial number{" "}
+          <strong className="text-black">{submitted.serialNumber}</strong>. Status: <strong className="text-black">Pending</strong>.
         </p>
         {!submitted.persisted && (
           <p className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
             Demo mode: the server is not connected to the database, so this registration was not saved and the files were not uploaded.
           </p>
         )}
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted">
           Our team will verify your invoice and installation document. Keep the registration number for future reference.
         </p>
         <button
           type="button"
           onClick={() => setSubmitted(undefined)}
-          className="mt-2 inline-flex h-11 items-center justify-center rounded-md border border-slate-300 px-6 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+          className="mt-2 inline-flex h-11 items-center justify-center rounded-full border border-black px-6 text-sm font-semibold text-black transition hover:bg-black/5"
         >
           Register another product
         </button>
@@ -271,7 +271,7 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
               rows={3}
               autoComplete="street-address"
               placeholder="Enter complete installation address"
-              className={cn(inputClass, "min-h-[80px] resize-y py-3", errors.installationAddress ? "border-red-500" : "border-slate-300")}
+              className={cn(inputClass, "min-h-[80px] resize-y py-3", errors.installationAddress ? "border-red-500" : "border-[#b7b7b7]")}
               onChange={(e) => update("installationAddress", e.target.value)}
             />
           </Field>
@@ -339,8 +339,8 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
                 aria-describedby={errors[field] ? `${field}-error` : undefined}
                 onChange={(e) => updateFile(field, e.target.files?.[0] ?? null)}
                 className={cn(
-                  "block w-full rounded-md border bg-white px-3 py-2.5 text-sm text-slate-800 file:mr-3 file:rounded file:border file:border-slate-400 file:bg-slate-50 file:px-2 file:py-1 file:text-sm file:text-slate-800 hover:file:bg-slate-100",
-                  errors[field] ? "border-red-500" : "border-slate-300",
+                  "block w-full rounded-[12px] border bg-white px-3 py-2.5 text-sm text-ink file:mr-3 file:rounded-full file:border file:border-[#e6e6e6] file:bg-brand-50 file:px-3 file:py-1 file:text-sm file:font-semibold file:text-brand-800 hover:file:bg-brand-100",
+                  errors[field] ? "border-red-500" : "border-[#b7b7b7]",
                 )}
               />
             </Field>
@@ -348,8 +348,8 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
         </div>
       </section>
 
-      <div className="border-t border-slate-300 pt-5">
-        <p className="mb-5 text-xs text-slate-500">Please verify all details before submitting your warranty registration.</p>
+      <div className="border-t border-[#e6e6e6] pt-5">
+        <p className="mb-5 text-xs text-muted">Please verify all details before submitting your warranty registration.</p>
         {formError && (
           <p role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {formError}
@@ -358,7 +358,7 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
         <button
           type="submit"
           disabled={submitting}
-          className="flex h-12 w-full items-center justify-center rounded-md bg-orange-600 text-[15px] font-bold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="brand-gradient flex h-[52px] w-full items-center justify-center rounded-full text-[15px] font-semibold text-black transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? "Submitting…" : "Submit Warranty Registration"}
         </button>

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
-import { ProductImage } from "@/components/products/ProductImage";
+import { ProductMediaViewer } from "@/components/products/ProductMediaViewer";
 import { getProductBySlug, getProducts } from "@/services/products";
 import { formatInr, formatWarrantyPeriod } from "@/lib/format";
 import { siteConfig } from "@/lib/site";
@@ -14,7 +14,6 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Only slugs returned below exist; anything else is a real HTTP 404. Revisit when products come from the API.
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -49,56 +48,85 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   };
 
   return (
-    <Container>
+    <Container className="space-y-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
-      <PageHeader title={product.name} description={`Model ${product.model} · ${product.category}`} back={{ href: "/products", label: "All products" }} />
+      
+      <div className="reveal-on-scroll">
+        <PageHeader
+          title={product.name}
+          description={`Model ${product.model} · ${product.category}`}
+          back={{ href: "/products", label: "All products" }}
+        />
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-2">
-          <Card className="p-4">
-            <ProductImage category={product.category} name={product.name} size="lg" />
-          </Card>
+      {/* Main Product Hero Grid */}
+      <div className="grid gap-8 lg:grid-cols-12 items-start">
+        {/* Left: Product Media with Attached 3D View */}
+        <div className="reveal-on-scroll lg:col-span-6 xl:col-span-5">
+          <ProductMediaViewer
+            category={product.category}
+            name={product.name}
+            model={product.model}
+          />
         </div>
 
-        <div className="space-y-6 lg:col-span-3">
-          <Card className="p-6">
-            <p className="text-2xl font-semibold text-slate-900">{formatInr(product.priceInr)}</p>
-            <p className="mt-1 text-xs text-slate-500">MRP inclusive of all taxes</p>
-            <p className="mt-4 text-sm leading-relaxed text-slate-600">{product.description}</p>
-            <div className="mt-5 flex items-center gap-3 rounded-xl bg-brand-50 p-4">
-              <ShieldCheck className="size-6 shrink-0 text-brand-600" aria-hidden />
-              <div className="text-sm">
-                <p className="font-medium text-brand-900">{formatWarrantyPeriod(product.warrantyMonths)} manufacturer warranty</p>
-                <p className="text-brand-800/80">Starts from your purchase date once the registration is approved.</p>
+        {/* Right: Pricing, Warranty, Specs & Actions */}
+        <div className="reveal-on-scroll reveal-delay-1 space-y-6 lg:col-span-6 xl:col-span-7">
+          <Card className="p-6 sm:p-7 shadow-[0_8px_30px_rgb(0_0_0/0.03)]">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <div>
+                <p className="text-3xl font-bold tracking-tight text-slate-900">{formatInr(product.priceInr)}</p>
+                <p className="mt-1 text-xs font-medium text-slate-500">MRP inclusive of all taxes · Commercial & Residential</p>
+              </div>
+              <div className="flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-700">
+                <Sparkles className="size-3.5" />
+                <span>Certified Engineering</span>
               </div>
             </div>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <ButtonLink href={`/warranties/register?product=${product.id}`}>Register this product</ButtonLink>
-              <ButtonLink href="/support" variant="secondary">
-                Ask a question
+
+            <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">{product.description}</p>
+
+            <div className="mt-6 flex items-start gap-3.5 rounded-2xl bg-gradient-to-r from-brand-50/70 to-brand-50/30 p-4 border border-brand-200/50">
+              <ShieldCheck className="size-6 shrink-0 text-brand-600 mt-0.5" aria-hidden />
+              <div className="text-sm">
+                <p className="font-semibold text-brand-950">{formatWarrantyPeriod(product.warrantyMonths)} manufacturer warranty</p>
+                <p className="text-brand-900/80 text-xs sm:text-sm mt-0.5">
+                  Full warranty protection with prompt on-site replacement and direct factory customer support.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <ButtonLink href={`/warranties/register?product=${product.id}`} size="lg">
+                Register this product
+              </ButtonLink>
+              <ButtonLink href="/support" variant="secondary" size="lg">
+                Request Quote / Enquire
               </ButtonLink>
             </div>
           </Card>
 
-          <Card>
-            <CardHeader title="Key features" />
-            <ul className="grid gap-3 p-5 sm:grid-cols-2">
+          {/* Key Features */}
+          <Card className="shadow-[0_8px_30px_rgb(0_0_0/0.03)]">
+            <CardHeader title="Key engineering features" description="Designed & tested for continuous performance" />
+            <ul className="grid gap-3.5 p-6 sm:grid-cols-2">
               {product.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2 text-sm text-slate-700">
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" aria-hidden />
+                <li key={feature} className="flex items-start gap-2.5 text-sm font-medium text-slate-700">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-brand-500" aria-hidden />
                   {feature}
                 </li>
               ))}
             </ul>
           </Card>
 
-          <Card>
-            <CardHeader title="Specifications" />
+          {/* Technical Specifications */}
+          <Card className="shadow-[0_8px_30px_rgb(0_0_0/0.03)]">
+            <CardHeader title="Technical specifications" description="Engineering datasheet benchmarks" />
             <dl className="divide-y divide-slate-100">
               {[{ label: "Model number", value: product.model }, ...product.specs].map((spec) => (
-                <div key={spec.label} className="grid grid-cols-2 gap-4 px-5 py-3 text-sm">
-                  <dt className="text-slate-500">{spec.label}</dt>
-                  <dd className="font-medium text-slate-900">{spec.value}</dd>
+                <div key={spec.label} className="grid grid-cols-2 gap-4 px-6 py-3.5 text-sm">
+                  <dt className="text-slate-500 font-medium">{spec.label}</dt>
+                  <dd className="font-semibold text-slate-900">{spec.value}</dd>
                 </div>
               ))}
             </dl>

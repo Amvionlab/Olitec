@@ -1,0 +1,139 @@
+newmtl mat_Enclosure_Body
+Kd 0.720 0.730 0.750
+Ka 0.144 0.146 0.150
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Top_Cover
+Kd 0.950 0.950 0.950
+Ka 0.190 0.190 0.190
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Front_Panel
+Kd 0.720 0.730 0.750
+Ka 0.144 0.146 0.150
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Terminal_Red
+Kd 0.850 0.050 0.050
+Ka 0.170 0.010 0.010
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Terminal_Black
+Kd 0.080 0.080 0.080
+Ka 0.016 0.016 0.016
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Switch_Base
+Kd 0.150 0.170 0.200
+Ka 0.030 0.034 0.040
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Switch_Rocker
+Kd 0.950 0.950 0.950
+Ka 0.190 0.190 0.190
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_DIP_Switch
+Kd 0.100 0.650 0.250
+Ka 0.020 0.130 0.050
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Dry_Contacts
+Kd 0.100 0.650 0.250
+Ka 0.020 0.130 0.050
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Port_RS485_CAN
+Kd 0.150 0.170 0.200
+Ka 0.030 0.034 0.040
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Port_RS232
+Kd 0.150 0.170 0.200
+Ka 0.030 0.034 0.040
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Port_RS485_AB
+Kd 0.150 0.170 0.200
+Ka 0.030 0.034 0.040
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_LED_RUN_ALM_SOC
+Kd 0.100 0.650 0.250
+Ka 0.020 0.130 0.050
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Logo_Plate_Front
+Kd 0.950 0.950 0.950
+Ka 0.190 0.190 0.190
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Logo_Top
+Kd 0.960 0.600 0.100
+Ka 0.192 0.120 0.020
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Rating_Label
+Kd 0.950 0.950 0.950
+Ka 0.190 0.190 0.190
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Foot_Front_L
+Kd 0.550 0.570 0.600
+Ka 0.110 0.114 0.120
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Foot_Front_R
+Kd 0.550 0.570 0.600
+Ka 0.110 0.114 0.120
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Foot_Side_Rear
+Kd 0.550 0.570 0.600
+Ka 0.110 0.114 0.120
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0
+
+newmtl mat_Foot_Side_Mid
+Kd 0.550 0.570 0.600
+Ka 0.110 0.114 0.120
+Ks 0.4 0.4 0.4
+Ns 30.0
+d 1.0

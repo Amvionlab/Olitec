@@ -4,6 +4,8 @@ import { careersPage, connectNav } from "@/content/pages";
 import { EnquiryForm } from "@/components/legacy/EnquiryForm";
 import { BulletList, FeatureCard, LegacyPage, PageHero, Section, SectionHeading } from "@/components/legacy/ui";
 
+import { cn } from "@/lib/cn";
+
 export const metadata: Metadata = {
   title: "Careers",
   description: careersPage.lead,
@@ -16,17 +18,21 @@ export default function CareersPage() {
       <PageHero art="groundMount" eyebrow={careersPage.eyebrow} title={careersPage.title} lead={careersPage.lead} subnav={connectNav} current="/careers" />
 
       <Section>
-        <SectionHeading>{careersPage.areasTitle}</SectionHeading>
-        <p className="mb-9 max-w-[720px] text-[19px]">{careersPage.areasLead}</p>
+        <div className="reveal-on-scroll">
+          <SectionHeading>{careersPage.areasTitle}</SectionHeading>
+          <p className="mb-9 max-w-[720px] text-[19px]">{careersPage.areasLead}</p>
+        </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {careersPage.areas.map((item) => (
-            <FeatureCard key={item.title} {...item} />
+          {careersPage.areas.map((item, idx) => (
+            <div key={item.title} className={cn("reveal-on-scroll", `reveal-delay-${(idx % 3) + 1}`)}>
+              <FeatureCard {...item} />
+            </div>
           ))}
         </div>
       </Section>
 
       <Section muted>
-        <div className="flex flex-wrap items-start gap-12">
+        <div className="reveal-on-scroll flex flex-wrap items-start gap-12">
           <div className="min-w-0 flex-[1_1_300px]">
             <SectionHeading>Why join Olitec</SectionHeading>
             <BulletList items={careersPage.why} />

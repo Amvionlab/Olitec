@@ -1,4 +1,4 @@
-/** Downloads — from the Olitec HTML design (Olitec-Website/downloads.html). PDFs are in public/downloads/. */
+/** Downloads — datasheets and brochures. */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { downloadsPage } from "@/content/pages";
@@ -19,8 +19,9 @@ export default function DownloadsPage() {
       <PageHero art="synergy" eyebrow={downloadsPage.eyebrow} title={downloadsPage.title} lead={downloadsPage.lead} />
 
       <Section>
+        {/* PDF Datasheets & Brochures */}
         {groups.map((group) => (
-          <div key={group.title}>
+          <div key={group.title} className="reveal-on-scroll">
             <h2 className={cn(headingFont, "mb-2 text-[26px] font-semibold")}>{group.title}</h2>
             <ul className="mb-12 border-b border-[#e6e6e6]">
               {group.files.map((file) => (
@@ -41,17 +42,19 @@ export default function DownloadsPage() {
           </div>
         ))}
 
-        <LegacyCard className="bg-[rgb(230_230_230/0.4)]">
-          <h2 className={cn(headingFont, "mb-2 text-[24px] font-semibold")}>{restricted.title}</h2>
-          <p className="mb-[18px]">{restricted.body}</p>
-          <div className="flex flex-wrap gap-3">
-            {restricted.actions.map((action) => (
-              <Link key={action.href} href={action.href} className={action.primary ? legacyButton : legacyButtonSecondary}>
-                {action.label}
-              </Link>
-            ))}
-          </div>
-        </LegacyCard>
+        <div className="reveal-on-scroll">
+          <LegacyCard className="bg-[rgb(230_230_230/0.4)]">
+            <h2 className={cn(headingFont, "mb-2 text-[24px] font-semibold")}>{restricted.title}</h2>
+            <p className="mb-[18px]">{restricted.body}</p>
+            <div className="flex flex-wrap gap-3">
+              {restricted.actions.map((action) => (
+                <Link key={action.href} href={action.href} className={action.primary ? legacyButton : legacyButtonSecondary}>
+                  {action.label}
+                </Link>
+              ))}
+            </div>
+          </LegacyCard>
+        </div>
       </Section>
     </LegacyPage>
   );

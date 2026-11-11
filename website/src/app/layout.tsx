@@ -22,7 +22,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // data-scroll-behavior: keeps smooth scrolling for in-page links (#about, #faq) but not during page changes.
   return (
     <html lang="en" className={`${figtree.variable} ${manrope.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body className="min-h-screen font-sans" suppressHydrationWarning>{children}</body>
+      <body className="min-h-screen font-sans" suppressHydrationWarning>
+        {children}
+      </body>
     </html>
   );
 }

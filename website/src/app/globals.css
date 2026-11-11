@@ -74,6 +74,74 @@
   .brand-gradient {
     background-image: linear-gradient(to right, #f99f1e, #fdbd15);
   }
+
+  .motion-rise {
+    animation: content-rise 650ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .motion-rise-delay-1 {
+    animation-delay: 100ms;
+  }
+
+  .motion-rise-delay-2 {
+    animation-delay: 200ms;
+  }
+
+  .model-float {
+    animation: model-float 5s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+
+  .motion-lift {
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .motion-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgb(61 61 61 / 0.12);
+  }
+
+  /* Enterprise Motion — Figma Fluid Entrance (Zero JS, 100% Hydration Safe) */
+  .reveal-on-scroll {
+    animation: content-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .reveal-delay-1 {
+    animation-delay: 80ms;
+  }
+
+  .reveal-delay-2 {
+    animation-delay: 160ms;
+  }
+
+  .reveal-delay-3 {
+    animation-delay: 240ms;
+  }
+
+  .reveal-delay-4 {
+    animation-delay: 320ms;
+  }
+}
+
+@keyframes content-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes model-float {
+  0%,
+  100% {
+    transform: perspective(600px) rotateY(-12deg) translateY(0);
+  }
+  50% {
+    transform: perspective(600px) rotateY(12deg) translateY(-5px);
+  }
 }
 
 @keyframes slide-progress {
@@ -161,5 +229,8 @@ to{transform:translateX(90px)}
 .sy2{offset-path:path('M900 170 Q1140 145 1380 340');offset-rotate:0deg}
 .sy3{offset-path:path('M1380 340 Q900 220 420 320');offset-rotate:0deg}
 @media (prefers-reduced-motion: reduce){.olx *{animation:none!important}
+.motion-rise,.model-float{animation:none!important;opacity:1;transform:none}
+.reveal-on-scroll{opacity:1!important;transform:none!important;transition:none!important}
+.motion-lift{transition:none}
 }
 .olx[data-paused] *{animation-play-state:paused}

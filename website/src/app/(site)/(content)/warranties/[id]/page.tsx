@@ -96,9 +96,14 @@ export default async function WarrantyDetailPage({ params }: WarrantyDetailPageP
         description={`Model ${warranty.product.model}`}
         back={{ href: "/warranties", label: "My warranties" }}
         actions={
-          <ButtonLink href="/support" variant="secondary">
-            Raise a support request
-          </ButtonLink>
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href={`/products/${warranty.product.slug}`} variant="secondary">
+              View Product & 3D Model
+            </ButtonLink>
+            <ButtonLink href="/support" variant="secondary">
+              Raise a support request
+            </ButtonLink>
+          </div>
         }
       />
 
