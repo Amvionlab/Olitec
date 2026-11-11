@@ -9,9 +9,14 @@ import { ButtonLink } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ProductImage } from "@/components/products/ProductImage";
 import { getWarrantyById, type WarrantyWithProduct } from "@/services/warranties";
+import { mockWarranties } from "@/mock/data";
 import { daysBetween, formatDate, formatDateTime, formatWarrantyPeriod } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Warranty details", robots: { index: false } };
+
+export function generateStaticParams() {
+  return mockWarranties.map((w) => ({ id: w.id }));
+}
 
 interface WarrantyDetailPageProps {
   params: Promise<{ id: string }>;
