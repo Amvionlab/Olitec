@@ -8,12 +8,7 @@ import {
   MapPin, 
   Building2, 
   Clock, 
-  ExternalLink, 
-  ShieldCheck, 
-  CheckCircle2, 
-  ArrowRight,
-  Sparkles,
-  Award
+  ExternalLink
 } from "lucide-react";
 import { footerColumns, siteConfig } from "@/lib/site";
 
@@ -35,51 +30,12 @@ export function SiteFooter() {
   )}`;
 
   return (
-    <footer className="relative mt-24 bg-[#0B1E17] text-slate-200">
+    <footer className="relative mt-20 bg-[#0B1E17] text-slate-200">
       {/* Golden accent hairline on top boundary */}
       <div className="h-[3px] w-full bg-gradient-to-r from-transparent via-[#f99f1e] to-transparent opacity-90" />
 
-      {/* 1. Pre-Footer Enterprise Trust Banner */}
-      <div className="border-b border-white/[0.08] bg-black/25 py-7 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[1600px] 2xl:max-w-[1680px] flex-col gap-5 px-4 sm:px-8 xl:flex-row xl:items-center xl:justify-between xl:px-12 2xl:px-16">
-          <div className="flex items-center gap-3">
-            
-            <div>
-              <p className="font-nav text-sm sm:text-base font-bold text-white">
-                Powering India&apos;s Clean Energy Transition
-              </p>
-              <p className="text-xs font-normal text-slate-400">
-                Turnkey solar plants, advanced hybrid inverters & certified lithium storage built for Indian operating conditions.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-semibold">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-slate-300">
-              <ShieldCheck className="size-3.5 text-brand-400" />
-              <span>BIS & UN 38.3 Certified</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-slate-300">
-              <Award className="size-3.5 text-brand-400" />
-              <span>ISO 9001:2015 Standards</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-slate-300">
-              <CheckCircle2 className="size-3.5 text-emerald-400" />
-              <span>Make in India</span>
-            </div>
-            <Link
-              href="/homes-and-businesses"
-              className="brand-gradient group inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold text-black shadow-xs transition hover:brightness-105 active:scale-95"
-            >
-              <span>Speak to an Engineer</span>
-              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Main Footer Body */}
-      <div className="mx-auto max-w-[1600px] 2xl:max-w-[1680px] px-4 pt-12 pb-10 sm:px-8 xl:px-12 2xl:px-16">
+      {/* Main Footer Body */}
+      <div className="mx-auto max-w-[1600px] 2xl:max-w-[1680px] px-4 pt-14 pb-10 sm:px-8 xl:px-12 2xl:px-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[1.25fr_0.85fr_0.85fr_0.85fr_1.55fr] xl:gap-8">
           {/* Column 1: Brand & Identity */}
           <div className="flex flex-col justify-between space-y-6">
@@ -133,7 +89,7 @@ export function SiteFooter() {
             </nav>
           ))}
 
-          {/* Column 5: Facilities & Direct Contact Hub (Clean Typography, No Heavy Boxes) */}
+          {/* Column 5: Facilities & Direct Contact Hub */}
           <div className="flex flex-col space-y-4">
             <p className="font-nav text-xs sm:text-sm font-bold tracking-wider uppercase text-brand-400">
               Operations & Facilities
@@ -168,7 +124,7 @@ export function SiteFooter() {
               ))}
             </div>
 
-            {/* Factory Address (Clean Line Item) */}
+            {/* Factory Address */}
             <div className="pt-3 border-t border-white/[0.08]">
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-100">
@@ -190,7 +146,7 @@ export function SiteFooter() {
               </p>
             </div>
 
-            {/* Corporate Address (Clean Line Item) */}
+            {/* Corporate Address */}
             <div className="pt-3 border-t border-white/[0.08]">
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-100">
@@ -218,7 +174,7 @@ export function SiteFooter() {
         </div>
 
         {/* 3. Gold Accent Divider */}
-        <div className="mt-10 h-[1px] w-full bg-gradient-to-r from-transparent via-[#f99f1e]/60 to-transparent" />
+        <div className="mt-12 h-[1px] w-full bg-gradient-to-r from-transparent via-[#f99f1e]/60 to-transparent" />
 
         {/* 4. Bottom Legal & Social Bar */}
         <div className="flex flex-col-reverse gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between pr-14 sm:pr-24">
