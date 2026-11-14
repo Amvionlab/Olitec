@@ -69,10 +69,7 @@ export function LoginForm() {
         {status === "submitting" ? "Signing in…" : "Sign in"}
       </Button>
 
-      <p className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
-        Demo: sign in with <span className="font-medium text-slate-700">priya.sharma@example.com</span> and any password.
-        Other emails show the error state.
-      </p>
+     
 
       <p className="text-center text-sm text-slate-500">
         New here?{" "}

@@ -1,16 +1,41 @@
-// Phase 1: returns the demo customer. Phase 2: replace with GET/PATCH /api/customers/me.
+
 import type { Customer, SubmitResult } from "@/lib/types";
-import { mockCurrentCustomer } from "@/mock/data";
-import { mockDelay } from "./mock-delay";
+import { apiGet, apiPatch } from "@/lib/api";
+
+export type ProfileUpdateInput = Pick<
+  Customer,
+  "name" | "mobile" | "addressLine" | "city" | "state" | "pincode"
+>;
 
 export async function getCurrentCustomer(): Promise<Customer> {
-  return mockCurrentCustomer;
+  const result = await apiGet<Customer>("/ecommerce/account/me");
+
+  if (!result.ok) {
+    throw new Error(result.message);
+  }
+
+  return result.data;
 }
 
-export type ProfileUpdateInput = Pick<Customer, "name" | "mobile" | "addressLine" | "city" | "state" | "pincode">;
+export async function updateProfile(
+  current: Customer,
+  input: ProfileUpdateInput
+): Promise<SubmitResult<Customer>> {
+  const result = await apiPatch<Customer>(
+    "/ecommerce/account/me",
+    input
+  );
 
-/** MOCK update: returns the merged profile but does not persist it. */
-export async function updateProfile(current: Customer, input: ProfileUpdateInput): Promise<SubmitResult<Customer>> {
-  await mockDelay();
-  return { ok: true, data: { ...current, ...input }, message: "Profile updated." };
+  if (!result.ok) {
+    return {
+      ok: false,
+      message: result.message,
+    };
+  }
+
+  return {
+    ok: true,
+    data: result.data,
+    message: "Profile updated successfully.",
+  };
 }

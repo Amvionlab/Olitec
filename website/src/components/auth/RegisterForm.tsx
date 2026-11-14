@@ -69,8 +69,9 @@ export function RegisterForm() {
     return (
       <div className="space-y-5">
         <Alert tone="success" title="Account created">
-          Welcome, {values.name.trim().split(" ")[0]}! (Demo: the account was not saved.)
-        </Alert>
+  Welcome, {values.name.trim().split(" ")[0]}!
+  Your account has been created successfully.
+</Alert>
         <ButtonLink href="/login" className="w-full" size="lg">
           Continue to sign in
         </ButtonLink>

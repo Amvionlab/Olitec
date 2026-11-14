@@ -43,6 +43,82 @@ const MAX_ADDRESSES = 20;
 export const customerService = {
   // ------------------------------------------------------------------ addresses
 
+  // ---------------------------------------------------------- customer profile
+
+  async getProfile(customerId: number) {
+    const customer = await queryOne<{
+      id: number;
+      name: string;
+      email: string;
+      mobile: string;
+      address_line: string | null;
+      city: string | null;
+      state: string | null;
+      pincode: string | null;
+      created_at: Date | string;
+    }>(
+      `SELECT id, name, email, mobile, address_line, city, state, pincode, created_at
+       FROM customers
+       WHERE id = ? AND status = 'active'`,
+      [customerId]
+    );
+
+    if (!customer) throw new NotFoundError("Customer");
+
+    return {
+      id: Number(customer.id),
+      name: customer.name,
+      email: customer.email,
+      mobile: customer.mobile,
+      addressLine: customer.address_line ?? "",
+      city: customer.city ?? "",
+      state: customer.state ?? "",
+      pincode: customer.pincode ?? "",
+      memberSince:
+        customer.created_at instanceof Date
+          ? customer.created_at.toISOString()
+          : String(customer.created_at),
+    };
+  },
+
+  async updateProfile(
+    customerId: number,
+    input: {
+      name: string;
+      mobile: string;
+      addressLine: string;
+      city: string;
+      state: string;
+      pincode: string;
+    }
+  ) {
+    const result = await execute(
+      `UPDATE customers
+       SET name = ?, mobile = ?, address_line = ?, city = ?, state = ?, pincode = ?
+       WHERE id = ? AND status = 'active'`,
+      [
+        input.name.trim(),
+        input.mobile.replace(/\D/g, ""),
+        input.addressLine.trim(),
+        input.city.trim(),
+        input.state.trim(),
+        input.pincode.trim(),
+        customerId,
+      ]
+    );
+
+    if (!result.affectedRows) {
+      const existing = await queryOne(
+        "SELECT id FROM customers WHERE id = ? AND status = 'active'",
+        [customerId]
+      );
+
+      if (!existing) throw new NotFoundError("Customer");
+    }
+
+    return this.getProfile(customerId);
+  },
+
   async listAddresses(customerId: number) {
     const rows = await query<AddressRow>("SELECT * FROM ecom_addresses WHERE customer_id = ? ORDER BY is_default_shipping DESC, id DESC", [customerId]);
     return rows.map(toAddress);

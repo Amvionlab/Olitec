@@ -47,20 +47,37 @@ export function ProfileCard({ initialCustomer }: { initialCustomer: Customer }) 
     setEditing(true);
   }
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-    const nextErrors = validate(values);
-    setErrors(nextErrors);
-    if (hasErrors(nextErrors)) return;
-    setSaving(true);
+ async function handleSubmit(event: FormEvent) {
+  event.preventDefault();
+
+  const nextErrors = validate(values);
+  setErrors(nextErrors);
+
+  if (hasErrors(nextErrors)) return;
+
+  setSaving(true);
+  setNotice(undefined);
+
+  try {
     const result = await updateProfile(customer, values);
-    setSaving(false);
+
     if (result.ok) {
       setCustomer(result.data);
       setEditing(false);
-      setNotice(`${result.message} (Demo: changes are kept only until you reload.)`);
+      setNotice(result.message);
+    } else {
+      setNotice(result.message || "Failed to update profile.");
     }
+  } catch (error) {
+    setNotice(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong."
+    );
+  } finally {
+    setSaving(false);
   }
+}
 
   return (
     <Card>

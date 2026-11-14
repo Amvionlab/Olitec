@@ -6,10 +6,10 @@ import { Card, CardHeader } from "@/components/ui/Card";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ProductImage } from "@/components/products/ProductImage";
 import { ProfileCard } from "@/components/profile/ProfileCard";
-import { getCurrentCustomer } from "@/services/customer";
+import { getCurrentCustomer } from "@/services/customer.server";
 import { getMyWarranties } from "@/services/warranties";
 import { formatDate, formatDateTime } from "@/lib/format";
-
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "My profile", robots: { index: false } };
 
 export default async function ProfilePage() {

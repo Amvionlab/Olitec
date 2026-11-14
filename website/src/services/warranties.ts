@@ -3,30 +3,24 @@
 // Registration is saved by components/warranties/WarrantyRegistrationForm via POST /api/warranty-registrations.
 import type { Product, SubmitResult, Warranty, WarrantyStatus } from "@/lib/types";
 import { apiPost } from "@/lib/api";
-import { mockWarranties } from "@/mock/data";
-import { getProductById } from "./products";
 
 export interface WarrantyWithProduct extends Warranty {
   product: Product;
 }
 
-function withProduct(warranty: Warranty): WarrantyWithProduct {
-  const product = getProductById(warranty.productId);
-  if (!product) throw new Error(`Mock data error: unknown product ${warranty.productId}`);
-  return { ...warranty, product };
+export async function getMyWarranties(
+  status?: WarrantyStatus
+): Promise<WarrantyWithProduct[]> {
+  return [];
 }
 
-export async function getMyWarranties(status?: WarrantyStatus): Promise<WarrantyWithProduct[]> {
-  return mockWarranties
-    .filter((warranty) => !status || warranty.status === status)
-    .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))
-    .map(withProduct);
+export async function getWarrantyById(
+  id: string
+): Promise<WarrantyWithProduct | undefined> {
+  return undefined;
 }
 
-export async function getWarrantyById(id: string): Promise<WarrantyWithProduct | undefined> {
-  const warranty = mockWarranties.find((item) => item.id === id);
-  return warranty ? withProduct(warranty) : undefined;
-}
+
 
 export interface WarrantyStatusResult {
   model: string;

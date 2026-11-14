@@ -18,22 +18,93 @@ export interface RegisterInput {
   password: string;
 }
 
-export async function login(input: LoginInput): Promise<SubmitResult> {
-  await mockDelay();
-  if (!mockRegisteredEmails.includes(input.email.trim().toLowerCase())) {
-    return { ok: false, message: "We couldn't find an account with that email and password." };
-  }
-  return { ok: true, data: undefined, message: "Signed in." };
-}
 
-export async function register(input: RegisterInput): Promise<SubmitResult> {
-  await mockDelay();
-  if (mockRegisteredEmails.includes(input.email.trim().toLowerCase())) {
+export async function login(input: LoginInput): Promise<SubmitResult> {
+  try {
+    const API_URL =
+      process.env.NEXT_PUBLIC_API_BASE_URL ||
+      "http://localhost:4000/api";
+
+    const response = await fetch(
+      `${API_URL}/ecommerce/auth/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-olitec-client": "website",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: input.email.trim().toLowerCase(),
+          password: input.password,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        message:
+          result.error?.message ||
+          result.message ||
+          "Invalid email or password.",
+      };
+    }
+
+    return {
+      ok: true,
+      data: undefined,
+      message: "Login successful.",
+    };
+  } catch (error) {
+    console.error("Login API error:", error);
+
     return {
       ok: false,
-      message: "An account with this email already exists.",
-      fieldErrors: { email: "This email is already registered. Try signing in instead." },
+      message: "Unable to connect to backend.",
     };
   }
-  return { ok: true, data: undefined, message: "Account created. You can now sign in." };
+}
+
+
+export async function register(
+  input: RegisterInput
+): Promise<SubmitResult> {
+  try {
+    const API_URL =
+      process.env.NEXT_PUBLIC_API_BASE_URL ||
+      "http://localhost:4000/api";
+
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(input),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: result.error?.message || "Registration failed.",
+      };
+    }
+
+    return {
+      ok: true,
+      data: undefined,
+      message: "Account created successfully.",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      ok: false,
+      message: "Unable to connect to backend.",
+    };
+  }
 }

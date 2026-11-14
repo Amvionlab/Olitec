@@ -22,6 +22,49 @@ export const accountRoutes: FastifyPluginAsync = async (app) => {
     reply.header("cache-control", "no-store");
   });
 
+  app.get("/me", { preHandler: requireCustomer }, async (request) =>
+    dbOk(await customerService.getProfile(customerOf(request).id))
+  );
+
+  app.patch<{
+    Body: {
+      name: string;
+      mobile: string;
+      addressLine: string;
+      city: string;
+      state: string;
+      pincode: string;
+    };
+  }>(
+    "/me",
+    {
+      preHandler: requireCustomer,
+      schema: {
+        body: {
+          type: "object",
+          required: ["name", "mobile", "addressLine", "city", "state", "pincode"],
+          additionalProperties: false,
+          properties: {
+            name: nameSchema,
+            mobile: mobileSchema,
+            addressLine: { type: "string", minLength: 3, maxLength: 500 },
+            city: { type: "string", minLength: 2, maxLength: 100 },
+            state: { type: "string", minLength: 2, maxLength: 100 },
+            pincode: { type: "string", pattern: "^[0-9]{6}$" },
+          },
+        },
+      },
+    },
+    async (request) =>
+      dbOk(
+        await customerService.updateProfile(
+          customerOf(request).id,
+          request.body
+        ),
+        { persisted: true }
+      )
+  );
+
   app.get("/addresses", { preHandler: requireCustomer }, async (request) => dbOk(await customerService.listAddresses(customerOf(request).id)));
 
   app.post<{ Body: AddressBody }>("/addresses", { preHandler: requireCustomer, schema: { body: addressBody } }, async (request) =>

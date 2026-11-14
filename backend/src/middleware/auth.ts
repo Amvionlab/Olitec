@@ -10,7 +10,9 @@
 import type { preHandlerAsyncHookHandler } from "fastify";
 import { env } from "../config/env.js";
 import { ForbiddenError, NotImplementedError } from "../utils/errors.js";
-
+import {
+  requireCustomer as requireEcomCustomer,
+} from "../modules/ecommerce/shared/auth.js";
 export type AdminRole = "Super Admin" | "Warranty Reviewer";
 export type AdminPermission = "reviewWarranties" | "updateWarrantyStatus" | "viewCustomers";
 
@@ -29,17 +31,33 @@ const rolePermissions: Record<AdminRole, AdminPermission[]> = {
   "Warranty Reviewer": ["reviewWarranties", "viewCustomers"],
 };
 
-const DEMO_CUSTOMER: Principal = { kind: "customer", id: "cus_2041", name: "Priya Sharma" };
 const DEMO_ADMIN: Extract<Principal, { kind: "admin" }> = { kind: "admin", id: "adm_01", name: "Anita Rao", role: "Super Admin" };
 
 function guardProduction(): void {
   if (env.isProduction) throw new NotImplementedError("Authentication");
 }
 
-export const requireCustomer: preHandlerAsyncHookHandler = async (request) => {
-  guardProduction();
-  request.principal = DEMO_CUSTOMER;
+
+export const requireCustomer: preHandlerAsyncHookHandler = async (
+  request,
+  reply
+) => {
+  await requireEcomCustomer.call(request.server, request, reply);
+
+  const customer = request.ecomCustomer;
+
+  if (!customer) {
+    throw new ForbiddenError("Customer account required.");
+  }
+
+  request.principal = {
+    kind: "customer",
+    id: `cus_${customer.id}`,
+    name: customer.name,
+  };
 };
+
+
 
 export function requireAdmin(permission?: AdminPermission): preHandlerAsyncHookHandler {
   return async (request) => {

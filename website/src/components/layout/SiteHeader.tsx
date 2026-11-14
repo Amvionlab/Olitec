@@ -4,7 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Menu, X, ArrowUpRight, PhoneCall, Sparkles } from "lucide-react";
+import {
+  ChevronDown,
+  Menu,
+  X,
+  ArrowUpRight,
+  PhoneCall,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { mainNav, siteConfig, type NavItem } from "@/lib/site";
 import { cn } from "@/lib/cn";
 
@@ -28,6 +36,68 @@ function PendingBar() {
         pending ? "scale-x-100 animate-pulse" : "scale-x-0",
       )}
     />
+  );
+}
+
+function ProfileAvatar({ pathname }: { pathname: string }) {
+  const [customerName, setCustomerName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const API_URL =
+      process.env.NEXT_PUBLIC_API_BASE_URL ||
+      "http://localhost:4000/api";
+
+    let isMounted = true;
+
+    async function fetchCustomer() {
+      try {
+        const response = await fetch(
+          `${API_URL}/ecommerce/auth/me`,
+          {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+        const result = await response.json();
+
+        if (isMounted && response.ok && result.success && result.data) {
+          setCustomerName(result.data.name || null);
+        } else if (isMounted) {
+          setCustomerName(null);
+        }
+      } catch (error) {
+        console.error("Unable to fetch logged-in customer:", error);
+
+        if (isMounted) {
+          setCustomerName(null);
+        }
+      }
+    }
+
+    fetchCustomer();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pathname]);
+
+  const initial = customerName?.trim().charAt(0).toUpperCase();
+
+  return (
+    <Link
+      href={customerName ? "/profile" : "/login"}
+      aria-label={customerName ? `${customerName} profile` : "Login"}
+      title={customerName || "Login"}
+      className="flex size-10 items-center justify-center rounded-full
+                 border border-slate-200 bg-white text-slate-700
+                 font-bold text-base
+                 hover:bg-brand-50 hover:text-brand-600
+                 hover:border-brand-200 transition-all"
+    >
+      {initial || <UserRound className="size-5" />}
+    </Link>
   );
 }
 
@@ -141,6 +211,7 @@ export function SiteHeader() {
 
           {/* Header Action Button */}
           <div className="hidden items-center gap-3.5 xl:flex">
+<ProfileAvatar pathname={pathname} />
             <Link
               href="/homes-and-businesses"
               className="brand-gradient group inline-flex h-[46px] items-center gap-2 rounded-full px-6 text-sm font-bold text-black transition-all hover:brightness-105 shadow-sm active:scale-95"
@@ -264,11 +335,12 @@ export function SiteHeader() {
               <PhoneCall className="size-3.5 text-brand-500" />
               <span>{siteConfig.supportPhone}</span>
             </a>
-            <Link
+<ProfileAvatar pathname={pathname} />            <Link
               href="/homes-and-businesses"
               className="brand-gradient group inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-bold text-black transition-all hover:brightness-105 shadow-sm active:scale-95"
             >
               <Sparkles className="size-3.5" />
+              
               <span>Get Consultation</span>
               <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>

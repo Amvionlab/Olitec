@@ -21,8 +21,10 @@ export async function apiPost<T>(path: string, body: unknown): Promise<ApiResult
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
+headers: {
+  "content-type": "application/json",
+  "x-olitec-client": "storefront",
+},      body: JSON.stringify(body),
     });
   } catch {
     return { ok: false, status: 0, code: "NETWORK_ERROR", message: "We could not reach the server. Check your connection and try again.", fields: {} };
@@ -46,6 +48,88 @@ export async function apiPost<T>(path: string, body: unknown): Promise<ApiResult
         ? "The file is too large to upload."
         : (envelope.error?.message ?? "Something went wrong. Please try again later."),
     fields,
+  };
+}
+
+export async function apiGet<T>(path: string): Promise<ApiResult<T>> {
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+    });
+  } catch {
+    return {
+      ok: false,
+      status: 0,
+      code: "NETWORK_ERROR",
+      message: "Unable to reach the server.",
+      fields: {},
+    };
+  }
+
+  const envelope = (await response.json().catch(() => ({}))) as Envelope<T>;
+
+  if (response.ok && envelope.success) {
+    return {
+      ok: true,
+      data: envelope.data as T,
+      persisted: envelope.meta?.persisted,
+    };
+  }
+
+  return {
+    ok: false,
+    status: response.status,
+    code: envelope.error?.code ?? "UNKNOWN_ERROR",
+    message: envelope.error?.message ?? "Unable to load data.",
+    fields: {},
+  };
+}
+
+export async function apiPatch<T>(
+  path: string,
+  body: unknown
+): Promise<ApiResult<T>> {
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method: "PATCH",
+      credentials: "include",
+headers: {
+  "content-type": "application/json",
+  "x-olitec-client": "storefront",
+},      body: JSON.stringify(body),
+    });
+  } catch {
+    return {
+      ok: false,
+      status: 0,
+      code: "NETWORK_ERROR",
+      message: "Unable to reach the server.",
+      fields: {},
+    };
+  }
+
+  const envelope = (await response.json().catch(() => ({}))) as Envelope<T>;
+
+  if (response.ok && envelope.success) {
+    return {
+      ok: true,
+      data: envelope.data as T,
+      persisted: envelope.meta?.persisted,
+    };
+  }
+
+  return {
+    ok: false,
+    status: response.status,
+    code: envelope.error?.code ?? "UNKNOWN_ERROR",
+    message: envelope.error?.message ?? "Unable to update profile.",
+    fields: {},
   };
 }
 

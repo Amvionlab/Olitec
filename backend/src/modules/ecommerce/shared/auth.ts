@@ -19,8 +19,12 @@ export interface EcomCustomer {
   name: string;
   email: string;
   mobile: string;
+  addressLine: string;
+  city: string;
+  state: string;
+  pincode: string;
+  memberSince: string;
 }
-
 export interface EcomAdmin {
   id: number;
   name: string;
@@ -103,17 +107,62 @@ export async function destroyAllSessions(subject: Subject, subjectId: number): P
   await execute("DELETE FROM ecom_sessions WHERE subject_type = ? AND subject_id = ?", [subject, subjectId]);
 }
 
-async function loadCustomer(request: FastifyRequest): Promise<EcomCustomer | undefined> {
+
+async function loadCustomer(
+  request: FastifyRequest
+): Promise<EcomCustomer | undefined> {
   const token = readCookie(request, COOKIE.customer);
+
   if (!token) return undefined;
-  const row = await queryOne<{ id: number; name: string; email: string; mobile: string }>(
-    `SELECT c.id, c.name, c.email, c.mobile
-       FROM ecom_sessions s JOIN customers c ON c.id = s.subject_id
-      WHERE s.token_hash = ? AND s.subject_type = 'customer' AND s.expires_at > UTC_TIMESTAMP() AND c.status = 'active'`,
-    [sha256(token)],
+
+  const row = await queryOne<{
+    id: number;
+    name: string;
+    email: string;
+    mobile: string;
+    address_line: string | null;
+    city: string | null;
+    state: string | null;
+    pincode: string | null;
+    created_at: Date | string;
+  }>(
+    `SELECT
+        c.id,
+        c.name,
+        c.email,
+        c.mobile,
+        c.address_line,
+        c.city,
+        c.state,
+        c.pincode,
+        c.created_at
+     FROM ecom_sessions s
+     JOIN customers c ON c.id = s.subject_id
+     WHERE s.token_hash = ?
+       AND s.subject_type = 'customer'
+       AND s.expires_at > UTC_TIMESTAMP()
+       AND c.status = 'active'`,
+    [sha256(token)]
   );
-  return row ? { id: Number(row.id), name: row.name, email: row.email, mobile: row.mobile } : undefined;
+
+  if (!row) return undefined;
+
+  return {
+    id: Number(row.id),
+    name: row.name,
+    email: row.email,
+    mobile: row.mobile,
+    addressLine: row.address_line ?? "",
+    city: row.city ?? "",
+    state: row.state ?? "",
+    pincode: row.pincode ?? "",
+    memberSince:
+      row.created_at instanceof Date
+        ? row.created_at.toISOString()
+        : String(row.created_at),
+  };
 }
+
 
 async function loadAdmin(request: FastifyRequest): Promise<EcomAdmin | undefined> {
   const token = readCookie(request, COOKIE.admin);
