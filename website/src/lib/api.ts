@@ -1,6 +1,5 @@
 /**
- * Minimal client for the backend API (NEXT_PUBLIC_API_BASE_URL). Unwraps the { success, data | error } envelope.
- * Used by form submissions that are saved to the database; read-only pages still use src/mock.
+ * Client for the backend API (NEXT_PUBLIC_API_BASE_URL). Unwraps the { success, data | error } envelope.
  */
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000/api").replace(/\/$/, "");
 

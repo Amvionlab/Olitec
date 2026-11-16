@@ -11,7 +11,7 @@ import { DefinitionRows, LegacyCard, legacyButton, legacyButtonSecondary } from 
 const controlClass =
   "box-border block min-h-12 w-full rounded-[12px] border bg-white px-3.5 py-3 text-base text-black focus:outline-none focus:border-brand-500 focus:shadow-[0_0_0_3px_rgb(249_159_30/0.2)]";
 
-/** "Check your warranty status" form. Looks up the sample warranties until the API exists. */
+/** "Check your warranty status" form. Looks up warranty status by serial and registered mobile number. */
 export function WarrantyStatusForm() {
   const id = useId();
   const [errors, setErrors] = useState<{ serial?: string; mobile?: string; form?: string }>({});

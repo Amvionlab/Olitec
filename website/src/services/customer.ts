@@ -1,11 +1,21 @@
 import type { Customer, SubmitResult } from "@/lib/types";
 import { apiGet, apiPatch } from "@/lib/api";
-import { mockCurrentCustomer } from "@/mock/data";
-
 export type ProfileUpdateInput = Pick<
   Customer,
   "name" | "mobile" | "addressLine" | "city" | "state" | "pincode"
 >;
+
+const emptyCustomer: Customer = {
+  id: "",
+  name: "",
+  email: "",
+  mobile: "",
+  addressLine: "",
+  city: "",
+  state: "",
+  pincode: "",
+  memberSince: "",
+};
 
 export async function getCurrentCustomer(): Promise<Customer> {
   try {
@@ -17,7 +27,7 @@ export async function getCurrentCustomer(): Promise<Customer> {
     // fallback
   }
 
-  return mockCurrentCustomer;
+  return emptyCustomer;
 }
 
 export async function updateProfile(

@@ -46,11 +46,19 @@ export const otpService = {
       name: name || "New Member",
     });
 
+    const isDev = process.env.NODE_ENV === "development";
+
     if (!mailRes.success) {
       console.warn(`[OTP] Mail send warning for ${cleanEmail}:`, mailRes.message);
+      if (isDev) {
+        return {
+          success: true,
+          message: `Verification code sent to ${cleanEmail}. (Dev code: ${otp})`,
+        };
+      }
       return {
-        success: true,
-        message: `Verification code sent to ${cleanEmail}. (Code: ${otp})`,
+        success: false,
+        message: `Failed to send verification email. Please verify your email address or try again later.`,
       };
     }
 
@@ -99,11 +107,19 @@ export const otpService = {
       name: user.name,
     });
 
+    const isDev = process.env.NODE_ENV === "development";
+
     if (!mailRes.success) {
       console.warn(`[OTP] Mail send warning for ${cleanEmail}:`, mailRes.message);
+      if (isDev) {
+        return {
+          success: true,
+          message: `Verification code sent to ${cleanEmail}. (Dev code: ${otp})`,
+        };
+      }
       return {
-        success: true,
-        message: `Verification code sent to ${cleanEmail}. (Code: ${otp})`,
+        success: false,
+        message: `Failed to send verification email. Please verify your email address or try again later.`,
       };
     }
 
@@ -189,11 +205,19 @@ export const otpService = {
       name: user.name,
     });
 
+    const isDev = process.env.NODE_ENV === "development";
+
     if (!mailRes.success) {
       console.warn(`[OTP] Mail send warning for ${cleanEmail}:`, mailRes.message);
+      if (isDev) {
+        return {
+          success: true,
+          message: `Password reset code sent to ${cleanEmail}. (Dev code: ${otp})`,
+        };
+      }
       return {
-        success: true,
-        message: `Password reset code sent to ${cleanEmail}. (Code: ${otp})`,
+        success: false,
+        message: `Failed to send password reset email. Please verify your email address or try again later.`,
       };
     }
 

@@ -1,13 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonLink } from "@/components/ui/Button";
 import { WarrantyList } from "./WarrantyList";
-import { mockWarranties } from "@/mock/data";
-import { getProductById } from "@/services/products";
+import { getMyWarranties, type WarrantyWithProduct } from "@/services/warranties";
 import type { WarrantyStatus } from "@/lib/types";
 import { cn } from "@/lib/cn";
 
@@ -17,11 +17,15 @@ export function WarrantiesContent() {
   const searchParams = useSearchParams();
   const statusParam = searchParams.get("status");
   const status = statuses.find((s) => s === statusParam);
+  const [all, setAll] = useState<WarrantyWithProduct[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const all = mockWarranties.map((w) => {
-    const product = getProductById(w.productId)!;
-    return { ...w, product };
-  });
+  useEffect(() => {
+    getMyWarranties().then((data) => {
+      setAll(data || []);
+      setLoading(false);
+    });
+  }, []);
 
   const filtered = all.filter((w) => !status || w.status === status);
   const counts = Object.fromEntries(statuses.map((s) => [s, all.filter((w) => w.status === s).length]));

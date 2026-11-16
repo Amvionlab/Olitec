@@ -1,12 +1,25 @@
-// The request list reads mock data (Phase 2: GET /api/support). createSupportRequest is saved through the API.
 import type { SubmitResult, SupportCategory, SupportRequest } from "@/lib/types";
 import { apiPost } from "@/lib/api";
-import { mockSupportRequests } from "@/mock/data";
+import { getAuthHeaders } from "./auth";
+
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "");
 
 export const supportCategories: SupportCategory[] = ["Installation", "Repair", "Warranty Claim", "General Enquiry"];
 
 export async function getMySupportRequests(): Promise<SupportRequest[]> {
-  return [...mockSupportRequests].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  try {
+    const res = await fetch(`${API_BASE_URL}/support`, {
+      headers: getAuthHeaders(),
+      ...(typeof window === "undefined" ? {} : { cache: "no-store" as RequestCache }),
+    });
+    const result = await res.json();
+    if (res.ok && result.success && Array.isArray(result.data)) {
+      return result.data.sort((a: SupportRequest, b: SupportRequest) => b.createdAt.localeCompare(a.createdAt));
+    }
+  } catch {
+    // fallback empty
+  }
+  return [];
 }
 
 export interface SupportRequestInput {

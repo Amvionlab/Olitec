@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { Customer, SupportCategory, SupportRequest } from "@/lib/types";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Alert } from "@/components/ui/Alert";
@@ -11,9 +11,11 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { createSupportRequest, supportCategories, type SupportRequestInput } from "@/services/support";
 import { formatDateTime } from "@/lib/format";
 import { hasErrors, validateEmail, validateMobile, validateName, type FieldErrors } from "@/lib/validation";
+import { getStoredUser } from "@/services/auth";
+import { UserCheck } from "lucide-react";
 
 interface SupportCenterProps {
-  customer: Customer;
+  customer?: Customer;
   initialRequests: SupportRequest[];
   warrantyNumbers: string[];
 }
@@ -31,9 +33,9 @@ function validate(values: SupportRequestInput): FieldErrors<SupportRequestInput>
 
 export function SupportCenter({ customer, initialRequests, warrantyNumbers }: SupportCenterProps) {
   const emptyForm: SupportRequestInput = {
-    name: customer.name,
-    email: customer.email,
-    mobile: customer.mobile,
+    name: customer?.name || "",
+    email: customer?.email || "",
+    mobile: customer?.mobile || "",
     category: "Repair",
     warrantyNumber: "",
     subject: "",
@@ -41,9 +43,23 @@ export function SupportCenter({ customer, initialRequests, warrantyNumbers }: Su
   };
   const [requests, setRequests] = useState(initialRequests);
   const [values, setValues] = useState(emptyForm);
+  const [isAutofilled, setIsAutofilled] = useState(false);
   const [errors, setErrors] = useState<FieldErrors<SupportRequestInput>>({});
   const [submitting, setSubmitting] = useState(false);
   const [notice, setNotice] = useState<{ tone: "success" | "error"; text: string }>();
+
+  useEffect(() => {
+    const user = getStoredUser();
+    if (user) {
+      setValues((v) => ({
+        ...v,
+        name: v.name || user.name || "",
+        email: v.email || user.email || "",
+        mobile: v.mobile || user.mobile || "",
+      }));
+      setIsAutofilled(true);
+    }
+  }, []);
 
   const update = <K extends keyof SupportRequestInput>(field: K, value: SupportRequestInput[K]) => {
     setValues((v) => ({ ...v, [field]: value }));
@@ -75,6 +91,14 @@ export function SupportCenter({ customer, initialRequests, warrantyNumbers }: Su
         <CardHeader title="New support request" description="Tell us what you need and we will get back to you." />
         <form onSubmit={handleSubmit} noValidate className="space-y-4 p-5">
           {notice && <Alert tone={notice.tone}>{notice.text}</Alert>}
+
+          {isAutofilled && (
+            <div className="flex items-center gap-2 rounded-xl bg-amber-50/80 border border-amber-200/60 px-3.5 py-2 text-xs text-amber-900">
+              <UserCheck className="size-4 shrink-0 text-amber-600" />
+              <span>Contact details pre-filled from your signed-in profile.</span>
+            </div>
+          )}
+
           <div className="grid gap-4 sm:grid-cols-3">
             <TextField label="Name" value={values.name} onChange={(e) => update("name", e.target.value)} error={errors.name} required />
             <TextField label="Email" type="email" value={values.email} onChange={(e) => update("email", e.target.value)} error={errors.email} required />
