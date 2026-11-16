@@ -12,7 +12,6 @@ import {
   RefreshCw,
   Eye,
   EyeOff,
-  HelpCircle,
 } from "lucide-react";
 import {
   getSmtpSettings,
@@ -383,32 +382,6 @@ export default function AdminSmtpPage() {
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Quick Help Guide */}
-          <div className="rounded-3xl border border-slate-200 bg-amber-50/50 p-5 text-xs text-slate-700">
-            <div className="flex items-center gap-2 font-bold text-amber-900 mb-2">
-              <HelpCircle size={16} className="text-amber-600" />
-              <span>Gmail SMTP Tips</span>
-            </div>
-            <ul className="space-y-1.5 text-[11px] text-slate-600 list-disc list-inside">
-              <li>
-                <strong>Host:</strong> <code>smtp.gmail.com</code>, <strong>Port:</strong> <code>587</code>
-              </li>
-              <li>
-                For Google accounts with 2FA, create an <strong>App Password</strong> at:{" "}
-                <a
-                  href="https://myaccount.google.com/apppasswords"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-bold text-amber-700 underline"
-                >
-                  myaccount.google.com/apppasswords
-                </a>
-              </li>
-              <li>Use the generated 16-character code as the SMTP password.</li>
-              <li>Notifications will automatically route to <code>arish@amvionlabs.com</code>.</li>
-            </ul>
           </div>
         </div>
       </div>
