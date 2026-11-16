@@ -10,7 +10,7 @@ const LAST = businessLines.length - 1;
 
 function EpcIcon() {
   return (
-    <svg aria-hidden width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
       {[0, 7, 14].map((x) => (
         <g key={x} transform={`translate(${x} 0)`}>
           <path d="M1.5 14.5L6.5 10L7.8 11.3L2.8 15.8Z" fill="currentColor" fillOpacity="0.18" />
@@ -30,7 +30,7 @@ function EpcIcon() {
 
 function StorageIcon() {
   return (
-    <svg aria-hidden width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="3" width="10" height="18" rx="1.5" />
       <path d="M4.5 7h5" />
       <path d="M4 13c.8-2 1.6-2 2.4 0s1.6 2 2.4 0" />
@@ -42,7 +42,7 @@ function StorageIcon() {
 
 function TurnkeyIcon() {
   return (
-    <svg aria-hidden width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="6.5" cy="9.5" r="4" />
       <circle cx="6.5" cy="9.5" r="1.2" />
       <path d="M10.5 9.5H20M17 9.5v3M14 9.5v2" />
@@ -150,47 +150,52 @@ export function BusinessLines() {
       aria-labelledby="business-lines-title"
     >
       {/* Sticky presentation viewport */}
-      <div className="sticky top-16 md:top-20 z-10 flex min-h-[calc(100vh-4rem)] flex-col justify-center py-8 xl:py-12">
+      <div className="sticky top-16 md:top-20 z-10 flex min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-5rem)] flex-col justify-center py-4 sm:py-6 xl:py-8">
         <HomeContainer>
-          <SectionTitle id="business-lines-title">{businessLinesIntro.title}</SectionTitle>
-          <p className="mt-2.5 max-w-[811px] text-base font-medium leading-6 text-black">
-            {businessLinesIntro.subtitle}
-          </p>
+          {/* Header Row: Title & Subtitle on Left, 3 Tab Buttons on Right */}
+          <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4 sm:gap-6">
+            <div>
+              <SectionTitle id="business-lines-title">{businessLinesIntro.title}</SectionTitle>
+              <p className="mt-1.5 max-w-[620px] text-sm sm:text-base font-medium leading-relaxed text-black">
+                {businessLinesIntro.subtitle}
+              </p>
+            </div>
 
-          {/* Interactive Pill Tabs */}
-          <div className="mt-6 flex flex-wrap gap-2.5 sm:gap-3" role="group" aria-label="Lines of business">
-            {businessLines.map((line, index) => {
-              const Icon = icons[line.key];
-              const isActive = index === active;
-              return (
-                <button
-                  key={line.key}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => goToSlide(index)}
-                  className={cn(
-                    "inline-flex h-[52px] sm:h-[58px] items-center gap-2.5 sm:gap-3 rounded-[29.5px] pl-2 pr-5 sm:pr-6 text-[13.5px] sm:text-[14.195px] font-semibold transition-all cursor-pointer shadow-xs",
-                    isActive
-                      ? "brand-gradient text-black ring-2 ring-brand-400/40"
-                      : "bg-white text-black hover:bg-black/5"
-                  )}
-                >
-                  <span
+            {/* Interactive Pill Tabs */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 flex-shrink-0" role="group" aria-label="Lines of business">
+              {businessLines.map((line, index) => {
+                const Icon = icons[line.key];
+                const isActive = index === active;
+                return (
+                  <button
+                    key={line.key}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => goToSlide(index)}
                     className={cn(
-                      "flex size-[38px] sm:size-[44px] items-center justify-center rounded-full transition-colors",
-                      isActive ? "bg-white" : "bg-[rgb(217_217_217/0.6)]"
+                      "inline-flex h-[44px] sm:h-[48px] items-center gap-2 sm:gap-2.5 rounded-[24px] pl-1.5 pr-4 sm:pr-5 text-[13px] sm:text-[14px] font-semibold transition-all cursor-pointer shadow-xs",
+                      isActive
+                        ? "brand-gradient text-black ring-2 ring-brand-400/40"
+                        : "bg-white text-black hover:bg-black/5"
                     )}
                   >
-                    <Icon />
-                  </span>
-                  <span>{line.title}</span>
-                </button>
-              );
-            })}
+                    <span
+                      className={cn(
+                        "flex size-[32px] sm:size-[36px] items-center justify-center rounded-full transition-colors",
+                        isActive ? "bg-white" : "bg-[rgb(217_217_217/0.6)]"
+                      )}
+                    >
+                      <Icon />
+                    </span>
+                    <span className="whitespace-nowrap">{line.title}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Animated Horizontal Slide Deck */}
-          <div className="mt-6 sm:mt-8 overflow-hidden rounded-[25.528px]">
+          <div className="mt-4 sm:mt-6 overflow-hidden rounded-[20px] sm:rounded-[25.528px]">
             <div
               className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{ transform: `translateX(-${active * 100}%)` }}
@@ -198,16 +203,16 @@ export function BusinessLines() {
               {businessLines.map((line, idx) => (
                 <article
                   key={line.key}
-                  className="flex min-w-full w-full flex-shrink-0 flex-wrap items-center gap-6 sm:gap-8 rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-5 sm:p-8 xl:gap-12 shadow-sm"
+                  className="flex min-w-full w-full flex-shrink-0 flex-wrap items-center gap-6 sm:gap-8 rounded-[20px] sm:rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-5 sm:p-7 xl:gap-10 shadow-sm"
                 >
-                  <div className="min-w-0 flex-[1_1_320px] xl:pl-4">
-                    <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-brand-50 border border-brand-200 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-700">
+                  <div className="min-w-0 flex-[1_1_320px] xl:pl-2">
+                    <div className="mb-2.5 inline-flex items-center gap-2 rounded-full bg-brand-50 border border-brand-200 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-brand-700">
                       <span>Business Line 0{idx + 1} of 03</span>
                     </div>
-                    <h3 className="text-[26px] sm:text-[33px] font-semibold leading-[1.2] text-black xl:text-[40px]">
+                    <h3 className="text-[24px] sm:text-[30px] font-semibold leading-[1.2] text-black xl:text-[36px]">
                       {line.title}
                     </h3>
-                    <p className="mt-4 max-w-[520px] text-base sm:text-lg font-medium leading-relaxed text-black">
+                    <p className="mt-3 max-w-[520px] text-sm sm:text-base xl:text-lg font-medium leading-relaxed text-black">
                       {line.body}
                     </p>
                   </div>
@@ -217,7 +222,7 @@ export function BusinessLines() {
                       alt={line.imageAlt}
                       overlay={line.overlay}
                       sizes="(min-width: 1280px) 640px, 100vw"
-                      className="aspect-[16/10] sm:aspect-[16/11] w-full rounded-[16.411px] xl:rounded-[25px]"
+                      className="aspect-[16/10] max-h-[340px] w-full rounded-[16px] xl:rounded-[22px] object-cover"
                     />
                   </div>
                 </article>
@@ -226,8 +231,8 @@ export function BusinessLines() {
           </div>
 
           {/* Bottom Navigation & Controls */}
-          <div className="mt-8 flex items-center justify-between border-t-[0.751px] border-[#262626]/20 pt-4">
-            <p className="font-sans text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
+          <div className="mt-4 sm:mt-5 flex items-center justify-between border-t-[0.751px] border-[#262626]/20 pt-3 sm:pt-4">
+            <p className="font-sans text-sm sm:text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
               <span className="font-bold text-black">{String(active + 1).padStart(2, "0")}</span> of{" "}
               {String(businessLines.length).padStart(2, "0")}
             </p>
