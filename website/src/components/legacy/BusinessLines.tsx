@@ -146,7 +146,7 @@ export function BusinessLines() {
     <section
       id="services"
       ref={containerRef}
-      className="relative min-h-[220vh] md:min-h-[260vh] scroll-mt-6 bg-[rgb(217_217_217/0.44)]"
+      className="relative min-h-[150vh] md:min-h-[175vh] scroll-mt-6 bg-[rgb(217_217_217/0.44)]"
       aria-labelledby="business-lines-title"
     >
       {/* Sticky presentation viewport */}

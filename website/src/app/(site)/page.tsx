@@ -48,14 +48,14 @@ export default function HomePage() {
       <Hero />
 
       {/* About — Figma two-column text section */}
-      <section id="about" className="mt-16 scroll-mt-6 xl:mt-[86px]" aria-labelledby="about-title">
+      <section id="about" className="mt-12 scroll-mt-6 xl:mt-16" aria-labelledby="about-title">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-center lg:gap-14 xl:gap-20">
             <div className="lg:max-w-[478px]">
               <SectionTitle id="about-title">Our Legacy</SectionTitle>
               <p className="mt-6 text-[23px] font-semibold leading-[32px] text-black">{legacyLead.statement}</p>
             </div>
-            <div className="max-w-[620px] space-y-6 text-lg font-medium leading-7 text-black lg:pt-[78px]">
+            <div className="max-w-[620px] space-y-6 text-lg font-medium leading-7 text-black lg:pt-4">
               {legacyLead.paragraphs.map((p) => (
                 <p key={p}>{p}</p>
               ))}
@@ -67,9 +67,9 @@ export default function HomePage() {
       <BusinessLines />
 
       {/* Synergy — Figma dark-green band */}
-      <section className="bg-forest py-14 xl:py-[86px]" aria-label="How our businesses connect">
+      <section className="bg-forest py-12 xl:py-16" aria-label="How our businesses connect">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-center lg:gap-14 xl:gap-20">
             <h2 className="max-w-[560px] text-[28px] font-semibold leading-[38px] text-white xl:text-[34px] xl:leading-[46px]">{synergy.statement}</h2>
             <AnimatedIllustration
               src={synergy.image}
@@ -83,7 +83,7 @@ export default function HomePage() {
       </section>
 
       {/* Products — Figma product cards */}
-      <section id="products" className="mt-16 scroll-mt-6 xl:mt-[86px]" aria-labelledby="products-title">
+      <section id="products" className="mt-12 scroll-mt-6 xl:mt-16" aria-labelledby="products-title">
         <HomeContainer>
           <ScrollReveal>
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -134,26 +134,26 @@ export default function HomePage() {
       </section>
 
       {/* Values — Figma image + text section */}
-      <section className="mt-16 xl:mt-[86px]" aria-labelledby="values-title">
+      <section className="mt-12 xl:mt-16" aria-labelledby="values-title">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-center lg:gap-14 xl:gap-20">
             <AnimatedIllustration
               src={values.image}
               alt={values.imageAlt}
               overlay="values"
               sizes="(min-width: 1280px) 460px, 100vw"
-              className="aspect-[5/6] w-full max-w-[460px] shrink-0 rounded-[40px] lg:w-[40%] xl:rounded-[53px]"
+              className="aspect-[5/6] w-full max-w-[420px] shrink-0 rounded-[40px] lg:w-[38%] xl:rounded-[53px]"
             />
-            <div className="max-w-[640px]">
-              <SectionTitle id="values-title" className="xl:leading-[62px]">
+            <div className="max-w-[620px]">
+              <SectionTitle id="values-title" className="xl:leading-[58px]">
                 {values.title}
               </SectionTitle>
-              <div className="mt-6 space-y-5 text-lg font-medium leading-7 text-black">
+              <div className="mt-6 space-y-4 text-base sm:text-lg font-medium leading-relaxed text-black">
                 {values.paragraphs.map((p) => (
                   <p key={p}>{p}</p>
                 ))}
               </div>
-              <div className="mt-8">
+              <div className="mt-7">
                 <ArrowPillLink href={values.link.href} label="Meet the leadership team" width={270} />
               </div>
             </div>

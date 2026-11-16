@@ -98,7 +98,7 @@ export function ApplicationScrollRow({ item, index }: ApplicationScrollRowProps)
       id={item.id}
       ref={containerRef}
       className={cn(
-        "relative min-h-[190vh] md:min-h-[220vh] scroll-mt-16",
+        "relative min-h-[140vh] md:min-h-[165vh] scroll-mt-16",
         muted ? "bg-[rgb(248_249_250)]" : "bg-white"
       )}
     >
