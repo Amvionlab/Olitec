@@ -120,7 +120,7 @@ export function Product3DViewer({
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
 
     // 4. OrbitControls
     const controls = new OrbitControls(camera, renderer.domElement);
