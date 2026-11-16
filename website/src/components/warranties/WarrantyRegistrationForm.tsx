@@ -234,11 +234,6 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
           Your registration number is <strong className="text-black">{submitted.registrationNumber}</strong> for serial number{" "}
           <strong className="text-black">{submitted.serialNumber}</strong>. Status: <strong className="text-black">Pending</strong>.
         </p>
-        {!submitted.persisted && (
-          <p className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Demo mode: the server is not connected to the database, so this registration was not saved and the files were not uploaded.
-          </p>
-        )}
         <p className="text-sm text-muted">
           Our team will verify your invoice and installation document. Keep the registration number for future reference.
         </p>

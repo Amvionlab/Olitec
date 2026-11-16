@@ -89,7 +89,7 @@ export default function UserManagementPage() {
             </span>
           </div>
           <p className="text-xs text-slate-500">
-            View all customer and administrator accounts from the MySQL database.
+            Manage registered customer and administrator accounts.
           </p>
         </div>
 

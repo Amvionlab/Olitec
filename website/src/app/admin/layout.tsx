@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex min-h-screen items-center justify-center bg-slate-900 text-white">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-          <p className="mt-3 text-sm text-slate-400">Loading admin suite…</p>
+          <p className="mt-3 text-sm text-slate-400">Loading…</p>
         </div>
       </div>
     );
@@ -66,11 +66,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      {/* Desktop Sidebar */}
-      <aside className="hidden w-64 flex-col bg-slate-950 text-white lg:flex">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      {/* Desktop Fixed Sidebar */}
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-slate-950 text-white lg:flex">
         {/* Brand */}
-        <div className="flex h-16 items-center gap-2 border-b border-white/10 px-6">
+        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 px-6">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 font-bold text-slate-950">
             O
           </span>
@@ -85,8 +85,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex-1 px-4 py-6">
+        {/* Navigation (scrollable inside sidebar if needed) */}
+        <div className="flex-1 overflow-y-auto px-4 py-6">
           <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
             Operations
           </p>
@@ -112,8 +112,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
         </div>
 
-        {/* User Card & Logout */}
-        <div className="border-t border-white/10 p-4">
+        {/* User Card & Logout (fixed at bottom of sidebar) */}
+        <div className="shrink-0 border-t border-white/10 p-4">
           <div className="mb-3 flex items-center gap-3 rounded-lg bg-white/5 p-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-500/20 text-amber-400">
               <UserCheck size={18} />
@@ -161,7 +161,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </button>
             </div>
 
-            <nav className="flex-1 space-y-1 px-4 py-6">
+            <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-6">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
@@ -196,10 +196,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       )}
 
-      {/* Main Content Area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      {/* Main Content Area (offset left by sidebar width on desktop) */}
+      <div className="flex min-h-screen flex-1 flex-col lg:pl-64">
         {/* Top Navbar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-8">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur-md md:px-8">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(true)}
@@ -222,18 +222,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
               <p className="text-xs font-semibold text-slate-900">{user?.name || "Administrator"}</p>
-              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-                Connected: MySQL warranty_db
-              </span>
+              <p className="text-[11px] text-slate-500">{user?.email || "admin@olitec.in"}</p>
             </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white shadow-xs">
               {(user?.name || "A").slice(0, 2).toUpperCase()}
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
+        <main className="flex-1 p-4 md:p-8">{children}</main>
       </div>
     </div>
   );

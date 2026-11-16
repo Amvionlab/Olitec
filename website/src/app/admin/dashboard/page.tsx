@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-          <p className="mt-3 text-sm text-slate-500">Loading warranty analytics & database metrics…</p>
+          <p className="mt-3 text-sm text-slate-500">Loading analytics…</p>
         </div>
       </div>
     );
@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">Platform Analytics</h2>
-          <p className="text-xs text-slate-500">Live metrics from MySQL warranty_db schema</p>
+          <p className="text-xs text-slate-500">Overview of registered warranties, active protection, and customers</p>
         </div>
         <div className="flex items-center gap-2">
           <button

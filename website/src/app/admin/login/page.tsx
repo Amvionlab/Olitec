@@ -9,8 +9,8 @@ import { loginAdmin } from "@/services/auth";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@olitec.in");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
 
@@ -101,13 +101,6 @@ export default function AdminLoginPage() {
                 className="w-full rounded-xl border border-white/10 bg-slate-950/70 py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-600 transition focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
             </div>
-          </div>
-
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-[11px] text-amber-300/80">
-            <p className="font-semibold text-amber-400">Seeded Credentials:</p>
-            <p className="mt-0.5">
-              Email: <code className="text-white">admin@olitec.in</code> &nbsp;|&nbsp; Password: <code className="text-white">admin123</code>
-            </p>
           </div>
 
           <button

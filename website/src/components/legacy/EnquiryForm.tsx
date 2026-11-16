@@ -109,9 +109,6 @@ export function EnquiryForm({ kind }: { kind: EnquiryKind }) {
       <div ref={successRef} role="status" className="rounded-[25.528px] border-[1.5px] border-leaf bg-leaf/10 p-7">
         <h3 className="mb-2 text-[22px] font-semibold text-forest">{config.success.title}</h3>
         <p className="mb-2">{result}</p>
-        {!savedEnquiryKinds.includes(kind) && (
-          <p className="mb-[18px] text-sm text-muted">Demo build: this form was not sent or saved, and no files were uploaded.</p>
-        )}
         <button
           type="button"
           className={legacyButtonSecondary}

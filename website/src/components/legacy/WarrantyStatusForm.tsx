@@ -42,7 +42,6 @@ export function WarrantyStatusForm() {
       <div role="status" className="rounded-[25.528px] border-[1.5px] border-leaf bg-leaf/10 p-7">
         <h3 className="mb-2 text-[22px] font-semibold text-forest">Warranty found</h3>
         <p className="mb-2">We have found your registration. Your warranty details are shown below.</p>
-        <p className="text-sm text-muted">Demo build: details come from sample data and no SMS is sent.</p>
         <LegacyCard className="mt-5">
           <h3 className="mb-3 text-[20px] font-semibold text-black">Warranty details</h3>
           <DefinitionRows

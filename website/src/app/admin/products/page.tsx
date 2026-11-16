@@ -432,7 +432,7 @@ export default function ProductMasterPage() {
                   disabled={saving}
                   className="rounded-xl bg-amber-500 px-5 py-2 text-xs font-semibold text-slate-950 shadow-sm transition hover:bg-amber-400 disabled:opacity-50"
                 >
-                  {saving ? "Saving to Database…" : editingProduct ? "Save Changes" : "Create Product"}
+                  {saving ? "Saving…" : editingProduct ? "Save Changes" : "Create Product"}
                 </button>
               </div>
             </form>
