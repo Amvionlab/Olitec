@@ -7,6 +7,7 @@ import { X, Eye, EyeOff, CheckCircle2, ArrowRight, ArrowLeft, KeyRound, Mail, Re
 import {
   login,
   register,
+  sendRegistrationOtp,
   sendForgotPasswordOtp,
   resetPasswordWithOtp,
   type LoginInput,
@@ -82,10 +83,13 @@ export function AuthModal({
     mobile: "",
     password: "",
     confirmPassword: "",
+    otp: "",
     acceptTerms: true,
   });
   const [regErrors, setRegErrors] = useState<Record<string, string | undefined>>({});
   const [showRegPassword, setShowRegPassword] = useState(false);
+  const [regOtpSent, setRegOtpSent] = useState(false);
+  const [regOtpLoading, setRegOtpLoading] = useState(false);
 
   // Forgot password state
   const [forgotEmail, setForgotEmail] = useState("");
@@ -196,7 +200,27 @@ export function AuthModal({
     }, 500);
   }
 
-  // Handle Register
+  // Send OTP for new account registration
+  async function handleSendRegisterOtp() {
+    const emailErr = validateEmail(regValues.email);
+    if (emailErr) {
+      setRegErrors((e) => ({ ...e, email: emailErr }));
+      setFormError(emailErr);
+      return;
+    }
+    setFormError(undefined);
+    setRegOtpLoading(true);
+    const res = await sendRegistrationOtp(regValues.email.trim(), regValues.name.trim());
+    setRegOtpLoading(false);
+    if (!res.ok) {
+      setFormError(res.message);
+      return;
+    }
+    setRegOtpSent(true);
+    setSuccessMsg("Verification code sent to " + regValues.email.trim() + "! Enter the 6-digit OTP below.");
+  }
+
+  // Handle Register - ONLY VERIFIED USERS CAN CREATE ACCOUNT
   async function handleRegisterSubmit(e: FormEvent) {
     e.preventDefault();
     const errors: Record<string, string | undefined> = {
@@ -206,10 +230,17 @@ export function AuthModal({
       password: validateNewPassword(regValues.password),
       confirmPassword: regValues.confirmPassword === regValues.password ? undefined : "Passwords do not match.",
       acceptTerms: regValues.acceptTerms ? undefined : "Please accept the terms.",
+      otp: regOtpSent && (!regValues.otp || regValues.otp.trim().length !== 6) ? "Enter 6-digit verification code." : undefined,
     };
     setRegErrors(errors);
     setFormError(undefined);
     if (Object.values(errors).some(Boolean)) return;
+
+    // If OTP has not been requested yet, request it automatically
+    if (!regOtpSent) {
+      await handleSendRegisterOtp();
+      return;
+    }
 
     setLoading(true);
     const result = await register({
@@ -217,6 +248,7 @@ export function AuthModal({
       email: regValues.email.trim(),
       mobile: regValues.mobile.replace(/\D/g, ""),
       password: regValues.password,
+      otp: regValues.otp.trim(),
     });
     setLoading(false);
 
@@ -226,7 +258,7 @@ export function AuthModal({
     }
 
     const user = result.data;
-    setSuccessMsg("Account created successfully!");
+    setSuccessMsg("Account verified & created successfully!");
 
     setTimeout(() => {
       onSuccess?.(user);
@@ -749,7 +781,41 @@ export function AuthModal({
               </div>
             </div>
 
-            {/* Row 4: Compact Terms */}
+            {/* Row 4: OTP Verification Code (Only verified users can create account) */}
+            {regOtpSent && (
+              <div className="rounded-2xl border-2 border-brand-300 bg-brand-50/70 p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-brand-950">
+                    Enter 6-Digit Email OTP <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    disabled={regOtpLoading}
+                    onClick={handleSendRegisterOtp}
+                    className="text-xs font-bold text-brand-700 hover:underline disabled:opacity-50 cursor-pointer"
+                  >
+                    Resend OTP
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  maxLength={6}
+                  required
+                  placeholder="123456"
+                  value={regValues.otp}
+                  onChange={(e) => {
+                    setRegValues((v) => ({ ...v, otp: e.target.value.replace(/\D/g, "") }));
+                    if (regErrors.otp) setRegErrors((e2) => ({ ...e2, otp: undefined }));
+                  }}
+                  className="w-full h-10 text-center font-mono text-lg tracking-[0.3em] font-bold rounded-xl border border-brand-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                />
+                {regErrors.otp && (
+                  <p className="mt-1 text-xs text-red-600 font-medium">{regErrors.otp}</p>
+                )}
+              </div>
+            )}
+
+            {/* Row 5: Compact Terms */}
             <div className="pt-0.5">
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
@@ -770,14 +836,33 @@ export function AuthModal({
               )}
             </div>
 
-            {/* Row 5: Action Button */}
+            {/* Row 6: Action Button */}
             <button
               type="submit"
-              disabled={loading}
-              className="brand-gradient mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-black transition-all hover:brightness-105 active:scale-95 disabled:opacity-60"
+              disabled={loading || regOtpLoading}
+              className="brand-gradient mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-black transition-all hover:brightness-105 active:scale-95 disabled:opacity-60 cursor-pointer"
             >
-              <span>{loading ? "Creating account…" : "Create Account"}</span>
-              <ArrowRight size={16} />
+              {regOtpLoading ? (
+                <>
+                  <RefreshCw size={16} className="animate-spin" />
+                  <span>Sending Verification Code…</span>
+                </>
+              ) : loading ? (
+                <>
+                  <RefreshCw size={16} className="animate-spin" />
+                  <span>Verifying &amp; Creating…</span>
+                </>
+              ) : regOtpSent ? (
+                <>
+                  <span>Verify OTP &amp; Create Account</span>
+                  <ArrowRight size={16} />
+                </>
+              ) : (
+                <>
+                  <span>Verify Email &amp; Create Account</span>
+                  <ArrowRight size={16} />
+                </>
+              )}
             </button>
 
             <div className="pt-1.5 text-center">

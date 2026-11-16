@@ -22,6 +22,7 @@ export interface RegisterInput {
   email: string;
   mobile: string;
   password: string;
+  otp: string;
 }
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "");
@@ -196,6 +197,23 @@ export async function logout(): Promise<void> {
 // ----------------- EMAIL OTP VERIFICATION -----------------
 
 export type SimpleResult = { ok: true; message: string; data?: any } | { ok: false; message: string };
+
+export async function sendRegistrationOtp(email: string, name?: string): Promise<SimpleResult> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/register/send-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim().toLowerCase(), name }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      return { ok: false, message: data.error?.message || data.message || "Failed to send verification code." };
+    }
+    return { ok: true, message: data.data?.message || "Verification code sent to your email." };
+  } catch (err: any) {
+    return { ok: false, message: err?.message || "Failed to connect to server." };
+  }
+}
 
 export async function sendVerificationOtp(email: string): Promise<SimpleResult> {
   try {

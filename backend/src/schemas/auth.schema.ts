@@ -3,7 +3,7 @@ import { emailSchema, mobileSchema, nameSchema } from "./common.schema.js";
 export const registerSchema = {
   body: {
     type: "object",
-    required: ["name", "email", "mobile", "password"],
+    required: ["name", "email", "mobile", "password", "otp"],
     additionalProperties: false,
     properties: {
       name: nameSchema,
@@ -11,6 +11,7 @@ export const registerSchema = {
       mobile: mobileSchema,
       // Policy: 8+ characters with at least one letter and one number. Hashing happens in Phase 2 (argon2id/bcrypt).
       password: { type: "string", minLength: 8, maxLength: 128, pattern: "^(?=.*[A-Za-z])(?=.*[0-9]).+$" },
+      otp: { type: "string", minLength: 6, maxLength: 10 },
     },
   },
 } as const;
@@ -20,6 +21,7 @@ export interface RegisterBody {
   email: string;
   mobile: string;
   password: string;
+  otp: string;
 }
 
 export const loginSchema = {

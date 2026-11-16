@@ -42,6 +42,13 @@ export const authController = {
     return ok(await authService.logout());
   },
 
+  sendRegistrationOtp: async (
+    request: FastifyRequest<{ Body: { email: string; name?: string; mobile?: string } }>
+  ) => {
+    const result = await otpService.sendRegistrationOtp(request.body.email, request.body.name);
+    return ok(result);
+  },
+
   sendVerificationOtp: async (request: FastifyRequest<{ Body: { email: string } }>) => {
     const result = await otpService.sendVerificationOtp(request.body.email);
     return ok(result);

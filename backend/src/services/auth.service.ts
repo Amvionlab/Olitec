@@ -1,8 +1,8 @@
 
 import type { LoginBody, RegisterBody } from "../schemas/auth.schema.js";
-import { execute, queryOne } from "../db/pool.js";
+import { execute, queryOne, query } from "../db/pool.js";
 import { hashPassword, verifyPassword, createToken } from "../utils/crypto.js";
-import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "../utils/errors.js";
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "../utils/errors.js";
 
 export interface UserProfile {
   id: number;
@@ -66,12 +66,32 @@ export const authService: AuthService = {
       throw new ConflictError("This mobile number is already registered.");
     }
 
+    // Verify Email OTP - ONLY VERIFIED USERS CAN CREATE ACCOUNT
+    const cleanOtp = (input.otp || "").trim();
+    if (!cleanOtp) {
+      throw new BadRequestError("Email verification code is required. Please verify your email before creating an account.");
+    }
+
+    const otpRows = await query<any>(
+      `SELECT id FROM email_otps 
+       WHERE email = ? AND otp = ? AND purpose = 'verify_email' AND is_used = FALSE AND expires_at > NOW() 
+       ORDER BY id DESC LIMIT 1`,
+      [email, cleanOtp]
+    );
+
+    if (!otpRows || otpRows.length === 0) {
+      throw new BadRequestError("Invalid or expired verification code. Please request a new OTP to verify your email.");
+    }
+
+    // Mark OTP as used
+    await execute("UPDATE email_otps SET is_used = TRUE WHERE id = ?", [otpRows[0].id]);
+
     const passwordHash = await hashPassword(input.password);
 
     try {
       const result = await execute(
-        `INSERT INTO users (name, email, mobile, password_hash, role, status)
-         VALUES (?, ?, ?, ?, 'customer', 'active')`,
+        `INSERT INTO users (name, email, mobile, password_hash, role, status, is_email_verified)
+         VALUES (?, ?, ?, ?, 'customer', 'active', TRUE)`,
         [name, email, mobile, passwordHash],
       );
 
@@ -83,6 +103,7 @@ export const authService: AuthService = {
         mobile,
         role: "customer",
         status: "active",
+        is_email_verified: true,
       };
 
       const token = createToken({

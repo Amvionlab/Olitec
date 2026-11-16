@@ -1,6 +1,6 @@
 import { query, execute } from "../db/pool.js";
 import { hashPassword } from "../utils/crypto.js";
-import { BadRequestError, NotFoundError } from "../utils/errors.js";
+import { BadRequestError, ConflictError, NotFoundError } from "../utils/errors.js";
 import { sendOtpEmail } from "./mail.service.js";
 
 function generateOtp(): string {
@@ -8,6 +8,57 @@ function generateOtp(): string {
 }
 
 export const otpService = {
+  /**
+   * Send 6-digit OTP to verify email during sign up / account creation
+   */
+  async sendRegistrationOtp(email: string, name?: string): Promise<{ success: boolean; message: string }> {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes("@")) {
+      throw new BadRequestError("Valid email address is required.");
+    }
+
+    // Check if email already registered
+    const users = await query<any>("SELECT id FROM users WHERE email = ? LIMIT 1", [cleanEmail]);
+    if (users && users.length > 0) {
+      throw new ConflictError("An account with this email address already exists. Please sign in.");
+    }
+
+    const otp = generateOtp();
+
+    // Mark previous active verify_email OTPs as used
+    await execute(
+      "UPDATE email_otps SET is_used = TRUE WHERE email = ? AND purpose = 'verify_email' AND is_used = FALSE",
+      [cleanEmail]
+    );
+
+    // Insert new OTP (valid for 10 minutes)
+    await execute(
+      "INSERT INTO email_otps (email, otp, purpose, expires_at) VALUES (?, ?, 'verify_email', DATE_ADD(NOW(), INTERVAL 10 MINUTE))",
+      [cleanEmail, otp]
+    );
+
+    console.log(`[OTP] Generated registration OTP for ${cleanEmail}: ${otp}`);
+
+    const mailRes = await sendOtpEmail({
+      to: cleanEmail,
+      otp,
+      purpose: "verify_email",
+      name: name || "New Member",
+    });
+
+    if (!mailRes.success) {
+      console.warn(`[OTP] Mail send warning for ${cleanEmail}:`, mailRes.message);
+      return {
+        success: true,
+        message: `Verification code sent to ${cleanEmail}. (Code: ${otp})`,
+      };
+    }
+
+    return {
+      success: true,
+      message: `Verification code sent to ${cleanEmail}. Please enter the 6-digit OTP to verify your account.`,
+    };
+  },
   /**
    * Send 6-digit OTP to verify user's email address
    */

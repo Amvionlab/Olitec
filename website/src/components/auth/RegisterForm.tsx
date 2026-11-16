@@ -18,7 +18,7 @@ import {
 
 type FormValues = RegisterInput & { confirmPassword: string; acceptTerms: boolean };
 
-const initialValues: FormValues = { name: "", email: "", mobile: "", password: "", confirmPassword: "", acceptTerms: false };
+const initialValues: FormValues = { name: "", email: "", mobile: "", password: "", confirmPassword: "", otp: "", acceptTerms: false };
 
 function validate(values: FormValues): FieldErrors<FormValues> {
   return {
@@ -56,6 +56,7 @@ export function RegisterForm() {
       email: values.email.trim(),
       mobile: values.mobile.replace(/\D/g, ""),
       password: values.password,
+      otp: values.otp || "",
     });
     if (!result.ok) {
       setStatus("idle");

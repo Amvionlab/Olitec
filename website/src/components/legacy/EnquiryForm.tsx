@@ -1,11 +1,13 @@
 "use client";
 
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, useEffect, type FormEvent } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { enquiryForms, type EnquiryField, type EnquiryKind } from "@/content/forms";
 import { savedEnquiryKinds, submitEnquiry, type EnquiryValues } from "@/services/enquiries";
 import { validateEmail, validateMobile, validateName, validateRequired, validateSerialNumber } from "@/lib/validation";
 import { cn } from "@/lib/cn";
 import { legacyButton, legacyButtonSecondary } from "./ui";
+import { getStoredUser, type UserProfile } from "@/services/auth";
 
 const controlClass =
   "box-border block min-h-12 w-full rounded-[12px] border bg-white px-3.5 py-3 text-base text-black focus:outline-none focus:border-brand-500 focus:shadow-[0_0_0_3px_rgb(249_159_30/0.2)]";
@@ -63,6 +65,32 @@ export function EnquiryForm({ kind }: { kind: EnquiryKind }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    setCurrentUser(getStoredUser());
+  }, []);
+
+  function getAutofillValue(fieldName: string): string {
+    if (!currentUser) return "";
+    switch (fieldName) {
+      case "name":
+      case "fullName":
+        return currentUser.name || "";
+      case "email":
+        return currentUser.email || "";
+      case "mobile":
+      case "phone":
+        return currentUser.mobile || "";
+      case "city":
+      case "location":
+        return currentUser.city || "";
+      case "state":
+        return currentUser.state || "";
+      default:
+        return "";
+    }
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -125,6 +153,14 @@ export function EnquiryForm({ kind }: { kind: EnquiryKind }) {
 
   return (
     <form ref={formRef} noValidate onSubmit={onSubmit} className="grid grid-cols-1 gap-x-5 gap-y-[18px] sm:grid-cols-2">
+      {currentUser && (
+        <div className="sm:col-span-2 flex items-center gap-2 rounded-2xl bg-amber-50 border border-amber-200/80 px-4 py-2.5 text-xs font-semibold text-amber-950">
+          <CheckCircle2 size={16} className="text-amber-600 shrink-0" />
+          <span>
+            Signed in as <strong>{currentUser.name}</strong> ({currentUser.email}) • Contact details autofilled from your profile
+          </span>
+        </div>
+      )}
       {config.fields.map((field) => {
         const id = `${baseId}-${field.name}`;
         const error = errors[field.name];
@@ -158,10 +194,16 @@ export function EnquiryForm({ kind }: { kind: EnquiryKind }) {
                 ))}
               </select>
             ) : field.type === "textarea" ? (
-              <textarea {...common} placeholder={field.placeholder} className={cn(common.className, "min-h-[120px] resize-y")} />
+              <textarea
+                {...common}
+                defaultValue={getAutofillValue(field.name) || undefined}
+                placeholder={field.placeholder}
+                className={cn(common.className, "min-h-[120px] resize-y")}
+              />
             ) : (
               <input
                 {...common}
+                defaultValue={getAutofillValue(field.name) || undefined}
                 type={inputType(field)}
                 placeholder={field.placeholder}
                 accept={field.accept}

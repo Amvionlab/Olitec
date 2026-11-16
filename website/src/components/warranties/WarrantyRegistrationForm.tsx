@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import Link from "next/link";
+import { CheckCircle2, ShieldCheck, RefreshCw, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { apiPost, fileToUpload } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { fetchActiveProducts, type ApiProductItem } from "@/services/products";
+import { getStoredUser, register, sendRegistrationOtp, type UserProfile } from "@/services/auth";
 import {
   INVOICE_ACCEPTED_TYPES,
   INVOICE_MAX_BYTES,
   validateEmail,
   validateMobile,
   validateName,
+  validateNewPassword,
   validateRequired,
 } from "@/lib/validation";
 
@@ -139,11 +143,38 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
   const [isCustomModel, setIsCustomModel] = useState(false);
   const [values, setValues] = useState<Values>({ ...emptyValues, productModel: defaultProductModel });
 
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+
+  // Auto-signup state for guests registering warranty
+  const [signupPassword, setSignupPassword] = useState("");
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
+  const [signupOtp, setSignupOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpMsg, setOtpMsg] = useState<string>();
+  const [showPass, setShowPass] = useState(false);
+
   useEffect(() => {
     fetchActiveProducts().then((items) => {
       if (items && items.length > 0) setProducts(items);
     });
+
+    const user = getStoredUser();
+    if (user) {
+      setCurrentUser(user);
+      setValues((v) => ({
+        ...v,
+        customerName: v.customerName || user.name || "",
+        email: v.email || user.email || "",
+        mobile: v.mobile || user.mobile || "",
+        installationAddress:
+          v.installationAddress ||
+          user.city ||
+          (user.state ? `${user.city || ""}, ${user.state}` : ""),
+      }));
+    }
   }, []);
+
   const [files, setFiles] = useState<Files>({ invoice: null, installationDocument: null });
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState<string>();
@@ -162,6 +193,25 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
   function updateFile(field: FileFieldName, file: File | null) {
     setFiles((f) => ({ ...f, [field]: file }));
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
+  }
+
+  async function handleSendWarrantyOtp() {
+    const emailErr = validateEmail(values.email);
+    if (emailErr) {
+      setErrors((e) => ({ ...e, email: emailErr }));
+      setFormError(emailErr);
+      return;
+    }
+    setOtpLoading(true);
+    setFormError(undefined);
+    const res = await sendRegistrationOtp(values.email.trim(), values.customerName.trim());
+    setOtpLoading(false);
+    if (!res.ok) {
+      setFormError(res.message);
+      return;
+    }
+    setOtpSent(true);
+    setOtpMsg("Verification code sent to " + values.email.trim() + "!");
   }
 
   function inputProps(field: TextFieldName) {
@@ -184,6 +234,45 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
     if (firstInvalid) {
       formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
       return;
+    }
+
+    // If user is not logged in, execute registration with OTP verification first!
+    if (!currentUser) {
+      const passErr = validateNewPassword(signupPassword);
+      if (passErr) {
+        setFormError(passErr);
+        return;
+      }
+      if (signupPassword !== signupConfirmPassword) {
+        setFormError("Passwords do not match.");
+        return;
+      }
+      if (!otpSent) {
+        await handleSendWarrantyOtp();
+        setFormError("We sent a 6-digit verification code to " + values.email + ". Please enter it below to complete registration.");
+        return;
+      }
+      if (!signupOtp || signupOtp.trim().length !== 6) {
+        setFormError("Please enter the 6-digit email verification code.");
+        return;
+      }
+
+      setSubmitting(true);
+      const regRes = await register({
+        name: values.customerName.trim(),
+        email: values.email.trim(),
+        mobile: values.mobile.replace(/\D/g, ""),
+        password: signupPassword,
+        otp: signupOtp.trim(),
+      });
+
+      if (!regRes.ok) {
+        setSubmitting(false);
+        setFormError(regRes.message);
+        return;
+      }
+      // User registered & verified!
+      setCurrentUser(regRes.data);
     }
 
     setSubmitting(true);
@@ -225,31 +314,50 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
 
   if (submitted) {
     return (
-      <div role="status" className="space-y-4 text-center">
-        <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-leaf/10 text-2xl text-leaf" aria-hidden>
-          ✓
+      <div role="status" className="space-y-4 text-center py-6">
+        <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-2">
+          <CheckCircle2 size={36} />
         </div>
-        <h2 className="text-xl font-semibold text-black">Warranty registration submitted</h2>
-        <p className="text-[15px] text-muted">
-          Your registration number is <strong className="text-black">{submitted.registrationNumber}</strong> for serial number{" "}
-          <strong className="text-black">{submitted.serialNumber}</strong>. Status: <strong className="text-black">Pending</strong>.
+        <h2 className="text-2xl font-bold text-slate-900">Warranty Registration Submitted!</h2>
+        <p className="text-sm text-slate-600 max-w-md mx-auto">
+          Your registration number is <strong className="text-slate-900 font-mono">{submitted.registrationNumber}</strong> for Serial{" "}
+          <strong className="text-slate-900 font-mono">{submitted.serialNumber}</strong>. Status: <span className="font-bold text-amber-600">Pending Review</span>.
         </p>
-        <p className="text-sm text-muted">
-          Our team will verify your invoice and installation document. Keep the registration number for future reference.
+        <p className="text-xs text-slate-500 max-w-md mx-auto">
+          Your account is active and verified. This warranty has been registered directly to your Olitec Dashboard.
         </p>
-        <button
-          type="button"
-          onClick={() => setSubmitted(undefined)}
-          className="mt-2 inline-flex h-11 items-center justify-center rounded-full border border-black px-6 text-sm font-semibold text-black transition hover:bg-black/5"
-        >
-          Register another product
-        </button>
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+          <Link
+            href="/warranties"
+            className="brand-gradient inline-flex h-11 items-center justify-center gap-2 rounded-full px-7 text-sm font-bold text-black transition hover:brightness-105 shadow-sm"
+          >
+            <span>Go to Your Dashboard</span>
+            <ArrowRight size={16} />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setSubmitted(undefined)}
+            className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 px-6 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 cursor-pointer"
+          >
+            Register Another Product
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <form key={formKey} ref={formRef} onSubmit={handleSubmit} noValidate>
+      {/* Autofill Notification Banner for Logged-in Users */}
+      {currentUser && (
+        <div className="mb-8 flex items-center gap-2.5 rounded-2xl bg-amber-50 border border-amber-200/80 px-4 py-3 text-xs font-semibold text-amber-950">
+          <CheckCircle2 size={16} className="text-amber-600 shrink-0" />
+          <span>
+            Signed in as <strong>{currentUser.name}</strong> ({currentUser.email}) • Contact details autofilled and warranty will link directly to your Dashboard.
+          </span>
+        </div>
+      )}
+
       <section className="mb-10">
         <SectionTitle>01. Customer Information</SectionTitle>
         <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
@@ -410,6 +518,96 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
         </div>
       </section>
 
+      {/* 05. Account Activation & Email OTP (Only for users not currently signed in) */}
+      {!currentUser && (
+        <section className="mb-8">
+          <SectionTitle>05. Account Activation &amp; Email Verification</SectionTitle>
+          <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/50 p-5 sm:p-6 space-y-4">
+            <div className="flex items-center gap-2 text-brand-900 font-bold text-sm">
+              <ShieldCheck size={18} className="text-brand-600" />
+              <span>Create Account to Track This Warranty in Your Dashboard</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              To track this warranty, request service visits, and access product documents, set a password and verify your email address. Both account activation and warranty registration will be processed together.
+            </p>
+
+            <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-bold text-slate-800">
+                  Create Account Password <span className="text-brand-600">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPass ? "text" : "password"}
+                    required
+                    placeholder="Min 8 chars (letter & number)"
+                    value={signupPassword}
+                    onChange={(e) => setSignupPassword(e.target.value)}
+                    className="block w-full h-11 rounded-[12px] border border-slate-300 bg-white px-4 pr-10 text-sm text-black focus:border-brand-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass((v) => !v)}
+                    className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                  >
+                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-bold text-slate-800">
+                  Confirm Password <span className="text-brand-600">*</span>
+                </label>
+                <input
+                  type={showPass ? "text" : "password"}
+                  required
+                  placeholder="Re-type your password"
+                  value={signupConfirmPassword}
+                  onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                  className="block w-full h-11 rounded-[12px] border border-slate-300 bg-white px-4 text-sm text-black focus:border-brand-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Email OTP Verification Section */}
+            <div className="pt-2 border-t border-brand-200/60">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-slate-800">
+                  6-Digit Email Verification Code (OTP) <span className="text-brand-600">*</span>
+                </label>
+                <button
+                  type="button"
+                  disabled={otpLoading || !values.email}
+                  onClick={handleSendWarrantyOtp}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-brand-700 hover:text-brand-900 hover:underline disabled:opacity-50 cursor-pointer"
+                >
+                  <RefreshCw size={12} className={otpLoading ? "animate-spin" : ""} />
+                  <span>{otpSent ? "Resend OTP" : "Send OTP to " + (values.email || "Email")}</span>
+                </button>
+              </div>
+
+              {otpMsg && (
+                <p className="mb-2 text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 flex items-center gap-1.5">
+                  <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+                  <span>{otpMsg}</span>
+                </p>
+              )}
+
+              <input
+                type="text"
+                maxLength={6}
+                required
+                placeholder="Enter 6-digit OTP code"
+                value={signupOtp}
+                onChange={(e) => setSignupOtp(e.target.value.replace(/\D/g, ""))}
+                className="block w-full h-11 rounded-[12px] border border-brand-300 bg-white px-4 font-mono text-base font-bold tracking-widest text-slate-900 focus:border-brand-500 focus:outline-none text-center"
+              />
+            </div>
+          </div>
+        </section>
+      )}
+
       <div className="border-t border-[#e6e6e6] pt-5">
         <p className="mb-5 text-xs text-muted">Please verify all details before submitting your warranty registration.</p>
         {formError && (
@@ -419,10 +617,18 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
         )}
         <button
           type="submit"
-          disabled={submitting}
-          className="brand-gradient flex h-[52px] w-full items-center justify-center rounded-full text-[15px] font-semibold text-black transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={submitting || otpLoading}
+          className="brand-gradient flex h-[52px] w-full items-center justify-center rounded-full text-[15px] font-semibold text-black transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
         >
-          {submitting ? "Submitting…" : "Submit Warranty Registration"}
+          {submitting
+            ? currentUser
+              ? "Submitting Warranty…"
+              : "Verifying & Registering…"
+            : currentUser
+              ? "Submit Warranty Registration"
+              : otpSent
+                ? "Verify OTP & Register Warranty"
+                : "Verify Email & Register Warranty"}
         </button>
       </div>
     </form>
