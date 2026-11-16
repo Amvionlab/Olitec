@@ -95,14 +95,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Brand */}
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4">
           <Link href="/" className="flex items-center gap-2 transition hover:opacity-90">
-            <div className="flex items-center rounded-xl bg-white px-2 py-1 shadow-xs">
+            <div className="flex items-center rounded-xl bg-white px-2.5 py-1.5 shadow-xs">
               <Image
                 src="/images/home/olitec-logo.png"
                 alt="Olitec"
-                width={105}
-                height={32}
+                width={140}
+                height={42}
                 priority
-                className="h-5.5 w-auto object-contain"
+                className="h-7.5 w-auto object-contain"
               />
             </div>
             <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
@@ -176,13 +176,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <aside className="relative flex w-72 flex-col bg-slate-950 text-white shadow-xl">
             <div className="flex h-16 items-center justify-between border-b border-white/10 px-5">
               <Link href="/" className="flex items-center gap-2.5">
-                <div className="flex items-center rounded-xl bg-white px-2.5 py-1 shadow-xs">
+                <div className="flex items-center rounded-xl bg-white px-2.5 py-1.5 shadow-xs">
                   <Image
                     src="/images/home/olitec-logo.png"
                     alt="Olitec"
-                    width={110}
-                    height={32}
-                    className="h-5 w-auto object-contain"
+                    width={130}
+                    height={40}
+                    className="h-7 w-auto object-contain"
                   />
                 </div>
                 <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
@@ -248,13 +248,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             >
               <Menu size={20} />
             </button>
-            <div className="flex items-center lg:hidden">
+            <div className="flex items-center rounded-lg bg-white px-2 py-1 shadow-xs lg:hidden">
               <Image
                 src="/images/home/olitec-logo.png"
                 alt="Olitec"
-                width={90}
-                height={26}
-                className="h-5 w-auto object-contain"
+                width={120}
+                height={36}
+                className="h-6.5 w-auto object-contain"
               />
             </div>
             <h1 className="text-base font-semibold text-slate-900 md:text-lg">
