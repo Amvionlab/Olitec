@@ -1,14 +1,8 @@
 import type { Metadata } from "next";
-import { RegisterForm } from "@/components/auth/RegisterForm";
+import { AuthModal } from "@/components/auth/AuthModal";
 
-export const metadata: Metadata = { title: "Create account" };
+export const metadata: Metadata = { title: "Create account", robots: { index: false } };
 
 export default function RegisterPage() {
-  return (
-    <>
-      <h1 className="text-xl font-bold text-slate-900">Create your account</h1>
-      <p className="mt-1 mb-6 text-sm text-slate-500">Register once to manage every product you own.</p>
-      <RegisterForm />
-    </>
-  );
+  return <AuthModal embedded initialMode="register" />;
 }

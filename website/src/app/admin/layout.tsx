@@ -49,11 +49,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!authorized) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-4">
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem("olitec_token"),u=localStorage.getItem("olitec_user"),r=u?JSON.parse(u).role:null;if(!t||r!=="admin"){window.location.replace("/login");}}catch(e){window.location.replace("/login");}`,
-          }}
-        />
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
           <p className="mt-3 text-sm text-slate-400">Verifying administrator access…</p>

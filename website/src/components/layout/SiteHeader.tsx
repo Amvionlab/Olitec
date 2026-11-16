@@ -40,8 +40,9 @@ function PendingBar() {
 }
 
 import { getAuthHeaders, getStoredToken, getStoredUser, clearStoredSession, logout } from "@/services/auth";
+import { AuthModal } from "@/components/auth/AuthModal";
 
-function ProfileAvatar({ pathname }: { pathname: string }) {
+function ProfileAvatar({ pathname, onOpenLogin }: { pathname: string; onOpenLogin: () => void }) {
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
 
@@ -111,25 +112,49 @@ function ProfileAvatar({ pathname }: { pathname: string }) {
   }, [pathname]);
 
   const initial = customerName?.trim().charAt(0).toUpperCase();
-  const destination = role === "admin" ? "/admin/dashboard" : customerName ? "/warranties" : "/login";
+
+  if (!customerName) {
+    return (
+      <button
+        type="button"
+        onClick={onOpenLogin}
+        aria-label="Sign in or register"
+        title="Sign in / Register"
+        className="flex size-10 items-center justify-center rounded-full
+                   border border-slate-200 bg-white text-slate-700
+                   hover:bg-brand-50 hover:text-brand-600
+                   hover:border-brand-200 transition-all shadow-xs cursor-pointer"
+      >
+        <UserRound className="size-5" />
+      </button>
+    );
+  }
+
+  const destination = role === "admin" ? "/admin/dashboard" : "/warranties";
 
   return (
     <Link
       href={destination}
-      aria-label={customerName ? `${customerName} account` : "Login"}
-      title={customerName ? `${customerName} (${role === "admin" ? "Admin" : "Account"})` : "Login"}
+      aria-label={`${customerName} account`}
+      title={`${customerName} (${role === "admin" ? "Admin" : "Account"})`}
       className="flex size-10 items-center justify-center rounded-full
                  border border-slate-200 bg-white text-slate-700
                  font-bold text-base
                  hover:bg-brand-50 hover:text-brand-600
                  hover:border-brand-200 transition-all shadow-xs"
     >
-      {initial || <UserRound className="size-5" />}
+      {initial}
     </Link>
   );
 }
 
-function MobileProfileSection({ onNavigate }: { onNavigate: () => void }) {
+function MobileProfileSection({
+  onNavigate,
+  onOpenLogin,
+}: {
+  onNavigate: () => void;
+  onOpenLogin: () => void;
+}) {
   const router = useRouter();
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -199,14 +224,17 @@ function MobileProfileSection({ onNavigate }: { onNavigate: () => void }) {
   }
 
   return (
-    <Link
-      href="/login"
-      onClick={onNavigate}
-      className="flex h-11 items-center justify-center gap-2 rounded-full border border-slate-200 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+    <button
+      type="button"
+      onClick={() => {
+        onNavigate();
+        onOpenLogin();
+      }}
+      className="flex h-11 w-full items-center justify-center gap-2 rounded-full border border-slate-200 text-sm font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer"
     >
       <UserRound className="size-4 text-brand-500" />
-      <span>Sign in / Portal</span>
-    </Link>
+      <span>Sign in / Register</span>
+    </button>
   );
 }
 
@@ -214,6 +242,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isFixedVisible, setIsFixedVisible] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const fixedNavRef = useRef<HTMLElement>(null);
 
@@ -320,7 +349,7 @@ export function SiteHeader() {
 
           {/* Header Action Button */}
           <div className="hidden items-center gap-3.5 xl:flex">
-<ProfileAvatar pathname={pathname} />
+            <ProfileAvatar pathname={pathname} onOpenLogin={() => setAuthModalOpen(true)} />
             <Link
               href="/homes-and-businesses"
               className="brand-gradient group inline-flex h-[46px] items-center gap-2 rounded-full px-6 text-sm font-bold text-black transition-all hover:brightness-105 shadow-sm active:scale-95"
@@ -444,7 +473,8 @@ export function SiteHeader() {
               <PhoneCall className="size-3.5 text-brand-500" />
               <span>{siteConfig.supportPhone}</span>
             </a>
-<ProfileAvatar pathname={pathname} />            <Link
+            <ProfileAvatar pathname={pathname} onOpenLogin={() => setAuthModalOpen(true)} />
+            <Link
               href="/homes-and-businesses"
               className="brand-gradient group inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-bold text-black transition-all hover:brightness-105 shadow-sm active:scale-95"
             >
@@ -500,7 +530,10 @@ export function SiteHeader() {
               );
             })}
             <div className="mt-5 pt-3 flex flex-col gap-3">
-              <MobileProfileSection onNavigate={() => setMobileOpen(false)} />
+              <MobileProfileSection
+                onNavigate={() => setMobileOpen(false)}
+                onOpenLogin={() => setAuthModalOpen(true)}
+              />
               <Link
                 href="/homes-and-businesses"
                 className="brand-gradient flex h-11 items-center justify-center gap-2 rounded-full font-bold text-black"
@@ -519,6 +552,9 @@ export function SiteHeader() {
           </nav>
         </div>
       )}
+
+      {/* Global Auth Modal for in-place sign-in & registration */}
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </>
   );
 }
