@@ -340,8 +340,8 @@ export function SiteHeader() {
 
   return (
     <>
-      {/* 1. Normal In-Flow Header (Hero Top) */}
-      <header className="relative z-30 w-full bg-white py-3 sm:py-4 xl:py-5 border-b border-slate-100">
+      {/* 1. Normal In-Flow Header (Hero Top - seamless with no bottom border) */}
+      <header className="relative z-30 w-full bg-white py-3 sm:py-4 xl:py-5">
         <div className="mx-auto flex max-w-[1600px] 2xl:max-w-[1680px] items-center justify-between px-4 sm:px-8 xl:px-12 2xl:px-16">
           {/* Brand Logo */}
           <Link href="/" aria-label={`${siteConfig.name} home`} className="shrink-0 transition-transform hover:scale-[1.02]">
