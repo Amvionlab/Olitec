@@ -104,6 +104,47 @@ export function AuthModal({
   const [formError, setFormError] = useState<string>();
   const [successMsg, setSuccessMsg] = useState<string>();
 
+  // Full reset of all form data on submission or authentication change
+  const resetForm = () => {
+    setLoginValues({ email: "", password: "" });
+    setLoginErrors({});
+    setShowLoginPassword(false);
+
+    setRegValues({
+      name: "",
+      email: "",
+      mobile: "",
+      password: "",
+      confirmPassword: "",
+      otp: "",
+      acceptTerms: true,
+    });
+    setRegErrors({});
+    setShowRegPassword(false);
+    setRegOtpSent(false);
+    setRegOtpLoading(false);
+
+    setForgotEmail("");
+    setForgotOtp("");
+    setForgotNewPassword("");
+    setForgotConfirmPassword("");
+    setForgotStep("enter-email");
+    setShowForgotNewPassword(false);
+    setForgotLoading(false);
+
+    setFormError(undefined);
+    setSuccessMsg(undefined);
+  };
+
+  // Reset form inputs whenever authentication state changes (login, logout, token clear)
+  useEffect(() => {
+    const handleAuthChange = () => {
+      resetForm();
+    };
+    window.addEventListener("olitec_auth_change", handleAuthChange);
+    return () => window.removeEventListener("olitec_auth_change", handleAuthChange);
+  }, []);
+
   // Forgot password handlers
   async function handleSendForgotOtp(e?: FormEvent) {
     if (e) e.preventDefault();
@@ -151,13 +192,11 @@ export function AuthModal({
     }
 
     setSuccessMsg("Password reset successfully! Redirecting to sign in...");
-    setLoginValues((v) => ({ ...v, email: forgotEmail, password: "" }));
+    const targetEmail = forgotEmail;
     setTimeout(() => {
+      resetForm();
+      setLoginValues({ email: targetEmail, password: "" });
       setMode("login");
-      setForgotStep("enter-email");
-      setForgotOtp("");
-      setForgotNewPassword("");
-      setForgotConfirmPassword("");
       setSuccessMsg("Your password has been updated. Please sign in.");
     }, 1200);
   }
@@ -188,6 +227,7 @@ export function AuthModal({
     setSuccessMsg(user.role === "admin" ? "Welcome Admin! Redirecting..." : "Signed in successfully!");
 
     setTimeout(() => {
+      resetForm();
       onSuccess?.(user);
       onClose();
       if (user.role === "admin") {
@@ -261,6 +301,7 @@ export function AuthModal({
     setSuccessMsg("Account verified & created successfully!");
 
     setTimeout(() => {
+      resetForm();
       onSuccess?.(user);
       onClose();
       if (redirectTo) {

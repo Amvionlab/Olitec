@@ -129,6 +129,7 @@ export function EnquiryForm({ kind }: { kind: EnquiryKind }) {
       return;
     }
     setResult(config.success.message.replace("{reference}", response.data.reference ?? ""));
+    formRef.current?.reset();
     requestAnimationFrame(() => successRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }));
   }
 

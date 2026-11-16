@@ -336,7 +336,14 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
           </Link>
           <button
             type="button"
-            onClick={() => setSubmitted(undefined)}
+            onClick={() => {
+              setSubmitted(undefined);
+              setSignupPassword("");
+              setSignupConfirmPassword("");
+              setSignupOtp("");
+              setOtpSent(false);
+              setOtpMsg(undefined);
+            }}
             className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 px-6 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 cursor-pointer"
           >
             Register Another Product
