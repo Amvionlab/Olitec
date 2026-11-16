@@ -198,7 +198,7 @@ function ProfileAvatar({ pathname, onOpenLogin }: { pathname: string; onOpenLogi
               onClick={() => setDropdownOpen(false)}
               className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition"
             >
-              <span>{role === "admin" ? "Admin Portal" : "My Warranties"}</span>
+              <span>{role === "admin" ? "Dashboard" : "My Warranties"}</span>
               <ArrowRight className="size-3.5 text-slate-400" />
             </Link>
           </div>
@@ -279,7 +279,7 @@ function MobileProfileSection({
           <div className="min-w-0 text-left">
             <p className="truncate text-sm font-bold text-slate-900">{customerName}</p>
             <p className="text-[11px] font-semibold text-brand-600">
-              {role === "admin" ? "Admin Portal" : "My Warranties"}
+              {role === "admin" ? "Dashboard" : "My Warranties"}
             </p>
           </div>
         </Link>

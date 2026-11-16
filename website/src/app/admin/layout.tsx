@@ -18,7 +18,7 @@ import {
 import { getStoredToken, getStoredUser, logout, type UserProfile } from "@/services/auth";
 
 const navItems = [
-  { label: "Dashboard & Analytics", href: "/admin/dashboard", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Product Master", href: "/admin/products", icon: Package },
   { label: "User Management", href: "/admin/users", icon: Users },
   { label: "Warranty Desk", href: "/admin/warranties", icon: ShieldCheck },
