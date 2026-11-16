@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link, { useLinkStatus } from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronDown,
   Menu,
@@ -39,25 +39,36 @@ function PendingBar() {
   );
 }
 
-import { getAuthHeaders, getStoredUser } from "@/services/auth";
+import { getAuthHeaders, getStoredToken, getStoredUser, clearStoredSession, logout } from "@/services/auth";
 
 function ProfileAvatar({ pathname }: { pathname: string }) {
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const API_URL =
-      process.env.NEXT_PUBLIC_API_BASE_URL ||
-      "http://localhost:4000/api";
-
     let isMounted = true;
-    const stored = getStoredUser();
-    if (stored) {
-      setCustomerName(stored.name);
-      setRole(stored.role);
-    }
 
-    async function fetchCustomer() {
+    const syncAuth = async () => {
+      const stored = getStoredUser();
+      const token = getStoredToken();
+
+      if (!stored || !token) {
+        if (isMounted) {
+          setCustomerName(null);
+          setRole(null);
+        }
+        return;
+      }
+
+      if (isMounted) {
+        setCustomerName(stored.name);
+        setRole(stored.role);
+      }
+
+      const API_URL =
+        process.env.NEXT_PUBLIC_API_BASE_URL ||
+        "http://localhost:4000/api";
+
       try {
         const response = await fetch(`${API_URL}/auth/me`, {
           method: "GET",
@@ -68,25 +79,34 @@ function ProfileAvatar({ pathname }: { pathname: string }) {
 
         const result = await response.json();
 
-        if (isMounted && response.ok && result.success && result.data) {
-          setCustomerName(result.data.name || null);
-          setRole(result.data.role || null);
-        } else if (isMounted && !stored) {
-          setCustomerName(null);
-          setRole(null);
+        if (isMounted) {
+          if (response.ok && result.success && result.data) {
+            setCustomerName(result.data.name || null);
+            setRole(result.data.role || null);
+          } else {
+            clearStoredSession();
+            setCustomerName(null);
+            setRole(null);
+          }
         }
-      } catch (error) {
-        if (isMounted && !stored) {
-          setCustomerName(null);
-          setRole(null);
-        }
+      } catch {
+        // Network fail; keep local stored info if mounted
       }
-    }
+    };
 
-    fetchCustomer();
+    syncAuth();
+
+    const handleAuthChange = () => {
+      syncAuth();
+    };
+
+    window.addEventListener("olitec_auth_change", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
 
     return () => {
       isMounted = false;
+      window.removeEventListener("olitec_auth_change", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
     };
   }, [pathname]);
 
@@ -105,6 +125,87 @@ function ProfileAvatar({ pathname }: { pathname: string }) {
                  hover:border-brand-200 transition-all shadow-xs"
     >
       {initial || <UserRound className="size-5" />}
+    </Link>
+  );
+}
+
+function MobileProfileSection({ onNavigate }: { onNavigate: () => void }) {
+  const router = useRouter();
+  const [customerName, setCustomerName] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const syncAuth = () => {
+      const stored = getStoredUser();
+      const token = getStoredToken();
+      if (!stored || !token) {
+        if (isMounted) {
+          setCustomerName(null);
+          setRole(null);
+        }
+      } else {
+        if (isMounted) {
+          setCustomerName(stored.name);
+          setRole(stored.role);
+        }
+      }
+    };
+    syncAuth();
+    window.addEventListener("olitec_auth_change", syncAuth);
+    window.addEventListener("storage", syncAuth);
+    return () => {
+      isMounted = false;
+      window.removeEventListener("olitec_auth_change", syncAuth);
+      window.removeEventListener("storage", syncAuth);
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    await logout();
+    onNavigate();
+    router.replace("/");
+  };
+
+  const initial = customerName?.trim().charAt(0).toUpperCase();
+
+  if (customerName) {
+    return (
+      <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-3">
+        <Link
+          href={role === "admin" ? "/admin/dashboard" : "/warranties"}
+          onClick={onNavigate}
+          className="flex items-center gap-2.5 min-w-0"
+        >
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-500 font-bold text-black text-xs">
+            {initial}
+          </span>
+          <div className="min-w-0 text-left">
+            <p className="truncate text-sm font-bold text-slate-900">{customerName}</p>
+            <p className="text-[11px] font-semibold text-brand-600">
+              {role === "admin" ? "Admin Portal" : "My Warranties"}
+            </p>
+          </div>
+        </Link>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="shrink-0 text-xs font-semibold text-red-600 hover:text-red-700 px-2 py-1"
+        >
+          Sign out
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href="/login"
+      onClick={onNavigate}
+      className="flex h-11 items-center justify-center gap-2 rounded-full border border-slate-200 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+    >
+      <UserRound className="size-4 text-brand-500" />
+      <span>Sign in / Portal</span>
     </Link>
   );
 }
@@ -399,6 +500,7 @@ export function SiteHeader() {
               );
             })}
             <div className="mt-5 pt-3 flex flex-col gap-3">
+              <MobileProfileSection onNavigate={() => setMobileOpen(false)} />
               <Link
                 href="/homes-and-businesses"
                 className="brand-gradient flex h-11 items-center justify-center gap-2 rounded-full font-bold text-black"

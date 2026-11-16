@@ -34,7 +34,10 @@ export const authController = {
   },
 
   logout: async (_request: FastifyRequest, reply: FastifyReply) => {
-    reply.header("Set-Cookie", "olitec_token=; Path=/; HttpOnly; Max-Age=0");
+    reply.header(
+      "Set-Cookie",
+      "olitec_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    );
     return ok(await authService.logout());
   },
 };

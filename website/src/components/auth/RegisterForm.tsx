@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { PasswordField, TextField } from "@/components/ui/FormField";
@@ -138,6 +139,16 @@ export function RegisterForm() {
           Sign in
         </Link>
       </p>
+
+      <div className="border-t border-slate-100 pt-3 text-center">
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-black transition"
+        >
+          <ArrowLeft className="size-3.5" />
+          <span>Return to Website (Our Legacy)</span>
+        </Link>
+      </div>
     </form>
   );
 }

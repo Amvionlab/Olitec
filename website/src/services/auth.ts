@@ -47,13 +47,16 @@ export function setStoredSession(token: string, user: UserProfile): void {
   localStorage.setItem("olitec_user", JSON.stringify(user));
   // Also set cookie so SSR requests can see it
   document.cookie = `olitec_token=${token}; path=/; max-age=${7 * 86400}; SameSite=Lax`;
+  window.dispatchEvent(new Event("olitec_auth_change"));
 }
 
 export function clearStoredSession(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem("olitec_token");
   localStorage.removeItem("olitec_user");
-  document.cookie = "olitec_token=; path=/; max-age=0";
+  document.cookie = "olitec_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = "olitec_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  window.dispatchEvent(new Event("olitec_auth_change"));
 }
 
 export function getAuthHeaders(): Record<string, string> {

@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Pencil, LogOut } from "lucide-react";
 import type { Customer } from "@/lib/types";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/FormField";
 import { updateProfile, type ProfileUpdateInput } from "@/services/customer";
+import { logout } from "@/services/auth";
 import { formatDate, formatMobile } from "@/lib/format";
 import { hasErrors, validateMobile, validateName, validateRequired, type FieldErrors } from "@/lib/validation";
 
@@ -28,12 +30,18 @@ function validate(values: ProfileUpdateInput): FieldErrors<ProfileUpdateInput> {
 }
 
 export function ProfileCard({ initialCustomer }: { initialCustomer: Customer }) {
+  const router = useRouter();
   const [customer, setCustomer] = useState(initialCustomer);
   const [editing, setEditing] = useState(false);
   const [values, setValues] = useState(toInput(initialCustomer));
   const [errors, setErrors] = useState<FieldErrors<ProfileUpdateInput>>({});
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string>();
+
+  const handleSignOut = async () => {
+    await logout();
+    router.replace("/");
+  };
 
   const update = (field: keyof ProfileUpdateInput, value: string) => {
     setValues((v) => ({ ...v, [field]: value }));
@@ -86,9 +94,14 @@ export function ProfileCard({ initialCustomer }: { initialCustomer: Customer }) 
         description={`Member since ${formatDate(customer.memberSince)}`}
         action={
           !editing && (
-            <Button variant="secondary" size="sm" onClick={startEditing}>
-              <Pencil className="size-3.5" aria-hidden /> Edit
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" size="sm" onClick={startEditing}>
+                <Pencil className="size-3.5" aria-hidden /> Edit
+              </Button>
+              <Button variant="secondary" size="sm" onClick={handleSignOut} className="text-red-600 hover:text-red-700 hover:border-red-200">
+                <LogOut className="size-3.5" aria-hidden /> Sign out
+              </Button>
+            </div>
           )
         }
       />
