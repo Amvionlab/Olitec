@@ -93,21 +93,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Desktop Fixed Sidebar */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-56 flex-col bg-slate-950 text-white lg:flex">
         {/* Brand */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4">
-          <Link href="/" className="flex items-center gap-2 transition hover:opacity-90">
-            <div className="flex items-center rounded-xl bg-white px-2.5 py-1.5 shadow-xs">
+        <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-3.5">
+          <Link href="/" className="flex w-full items-center transition hover:opacity-95" aria-label="Olitec Home">
+            <div className="flex w-full items-center justify-center rounded-xl bg-white px-3 py-1.5 shadow-xs">
               <Image
                 src="/images/home/olitec-logo.png"
                 alt="Olitec"
-                width={140}
-                height={42}
+                width={170}
+                height={50}
                 priority
-                className="h-7.5 w-auto object-contain"
+                className="h-8.5 w-auto object-contain"
               />
             </div>
-            <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
-              ADMIN
-            </span>
           </Link>
         </div>
 
@@ -174,22 +171,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div className="fixed inset-0 bg-black/60" onClick={() => setMobileMenuOpen(false)} />
           <aside className="relative flex w-72 flex-col bg-slate-950 text-white shadow-xl">
-            <div className="flex h-16 items-center justify-between border-b border-white/10 px-5">
-              <Link href="/" className="flex items-center gap-2.5">
-                <div className="flex items-center rounded-xl bg-white px-2.5 py-1.5 shadow-xs">
+            <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
+              <Link href="/" className="flex items-center transition hover:opacity-95" aria-label="Olitec Home">
+                <div className="flex items-center rounded-xl bg-white px-3 py-1.5 shadow-xs">
                   <Image
                     src="/images/home/olitec-logo.png"
                     alt="Olitec"
-                    width={130}
-                    height={40}
-                    className="h-7 w-auto object-contain"
+                    width={150}
+                    height={45}
+                    className="h-8 w-auto object-contain"
                   />
                 </div>
-                <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
-                  ADMIN
-                </span>
               </Link>
-              <button onClick={() => setMobileMenuOpen(false)} className="rounded-lg p-1 text-slate-400 hover:text-white">
+              <button onClick={() => setMobileMenuOpen(false)} className="rounded-lg p-1.5 text-slate-400 hover:text-white" aria-label="Close menu">
                 <X size={20} />
               </button>
             </div>
