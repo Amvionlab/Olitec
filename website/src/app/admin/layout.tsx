@@ -28,27 +28,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-
     const token = getStoredToken();
     const storedUser = getStoredUser();
 
     if (!token || storedUser?.role !== "admin") {
+      setAuthorized(false);
       router.replace("/login");
     } else {
       setUser(storedUser);
+      setAuthorized(true);
     }
   }, [pathname, router]);
 
-  if (!mounted) {
+  if (!authorized) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-900 text-white">
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-          <p className="mt-3 text-sm text-slate-400">Loading…</p>
+          <p className="mt-3 text-sm text-slate-400">Verifying administrator access…</p>
         </div>
       </div>
     );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ShieldCheck,
   Search,
@@ -21,8 +22,10 @@ import {
   type AdminWarranty,
   type PaginationMeta,
 } from "@/services/admin";
+import { getStoredToken, clearStoredSession } from "@/services/auth";
 
 export default function WarrantyDeskPage() {
+  const router = useRouter();
   const [warranties, setWarranties] = useState<AdminWarranty[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,13 @@ export default function WarrantyDeskPage() {
   const [actionLoading, setActionLoading] = useState(false);
 
   const loadWarranties = async () => {
+    const token = getStoredToken();
+    if (!token) {
+      setLoading(false);
+      router.replace("/login");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await getAdminWarranties({
@@ -45,7 +55,13 @@ export default function WarrantyDeskPage() {
       setWarranties(res.items);
       setMeta(res.meta);
     } catch (err: any) {
-      setMessage({ type: "error", text: err?.message || "Failed to load warranties" });
+      const msg = err?.message || "Failed to load warranties";
+      if (msg.toLowerCase().includes("unauthorized") || msg.toLowerCase().includes("authentication required")) {
+        clearStoredSession();
+        router.replace("/login");
+        return;
+      }
+      setMessage({ type: "error", text: msg });
     } finally {
       setLoading(false);
     }

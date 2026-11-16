@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Users,
   Search,
@@ -17,8 +18,10 @@ import {
   X,
 } from "lucide-react";
 import { getAdminUsers, updateUserStatus, type AdminUser, type PaginationMeta } from "@/services/admin";
+import { getStoredToken, clearStoredSession } from "@/services/auth";
 
 export default function UserManagementPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +31,13 @@ export default function UserManagementPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const loadUsers = async () => {
+    const token = getStoredToken();
+    if (!token) {
+      setLoading(false);
+      router.replace("/login");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await getAdminUsers({
@@ -38,7 +48,13 @@ export default function UserManagementPage() {
       setUsers(res.items);
       setMeta(res.meta);
     } catch (err: any) {
-      setMessage({ type: "error", text: err?.message || "Failed to load users" });
+      const msg = err?.message || "Failed to load users";
+      if (msg.toLowerCase().includes("unauthorized") || msg.toLowerCase().includes("authentication required")) {
+        clearStoredSession();
+        router.replace("/login");
+        return;
+      }
+      setMessage({ type: "error", text: msg });
     } finally {
       setLoading(false);
     }

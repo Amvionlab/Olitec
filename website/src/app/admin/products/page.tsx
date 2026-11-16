@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Package,
   Plus,
@@ -20,6 +21,7 @@ import {
   deleteAdminProduct,
   type AdminProduct,
 } from "@/services/admin";
+import { getStoredToken, clearStoredSession } from "@/services/auth";
 
 const CATEGORIES = [
   "Single-Phase Hybrid Inverter",
@@ -32,6 +34,7 @@ const CATEGORIES = [
 ];
 
 export default function ProductMasterPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -53,12 +56,25 @@ export default function ProductMasterPage() {
   const [isActive, setIsActive] = useState(true);
 
   const loadProducts = async () => {
+    const token = getStoredToken();
+    if (!token) {
+      setLoading(false);
+      router.replace("/login");
+      return;
+    }
+
     setLoading(true);
     try {
       const data = await getAdminProducts({ q: search, category: categoryFilter });
       setProducts(data);
     } catch (err: any) {
-      setMessage({ type: "error", text: err?.message || "Failed to load products" });
+      const msg = err?.message || "Failed to load products";
+      if (msg.toLowerCase().includes("unauthorized") || msg.toLowerCase().includes("authentication required")) {
+        clearStoredSession();
+        router.replace("/login");
+        return;
+      }
+      setMessage({ type: "error", text: msg });
     } finally {
       setLoading(false);
     }

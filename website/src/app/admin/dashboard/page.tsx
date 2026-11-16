@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ShieldCheck,
   Clock,
@@ -14,20 +15,35 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { getAdminAnalytics, type AnalyticsData } from "@/services/admin";
+import { getStoredToken, clearStoredSession } from "@/services/auth";
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
   const loadData = async () => {
+    const token = getStoredToken();
+    if (!token) {
+      setLoading(false);
+      router.replace("/login");
+      return;
+    }
+
     setLoading(true);
     setError(undefined);
     try {
       const analytics = await getAdminAnalytics();
       setData(analytics);
     } catch (err: any) {
-      setError(err?.message || "Failed to load analytics");
+      const msg = err?.message || "Failed to load analytics";
+      if (msg.toLowerCase().includes("unauthorized") || msg.toLowerCase().includes("authentication required")) {
+        clearStoredSession();
+        router.replace("/login");
+        return;
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }

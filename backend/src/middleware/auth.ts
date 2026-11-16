@@ -16,14 +16,6 @@ declare module "fastify" {
   }
 }
 
-const DEMO_ADMIN: Extract<Principal, { kind: "admin" }> = {
-  kind: "admin",
-  id: "1",
-  name: "Olitec Administrator",
-  role: "Super Admin",
-  email: "admin@olitec.in",
-};
-
 export function extractBearerToken(request: FastifyRequest): string | null {
   const authHeader = request.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -53,12 +45,6 @@ export const requireCustomer: preHandlerAsyncHookHandler = async (request) => {
     }
   }
 
-  // Fallback demo in development only if no authorization provided
-  if (process.env.NODE_ENV !== "production") {
-    request.principal = { kind: "customer", id: "2", name: "Priya Sharma", email: "priya@example.com" };
-    return;
-  }
-
   throw new UnauthorizedError("Authentication required.");
 };
 
@@ -82,12 +68,6 @@ export function requireAdmin(_permission?: AdminPermission): preHandlerAsyncHook
         return;
       }
       throw new UnauthorizedError("Invalid or expired session token.");
-    }
-
-    // Fallback demo admin in development if no token provided
-    if (process.env.NODE_ENV !== "production") {
-      request.principal = DEMO_ADMIN;
-      return;
     }
 
     throw new UnauthorizedError("Admin authentication required.");
