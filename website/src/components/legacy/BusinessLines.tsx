@@ -146,17 +146,17 @@ export function BusinessLines() {
     <section
       id="services"
       ref={containerRef}
-      className="relative min-h-[150vh] md:min-h-[175vh] scroll-mt-6 bg-[rgb(217_217_217/0.44)]"
+      className="relative min-h-[220vh] md:min-h-[260vh] scroll-mt-6 bg-[rgb(217_217_217/0.44)]"
       aria-labelledby="business-lines-title"
     >
       {/* Sticky presentation viewport */}
-      <div className="sticky top-16 md:top-20 z-10 flex min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-5rem)] flex-col justify-center py-4 sm:py-6 xl:py-8">
+      <div className="sticky top-16 md:top-20 z-10 flex min-h-[calc(100vh-4rem)] flex-col justify-center py-8 xl:py-12">
         <HomeContainer>
           {/* Title & 3 Tab Buttons in the Same Row */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 sm:gap-4">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
               <SectionTitle id="business-lines-title">{businessLinesIntro.title}</SectionTitle>
-              <p className="mt-1 max-w-[580px] text-sm sm:text-base font-medium leading-relaxed text-black">
+              <p className="mt-1.5 max-w-[620px] text-base font-medium leading-6 text-black">
                 {businessLinesIntro.subtitle}
               </p>
             </div>
@@ -173,7 +173,7 @@ export function BusinessLines() {
                     aria-pressed={isActive}
                     onClick={() => goToSlide(index)}
                     className={cn(
-                      "inline-flex h-[42px] sm:h-[46px] items-center gap-2 rounded-[24px] pl-1.5 pr-3.5 sm:pr-4 text-[12.5px] sm:text-[13.5px] font-semibold transition-all cursor-pointer shadow-xs",
+                      "inline-flex h-[46px] sm:h-[52px] items-center gap-2 sm:gap-2.5 rounded-[29.5px] pl-1.5 pr-4 sm:pr-5 text-[13px] sm:text-[13.5px] font-semibold transition-all cursor-pointer shadow-xs",
                       isActive
                         ? "brand-gradient text-black ring-2 ring-brand-400/40"
                         : "bg-white text-black hover:bg-black/5"
@@ -181,7 +181,7 @@ export function BusinessLines() {
                   >
                     <span
                       className={cn(
-                        "flex size-[30px] sm:size-[34px] items-center justify-center rounded-full transition-colors",
+                        "flex size-[34px] sm:size-[38px] items-center justify-center rounded-full transition-colors",
                         isActive ? "bg-white" : "bg-[rgb(217_217_217/0.6)]"
                       )}
                     >
@@ -195,7 +195,7 @@ export function BusinessLines() {
           </div>
 
           {/* Animated Horizontal Slide Deck */}
-          <div className="mt-4 sm:mt-6 overflow-hidden rounded-[20px] sm:rounded-[25.528px]">
+          <div className="mt-6 sm:mt-8 overflow-hidden rounded-[25.528px]">
             <div
               className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{ transform: `translateX(-${active * 100}%)` }}
@@ -203,26 +203,26 @@ export function BusinessLines() {
               {businessLines.map((line, idx) => (
                 <article
                   key={line.key}
-                  className="flex min-w-full w-full flex-shrink-0 flex-wrap items-center gap-6 sm:gap-8 rounded-[20px] sm:rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-5 sm:p-7 xl:p-8 xl:gap-10 shadow-sm"
+                  className="flex min-w-full w-full flex-shrink-0 flex-wrap items-center gap-6 sm:gap-8 rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-5 sm:p-8 xl:gap-12 shadow-sm"
                 >
                   <div className="min-w-0 flex-[1_1_320px] xl:pl-4">
-                    <div className="mb-2 sm:mb-2.5 inline-flex items-center gap-2 rounded-full bg-brand-50 border border-brand-200 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-brand-700">
+                    <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-brand-50 border border-brand-200 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-700">
                       <span>Business Line 0{idx + 1} of 03</span>
                     </div>
-                    <h3 className="text-[24px] sm:text-[28px] xl:text-[34px] font-semibold leading-[1.2] text-black">
+                    <h3 className="text-[26px] sm:text-[33px] font-semibold leading-[1.2] text-black xl:text-[40px]">
                       {line.title}
                     </h3>
-                    <p className="mt-2.5 sm:mt-3 max-w-[520px] text-sm sm:text-base xl:text-lg font-medium leading-relaxed text-black">
+                    <p className="mt-4 max-w-[520px] text-base sm:text-lg font-medium leading-relaxed text-black">
                       {line.body}
                     </p>
                   </div>
-                  <div className="min-w-0 flex-[1.3_1_380px]">
+                  <div className="min-w-0 flex-[1.3_1_420px]">
                     <AnimatedIllustration
                       src={line.image}
                       alt={line.imageAlt}
                       overlay={line.overlay}
                       sizes="(min-width: 1280px) 640px, 100vw"
-                      className="aspect-[16/10] max-h-[300px] xl:max-h-[340px] w-full rounded-[16.411px] xl:rounded-[22px] object-cover"
+                      className="aspect-[16/10] sm:aspect-[16/11] w-full rounded-[16.411px] xl:rounded-[25px]"
                     />
                   </div>
                 </article>
@@ -231,8 +231,8 @@ export function BusinessLines() {
           </div>
 
           {/* Bottom Navigation & Controls */}
-          <div className="mt-4 sm:mt-5 flex items-center justify-between border-t-[0.751px] border-[#262626]/20 pt-3 sm:pt-4">
-            <p className="font-sans text-sm sm:text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
+          <div className="mt-8 flex items-center justify-between border-t-[0.751px] border-[#262626]/20 pt-4">
+            <p className="font-sans text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
               <span className="font-bold text-black">{String(active + 1).padStart(2, "0")}</span> of{" "}
               {String(businessLines.length).padStart(2, "0")}
             </p>
