@@ -39,8 +39,11 @@ function PendingBar() {
   );
 }
 
+import { getAuthHeaders, getStoredUser } from "@/services/auth";
+
 function ProfileAvatar({ pathname }: { pathname: string }) {
   const [customerName, setCustomerName] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     const API_URL =
@@ -48,30 +51,34 @@ function ProfileAvatar({ pathname }: { pathname: string }) {
       "http://localhost:4000/api";
 
     let isMounted = true;
+    const stored = getStoredUser();
+    if (stored) {
+      setCustomerName(stored.name);
+      setRole(stored.role);
+    }
 
     async function fetchCustomer() {
       try {
-        const response = await fetch(
-          `${API_URL}/ecommerce/auth/me`,
-          {
-            method: "GET",
-            credentials: "include",
-            cache: "no-store",
-          }
-        );
+        const response = await fetch(`${API_URL}/auth/me`, {
+          method: "GET",
+          headers: getAuthHeaders(),
+          credentials: "include",
+          cache: "no-store",
+        });
 
         const result = await response.json();
 
         if (isMounted && response.ok && result.success && result.data) {
           setCustomerName(result.data.name || null);
-        } else if (isMounted) {
+          setRole(result.data.role || null);
+        } else if (isMounted && !stored) {
           setCustomerName(null);
+          setRole(null);
         }
       } catch (error) {
-        console.error("Unable to fetch logged-in customer:", error);
-
-        if (isMounted) {
+        if (isMounted && !stored) {
           setCustomerName(null);
+          setRole(null);
         }
       }
     }
@@ -84,17 +91,18 @@ function ProfileAvatar({ pathname }: { pathname: string }) {
   }, [pathname]);
 
   const initial = customerName?.trim().charAt(0).toUpperCase();
+  const destination = role === "admin" ? "/admin/dashboard" : customerName ? "/warranties" : "/login";
 
   return (
     <Link
-      href={customerName ? "/profile" : "/login"}
-      aria-label={customerName ? `${customerName} profile` : "Login"}
-      title={customerName || "Login"}
+      href={destination}
+      aria-label={customerName ? `${customerName} account` : "Login"}
+      title={customerName ? `${customerName} (${role === "admin" ? "Admin" : "Account"})` : "Login"}
       className="flex size-10 items-center justify-center rounded-full
                  border border-slate-200 bg-white text-slate-700
                  font-bold text-base
                  hover:bg-brand-50 hover:text-brand-600
-                 hover:border-brand-200 transition-all"
+                 hover:border-brand-200 transition-all shadow-xs"
     >
       {initial || <UserRound className="size-5" />}
     </Link>

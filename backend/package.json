@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:migrate:status": "tsx src/db/migrate.ts --status",
-    "db:seed:dev": "tsx src/db/seed-ecommerce-dev.ts && tsx src/db/seed-warranty-dev.ts",
+    "db:seed:dev": "tsx src/db/seed-warranty-dev.ts",
     "test": "node --import tsx --test \"src/**/*.test.ts\""
   },
   "dependencies": {

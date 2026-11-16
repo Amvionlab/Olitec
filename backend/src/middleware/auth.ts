@@ -1,76 +1,101 @@
-/**
- * AUTHENTICATION PLACEHOLDER — NOT SECURE, Phase 1 only.
- *
- * Outside production these hooks attach a fixed demo principal so the mock routes can be exercised.
- * In production they reject every request with 501, so this skeleton cannot be deployed with open routes by mistake.
- *
- * Phase 2: verify a signed, httpOnly session cookie (or bearer token), load the user from the database,
- * and enforce role permissions server-side.
- */
-import type { preHandlerAsyncHookHandler } from "fastify";
-import { env } from "../config/env.js";
-import { ForbiddenError, NotImplementedError } from "../utils/errors.js";
-import {
-  requireCustomer as requireEcomCustomer,
-} from "../modules/ecommerce/shared/auth.js";
+import type { FastifyRequest, preHandlerAsyncHookHandler } from "fastify";
+import { ForbiddenError, UnauthorizedError } from "../utils/errors.js";
+import { verifyToken, type TokenPayload } from "../utils/crypto.js";
+
 export type AdminRole = "Super Admin" | "Warranty Reviewer";
 export type AdminPermission = "reviewWarranties" | "updateWarrantyStatus" | "viewCustomers";
 
 export type Principal =
-  | { kind: "customer"; id: string; name: string }
-  | { kind: "admin"; id: string; name: string; role: AdminRole };
+  | { kind: "customer"; id: string; name: string; email?: string }
+  | { kind: "admin"; id: string; name: string; role: AdminRole; email?: string };
 
 declare module "fastify" {
   interface FastifyRequest {
     principal?: Principal;
+    user?: TokenPayload;
   }
 }
 
-const rolePermissions: Record<AdminRole, AdminPermission[]> = {
-  "Super Admin": ["reviewWarranties", "updateWarrantyStatus", "viewCustomers"],
-  "Warranty Reviewer": ["reviewWarranties", "viewCustomers"],
+const DEMO_ADMIN: Extract<Principal, { kind: "admin" }> = {
+  kind: "admin",
+  id: "1",
+  name: "Olitec Administrator",
+  role: "Super Admin",
+  email: "admin@olitec.in",
 };
 
-const DEMO_ADMIN: Extract<Principal, { kind: "admin" }> = { kind: "admin", id: "adm_01", name: "Anita Rao", role: "Super Admin" };
-
-function guardProduction(): void {
-  if (env.isProduction) throw new NotImplementedError("Authentication");
+export function extractBearerToken(request: FastifyRequest): string | null {
+  const authHeader = request.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.slice(7).trim();
+  }
+  const cookieHeader = request.headers.cookie;
+  if (cookieHeader) {
+    const match = cookieHeader.match(/olitec_token=([^;]+)/);
+    if (match) return decodeURIComponent(match[1]);
+  }
+  return null;
 }
 
-
-export const requireCustomer: preHandlerAsyncHookHandler = async (
-  request,
-  reply
-) => {
-  await requireEcomCustomer.call(request.server, request, reply);
-
-  const customer = request.ecomCustomer;
-
-  if (!customer) {
-    throw new ForbiddenError("Customer account required.");
-  }
-
-  request.principal = {
-    kind: "customer",
-    id: `cus_${customer.id}`,
-    name: customer.name,
-  };
-};
-
-
-
-export function requireAdmin(permission?: AdminPermission): preHandlerAsyncHookHandler {
-  return async (request) => {
-    guardProduction();
-    request.principal = DEMO_ADMIN;
-    if (permission && !rolePermissions[DEMO_ADMIN.role].includes(permission)) {
-      throw new ForbiddenError();
+export const requireCustomer: preHandlerAsyncHookHandler = async (request) => {
+  const token = extractBearerToken(request);
+  if (token) {
+    const payload = verifyToken(token);
+    if (payload) {
+      request.user = payload;
+      request.principal = {
+        kind: "customer",
+        id: String(payload.id),
+        name: payload.name,
+        email: payload.email,
+      };
+      return;
     }
+  }
+
+  // Fallback demo in development only if no authorization provided
+  if (process.env.NODE_ENV !== "production") {
+    request.principal = { kind: "customer", id: "2", name: "Priya Sharma", email: "priya@example.com" };
+    return;
+  }
+
+  throw new UnauthorizedError("Authentication required.");
+};
+
+export function requireAdmin(_permission?: AdminPermission): preHandlerAsyncHookHandler {
+  return async (request) => {
+    const token = extractBearerToken(request);
+    if (token) {
+      const payload = verifyToken(token);
+      if (payload) {
+        if (payload.role !== "admin") {
+          throw new ForbiddenError("Admin access required.");
+        }
+        request.user = payload;
+        request.principal = {
+          kind: "admin",
+          id: String(payload.id),
+          name: payload.name,
+          role: "Super Admin",
+          email: payload.email,
+        };
+        return;
+      }
+      throw new UnauthorizedError("Invalid or expired session token.");
+    }
+
+    // Fallback demo admin in development if no token provided
+    if (process.env.NODE_ENV !== "production") {
+      request.principal = DEMO_ADMIN;
+      return;
+    }
+
+    throw new UnauthorizedError("Admin authentication required.");
   };
 }
 
 export function getCustomerId(principal: Principal | undefined): string {
-  if (principal?.kind !== "customer") throw new ForbiddenError("Customer account required.");
+  if (!principal) throw new ForbiddenError("Authentication required.");
   return principal.id;
 }
 

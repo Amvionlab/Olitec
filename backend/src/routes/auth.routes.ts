@@ -6,5 +6,6 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
   app.post("/register", { schema: registerSchema }, authController.register);
   app.post("/login", { schema: loginSchema }, authController.login);
   app.post("/admin/login", { schema: loginSchema }, authController.adminLogin);
+  app.get("/me", authController.me);
   app.post("/logout", authController.logout);
 };

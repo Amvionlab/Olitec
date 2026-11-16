@@ -13,7 +13,7 @@ process.on("SIGTERM", () => void shutdown("SIGTERM"));
 
 try {
   await app.listen({ host: env.host, port: env.port });
-  app.log.warn("Phase 1 build: all /api responses use MOCK data and authentication is NOT implemented.");
+  app.log.info(`API ready on http://${env.host}:${env.port} | Database: ${env.dataSource}`);
 } catch (error) {
   app.log.error(error);
   process.exit(1);

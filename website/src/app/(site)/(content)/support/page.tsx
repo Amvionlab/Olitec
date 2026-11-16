@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   description: `Contact ${siteConfig.name} for installation, repairs and warranty claims.`,
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function SupportPage() {
   const [customer, requests, warranties] = await Promise.all([getCurrentCustomer(), getMySupportRequests(), getMyWarranties()]);
 

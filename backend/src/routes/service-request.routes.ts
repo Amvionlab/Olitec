@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { serviceRequestController } from "../controllers/service-request.controller.js";
-import { rateLimit } from "../modules/ecommerce/shared/rate-limit.js";
+import { rateLimit } from "../utils/rate-limit.js";
 import { createServiceRequestSchema, type CreateServiceRequestBody } from "../schemas/service-request.schema.js";
 
 // Public: the website's /service-request form works without an account, so it is rate limited per IP.

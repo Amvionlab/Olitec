@@ -1,5 +1,4 @@
 import type { FastifyPluginAsync } from "fastify";
-import { ecommerceModule } from "../modules/ecommerce/index.js";
 import { adminRoutes } from "./admin.routes.js";
 import { authRoutes } from "./auth.routes.js";
 import { customerRoutes } from "./customer.routes.js";
@@ -19,6 +18,4 @@ export const apiRoutes: FastifyPluginAsync = async (app) => {
   await app.register(supportRoutes, { prefix: "/support" });
   await app.register(serviceRequestRoutes, { prefix: "/service-requests" });
   await app.register(warrantyRegistrationRoutes, { prefix: "/warranty-registrations" });
-  // E-commerce module (MySQL-backed, separate from the warranty routes above).
-  await app.register(ecommerceModule, { prefix: "/ecommerce" });
 };

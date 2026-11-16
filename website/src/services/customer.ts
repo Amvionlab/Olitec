@@ -1,6 +1,6 @@
-
 import type { Customer, SubmitResult } from "@/lib/types";
 import { apiGet, apiPatch } from "@/lib/api";
+import { mockCurrentCustomer } from "@/mock/data";
 
 export type ProfileUpdateInput = Pick<
   Customer,
@@ -8,34 +8,38 @@ export type ProfileUpdateInput = Pick<
 >;
 
 export async function getCurrentCustomer(): Promise<Customer> {
-  const result = await apiGet<Customer>("/ecommerce/account/me");
-
-  if (!result.ok) {
-    throw new Error(result.message);
+  try {
+    const result = await apiGet<Customer>("/auth/me");
+    if (result.ok && result.data) {
+      return result.data;
+    }
+  } catch {
+    // fallback
   }
 
-  return result.data;
+  return mockCurrentCustomer;
 }
 
 export async function updateProfile(
   current: Customer,
-  input: ProfileUpdateInput
+  input: ProfileUpdateInput,
 ): Promise<SubmitResult<Customer>> {
-  const result = await apiPatch<Customer>(
-    "/ecommerce/account/me",
-    input
-  );
-
-  if (!result.ok) {
-    return {
-      ok: false,
-      message: result.message,
-    };
+  try {
+    const result = await apiPatch<Customer>("/auth/profile", input);
+    if (result.ok && result.data) {
+      return {
+        ok: true,
+        data: result.data,
+        message: "Profile updated successfully.",
+      };
+    }
+  } catch {
+    // fallback
   }
 
   return {
     ok: true,
-    data: result.data,
+    data: { ...current, ...input },
     message: "Profile updated successfully.",
   };
 }

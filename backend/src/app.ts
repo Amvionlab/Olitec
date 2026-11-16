@@ -9,7 +9,7 @@ import { apiRoutes } from "./routes/index.js";
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
     logger: { level: env.logLevel },
-    bodyLimit: 1_048_576, // 1 MB JSON bodies; invoice uploads will use a separate multipart route in Phase 2.
+    bodyLimit: 15 * 1024 * 1024, // 15 MB for base64 files
   });
 
   registerErrorHandling(app);
@@ -17,7 +17,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(cors, {
     origin: env.corsOrigins,
     credentials: true,
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
 
   await app.register(healthRoutes);

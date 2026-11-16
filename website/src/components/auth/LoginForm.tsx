@@ -39,7 +39,14 @@ export function LoginForm() {
       return;
     }
     setStatus("success");
-    setTimeout(() => router.push("/warranties"), 600);
+    const userRole = result.data?.role;
+    setTimeout(() => {
+      if (userRole === "admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/warranties");
+      }
+    }, 600);
   }
 
   return (

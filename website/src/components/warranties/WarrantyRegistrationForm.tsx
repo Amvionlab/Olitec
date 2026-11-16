@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { apiPost, fileToUpload } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { fetchActiveProducts, type ApiProductItem } from "@/services/products";
 import {
   INVOICE_ACCEPTED_TYPES,
   INVOICE_MAX_BYTES,
@@ -134,7 +135,15 @@ function SectionTitle({ children }: { children: ReactNode }) {
 /** Public warranty registration (no account needed). Saved through POST /api/warranty-registrations. */
 export function WarrantyRegistrationForm({ defaultProductModel = "" }: { defaultProductModel?: string }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [products, setProducts] = useState<ApiProductItem[]>([]);
+  const [isCustomModel, setIsCustomModel] = useState(false);
   const [values, setValues] = useState<Values>({ ...emptyValues, productModel: defaultProductModel });
+
+  useEffect(() => {
+    fetchActiveProducts().then((items) => {
+      if (items && items.length > 0) setProducts(items);
+    });
+  }, []);
   const [files, setFiles] = useState<Files>({ invoice: null, installationDocument: null });
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState<string>();
@@ -281,10 +290,68 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
       <section className="mb-10">
         <SectionTitle>02. Product Information</SectionTitle>
         <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
-          <Field id="productModel" label="Product / Solar Panel Model" required error={errors.productModel}>
-            <input {...inputProps("productModel")} type="text" placeholder="Enter product model" onChange={(e) => update("productModel", e.target.value)} />
+          <Field
+            id="productModel"
+            label="Product / Solar Model (from Product Master)"
+            required
+            error={errors.productModel}
+            hint={isCustomModel ? "Type your model number below" : "Select from registered Olitec models"}
+          >
+            {!isCustomModel ? (
+              <div className="space-y-2">
+                <select
+                  id="productModel"
+                  name="productModel"
+                  value={values.productModel}
+                  aria-invalid={errors.productModel ? true : undefined}
+                  className={cn(
+                    inputClass,
+                    "h-11 cursor-pointer bg-white",
+                    errors.productModel ? "border-red-500" : "border-[#b7b7b7]"
+                  )}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "__custom__") {
+                      setIsCustomModel(true);
+                      update("productModel", "");
+                    } else {
+                      update("productModel", val);
+                    }
+                  }}
+                >
+                  <option value="">-- Choose Product Model --</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.model}>
+                      {p.name} ({p.model}) • {p.category}
+                    </option>
+                  ))}
+                  <option value="__custom__">✎ Other model / Enter manually...</option>
+                </select>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="relative">
+                  <input
+                    {...inputProps("productModel")}
+                    type="text"
+                    placeholder="e.g. OLI-1H3L or custom model"
+                    onChange={(e) => update("productModel", e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomModel(false);
+                      update("productModel", "");
+                    }}
+                    className="absolute right-3 top-2.5 text-xs font-semibold text-brand-600 hover:underline"
+                  >
+                    Select from list
+                  </button>
+                </div>
+              </div>
+            )}
           </Field>
-          <Field id="serialNumber" label="Product Serial Number" required error={errors.serialNumber}>
+          <Field id="serialNumber" label="Product Serial Number" required error={errors.serialNumber} hint="e.g. OL-INV-2026-8812">
             <input
               {...inputProps("serialNumber")}
               type="text"

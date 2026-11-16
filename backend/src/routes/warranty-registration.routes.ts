@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { warrantyRegistrationController } from "../controllers/warranty-registration.controller.js";
-import { rateLimit } from "../modules/ecommerce/shared/rate-limit.js";
+import { rateLimit } from "../utils/rate-limit.js";
 import {
   createWarrantyRegistrationSchema,
   warrantyStatusLookupSchema,

@@ -1,26 +1,50 @@
-// Account lists read mock data (Phase 2: /api/warranties for the signed-in customer).
-// The public status lookup goes to the API.
-// Registration is saved by components/warranties/WarrantyRegistrationForm via POST /api/warranty-registrations.
 import type { Product, SubmitResult, Warranty, WarrantyStatus } from "@/lib/types";
 import { apiPost } from "@/lib/api";
+import { getAuthHeaders } from "./auth";
+
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "");
 
 export interface WarrantyWithProduct extends Warranty {
   product: Product;
 }
 
-export async function getMyWarranties(
-  status?: WarrantyStatus
-): Promise<WarrantyWithProduct[]> {
+export async function getMyWarranties(status?: WarrantyStatus): Promise<WarrantyWithProduct[]> {
+  try {
+    const query = new URLSearchParams();
+    if (status) query.set("status", status);
+
+    const res = await fetch(`${API_BASE_URL}/warranties?${query.toString()}`, {
+      headers: getAuthHeaders(),
+      ...(typeof window === "undefined" ? {} : { cache: "no-store" as RequestCache }),
+    });
+
+    const result = await res.json();
+    if (res.ok && result.success && Array.isArray(result.data)) {
+      return result.data;
+    }
+  } catch (e: any) {
+    if (e?.digest === "DYNAMIC_SERVER_USAGE") throw e;
+    // Fallback in case backend is offline
+  }
   return [];
 }
 
-export async function getWarrantyById(
-  id: string
-): Promise<WarrantyWithProduct | undefined> {
+export async function getWarrantyById(id: string): Promise<WarrantyWithProduct | undefined> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/warranties/${id}`, {
+      headers: getAuthHeaders(),
+      ...(typeof window === "undefined" ? {} : { cache: "no-store" as RequestCache }),
+    });
+    const result = await res.json();
+    if (res.ok && result.success && result.data) {
+      return result.data;
+    }
+  } catch (e: any) {
+    if (e?.digest === "DYNAMIC_SERVER_USAGE") throw e;
+    // Fallback in case backend is offline
+  }
   return undefined;
 }
-
-
 
 export interface WarrantyStatusResult {
   model: string;
@@ -31,7 +55,10 @@ export interface WarrantyStatusResult {
 }
 
 /** Public lookup by serial number and registered mobile number (used by /warranty-status). */
-export async function lookupWarrantyStatus(serialNumber: string, mobile: string): Promise<SubmitResult<WarrantyStatusResult>> {
+export async function lookupWarrantyStatus(
+  serialNumber: string,
+  mobile: string,
+): Promise<SubmitResult<WarrantyStatusResult>> {
   const result = await apiPost<WarrantyStatusResult>("/warranty-registrations/status", {
     serialNumber: serialNumber.trim(),
     mobile: mobile.replace(/\D/g, ""),
