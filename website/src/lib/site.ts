@@ -79,7 +79,7 @@ export const footerColumns = [
       { href: "/warranties/register", label: "Register warranty" },
       { href: "/warranty-status", label: "Warranty status" },
       { href: "/service-request", label: "Service request" },
-      { href: "/admin/login", label: "Admin Portal" },
+      { href: "/login", label: "Portal Login" },
     ],
   },
   {

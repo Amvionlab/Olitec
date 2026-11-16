@@ -32,22 +32,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     setMounted(true);
-    if (pathname === "/admin/login") return;
 
     const token = getStoredToken();
     const storedUser = getStoredUser();
 
     if (!token || storedUser?.role !== "admin") {
-      router.replace("/admin/login");
+      router.replace("/login");
     } else {
       setUser(storedUser);
     }
   }, [pathname, router]);
-
-  // If viewing admin login, render cleanly without admin shell
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
-  }
 
   if (!mounted) {
     return (
@@ -62,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const handleLogout = () => {
     clearStoredSession();
-    router.replace("/admin/login");
+    router.replace("/login");
   };
 
   return (

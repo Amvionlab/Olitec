@@ -15,6 +15,7 @@ export function LoginForm() {
   const [errors, setErrors] = useState<FieldErrors<LoginInput>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
   const [formError, setFormError] = useState<string>();
+  const [role, setRole] = useState<string | null>(null);
 
   const update = (field: keyof LoginInput, value: string) => {
     setValues((v) => ({ ...v, [field]: value }));
@@ -38,8 +39,9 @@ export function LoginForm() {
       setFormError(result.message);
       return;
     }
+    const userRole = result.data?.role || null;
+    setRole(userRole);
     setStatus("success");
-    const userRole = result.data?.role;
     setTimeout(() => {
       if (userRole === "admin") {
         router.push("/admin/dashboard");
@@ -52,7 +54,13 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       {formError && <Alert tone="error">{formError}</Alert>}
-      {status === "success" && <Alert tone="success">Signed in. Taking you to your warranties…</Alert>}
+      {status === "success" && (
+        <Alert tone="success">
+          {role === "admin"
+            ? "Signed in as Administrator. Redirecting to dashboard…"
+            : "Signed in. Taking you to your warranties…"}
+        </Alert>
+      )}
 
       <TextField
         label="Email"
