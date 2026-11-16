@@ -8,7 +8,7 @@
 @theme {
   --font-sans: var(--font-display), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
-  --font-nav: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-nav: var(--font-display), ui-sans-serif, system-ui, sans-serif;
 
   /* OLITEC orange (Figma #F99F1E → #FDBD15 gradient, nav accent #FBAF19) */
   --color-brand-50: #fff8eb;

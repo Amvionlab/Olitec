@@ -9,9 +9,11 @@ import {
   Menu,
   X,
   ArrowUpRight,
+  ArrowRight,
   PhoneCall,
   Sparkles,
   UserRound,
+  LogOut,
 } from "lucide-react";
 import { mainNav, siteConfig, type NavItem } from "@/lib/site";
 import { cn } from "@/lib/cn";
@@ -39,12 +41,16 @@ function PendingBar() {
   );
 }
 
-import { getAuthHeaders, getStoredToken, getStoredUser, clearStoredSession, logout } from "@/services/auth";
+import { getAuthHeaders, getStoredToken, getStoredUser, logout } from "@/services/auth";
 import { AuthModal } from "@/components/auth/AuthModal";
 
 function ProfileAvatar({ pathname, onOpenLogin }: { pathname: string; onOpenLogin: () => void }) {
+  const router = useRouter();
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -57,6 +63,7 @@ function ProfileAvatar({ pathname, onOpenLogin }: { pathname: string; onOpenLogi
         if (isMounted) {
           setCustomerName(null);
           setRole(null);
+          setEmail(null);
         }
         return;
       }
@@ -64,6 +71,7 @@ function ProfileAvatar({ pathname, onOpenLogin }: { pathname: string; onOpenLogi
       if (isMounted) {
         setCustomerName(stored.name);
         setRole(stored.role);
+        setEmail(stored.email);
       }
 
       const API_URL =
@@ -84,14 +92,15 @@ function ProfileAvatar({ pathname, onOpenLogin }: { pathname: string; onOpenLogi
           if (response.ok && result.success && result.data) {
             setCustomerName(result.data.name || null);
             setRole(result.data.role || null);
+            setEmail(result.data.email || null);
           } else {
-            clearStoredSession();
             setCustomerName(null);
             setRole(null);
+            setEmail(null);
           }
         }
       } catch {
-        // Network fail; keep local stored info if mounted
+        // Keep stored state if network fails
       }
     };
 
@@ -110,6 +119,31 @@ function ProfileAvatar({ pathname, onOpenLogin }: { pathname: string; onOpenLogi
       window.removeEventListener("storage", handleAuthChange);
     };
   }, [pathname]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close dropdown on navigation
+  useEffect(() => {
+    setDropdownOpen(false);
+  }, [pathname]);
+
+  const handleSignOut = async () => {
+    setDropdownOpen(false);
+    await logout();
+    setCustomerName(null);
+    setRole(null);
+    setEmail(null);
+    router.replace("/");
+  };
 
   const initial = customerName?.trim().charAt(0).toUpperCase();
 
@@ -133,18 +167,56 @@ function ProfileAvatar({ pathname, onOpenLogin }: { pathname: string; onOpenLogi
   const destination = role === "admin" ? "/admin/dashboard" : "/warranties";
 
   return (
-    <Link
-      href={destination}
-      aria-label={`${customerName} account`}
-      title={`${customerName} (${role === "admin" ? "Admin" : "Account"})`}
-      className="flex size-10 items-center justify-center rounded-full
-                 border border-slate-200 bg-white text-slate-700
-                 font-bold text-base
-                 hover:bg-brand-50 hover:text-brand-600
-                 hover:border-brand-200 transition-all shadow-xs"
-    >
-      {initial}
-    </Link>
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setDropdownOpen((v) => !v)}
+        aria-expanded={dropdownOpen}
+        aria-label={`${customerName} account menu`}
+        className="flex size-10 items-center justify-center rounded-full
+                   border border-brand-300 bg-brand-50 text-brand-700
+                   font-bold text-base
+                   hover:bg-brand-100 hover:border-brand-400
+                   transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-400/40"
+      >
+        {initial}
+      </button>
+
+      {/* Profile Dropdown Menu */}
+      {dropdownOpen && (
+        <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+          <div className="border-b border-slate-100 pb-2.5 px-1">
+            <p className="truncate text-sm font-bold text-slate-900">{customerName}</p>
+            {email && <p className="truncate text-xs text-slate-500 mt-0.5">{email}</p>}
+            <span className="mt-1.5 inline-block rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-bold text-brand-700">
+              {role === "admin" ? "Administrator" : "Verified Customer"}
+            </span>
+          </div>
+
+          <div className="py-1.5 space-y-1">
+            <Link
+              href={destination}
+              onClick={() => setDropdownOpen(false)}
+              className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition"
+            >
+              <span>{role === "admin" ? "Admin Portal" : "My Warranties"}</span>
+              <ArrowRight className="size-3.5 text-slate-400" />
+            </Link>
+          </div>
+
+          <div className="border-t border-slate-100 pt-1.5">
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer"
+            >
+              <span>Sign out</span>
+              <LogOut className="size-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -285,7 +357,7 @@ export function SiteHeader() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav ref={navRef} className="hidden items-center gap-7 font-nav text-[14.5px] leading-6 xl:flex xl:gap-[32px]" aria-label="Main Navigation">
+          <nav ref={navRef} className="hidden items-center gap-7 font-sans text-[14.5px] leading-6 xl:flex xl:gap-[32px]" aria-label="Main Navigation">
             {mainNav.map((item) => {
               const active = isActive(pathname, item);
               if (!item.children) {
@@ -399,7 +471,7 @@ export function SiteHeader() {
           </Link>
 
           {/* Compact Desktop Navigation */}
-          <nav ref={fixedNavRef} className="hidden items-center gap-1 font-nav text-[13.5px] leading-6 xl:flex" aria-label="Sticky Navigation">
+          <nav ref={fixedNavRef} className="hidden items-center gap-1 font-sans text-[13.5px] leading-6 xl:flex" aria-label="Sticky Navigation">
             {mainNav.map((item) => {
               const active = isActive(pathname, item);
               if (!item.children) {
@@ -501,7 +573,7 @@ export function SiteHeader() {
       {/* 3. Mobile Navigation Drawer */}
       {mobileOpen && (
         <div id="mobile-nav" className="fixed inset-x-0 top-[62px] z-50 border-b border-slate-200 bg-white/98 backdrop-blur-2xl px-5 pb-8 pt-4 shadow-2xl xl:hidden animate-fade-in">
-          <nav className="flex flex-col gap-1 font-nav text-base" aria-label="Mobile Navigation">
+          <nav className="flex flex-col gap-1 font-sans text-base" aria-label="Mobile Navigation">
             {mainNav.map((item) => {
               const active = isActive(pathname, item);
               return (

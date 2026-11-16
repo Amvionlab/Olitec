@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -26,9 +27,16 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    return getStoredUser();
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [authorized, setAuthorized] = useState(false);
+  const [authorized, setAuthorized] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const token = getStoredToken();
+    const storedUser = getStoredUser();
+    return Boolean(token && storedUser?.role === "admin");
+  });
 
   useEffect(() => {
     const token = getStoredToken();
@@ -48,16 +56,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!authorized) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-4">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-          <p className="mt-3 text-sm text-slate-400">Verifying administrator access…</p>
-          <a
-            href="/login"
-            className="mt-3 inline-block text-xs text-amber-400 underline hover:text-amber-300"
-          >
-            Redirecting to sign in… Click here if not redirected
-          </a>
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-4 font-sans">
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/90 p-8 text-center shadow-2xl backdrop-blur-md">
+          <div className="mx-auto inline-flex size-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 mb-4">
+            <UserCheck className="size-7" />
+          </div>
+          <h2 className="text-xl font-bold text-white">Administrator Access Required</h2>
+          <p className="mt-2 text-sm text-slate-400">
+            You must be signed in with an administrator account to view the Olitec Admin Portal.
+          </p>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href="/login"
+              className="w-full sm:w-auto inline-flex h-10 items-center justify-center rounded-xl bg-amber-500 px-5 text-sm font-bold text-slate-950 transition hover:bg-amber-400"
+            >
+              Sign In as Admin
+            </a>
+            <a
+              href="/"
+              className="w-full sm:w-auto inline-flex h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+            >
+              Return to Website
+            </a>
+          </div>
         </div>
       </div>
     );
@@ -69,23 +90,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
       {/* Desktop Fixed Sidebar */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-slate-950 text-white lg:flex">
         {/* Brand */}
-        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 px-6">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 font-bold text-slate-950">
-            O
-          </span>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold tracking-tight text-white">OLITEC</span>
-              <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400">
-                ADMIN
-              </span>
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-5">
+          <Link href="/" className="flex items-center gap-2.5 transition hover:opacity-90">
+            <div className="flex items-center rounded-xl bg-white px-2.5 py-1.5 shadow-xs">
+              <Image
+                src="/images/home/olitec-logo.png"
+                alt="Olitec"
+                width={116}
+                height={35}
+                priority
+                className="h-6 w-auto object-contain"
+              />
             </div>
-            <p className="text-[11px] text-slate-400">Platform Control Center</p>
-          </div>
+            <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
+              ADMIN
+            </span>
+          </Link>
         </div>
 
         {/* Navigation (scrollable inside sidebar if needed) */}
@@ -151,13 +175,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div className="fixed inset-0 bg-black/60" onClick={() => setMobileMenuOpen(false)} />
           <aside className="relative flex w-72 flex-col bg-slate-950 text-white shadow-xl">
-            <div className="flex h-16 items-center justify-between border-b border-white/10 px-6">
-              <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 font-bold text-slate-950">
-                  O
+            <div className="flex h-16 items-center justify-between border-b border-white/10 px-5">
+              <Link href="/" className="flex items-center gap-2.5">
+                <div className="flex items-center rounded-xl bg-white px-2.5 py-1 shadow-xs">
+                  <Image
+                    src="/images/home/olitec-logo.png"
+                    alt="Olitec"
+                    width={110}
+                    height={32}
+                    className="h-5 w-auto object-contain"
+                  />
+                </div>
+                <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
+                  ADMIN
                 </span>
-                <span className="font-bold tracking-tight text-white">OLITEC ADMIN</span>
-              </div>
+              </Link>
               <button onClick={() => setMobileMenuOpen(false)} className="rounded-lg p-1 text-slate-400 hover:text-white">
                 <X size={20} />
               </button>
@@ -217,6 +249,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             >
               <Menu size={20} />
             </button>
+            <div className="flex items-center lg:hidden">
+              <Image
+                src="/images/home/olitec-logo.png"
+                alt="Olitec"
+                width={90}
+                height={26}
+                className="h-5 w-auto object-contain"
+              />
+            </div>
             <h1 className="text-base font-semibold text-slate-900 md:text-lg">
               {pathname.includes("/products")
                 ? "Product Master Management"

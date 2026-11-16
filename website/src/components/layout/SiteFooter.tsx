@@ -70,7 +70,7 @@ export function SiteFooter() {
           {/* Navigation Columns */}
           {footerColumns.map((column) => (
             <nav key={column.title} aria-label={column.title} className="flex flex-col">
-              <p className="font-nav text-xs sm:text-sm font-bold tracking-wider uppercase text-brand-400">
+              <p className="font-sans text-xs sm:text-sm font-bold tracking-wider uppercase text-brand-400">
                 {column.title}
               </p>
               <ul className="mt-4 space-y-2.5">
@@ -91,7 +91,7 @@ export function SiteFooter() {
 
           {/* Column 5: Facilities & Direct Contact Hub */}
           <div className="flex flex-col space-y-4">
-            <p className="font-nav text-xs sm:text-sm font-bold tracking-wider uppercase text-brand-400">
+            <p className="font-sans text-xs sm:text-sm font-bold tracking-wider uppercase text-brand-400">
               Operations & Facilities
             </p>
 
@@ -179,7 +179,7 @@ export function SiteFooter() {
         {/* 4. Bottom Legal & Social Bar */}
         <div className="flex flex-col-reverse gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between pr-14 sm:pr-24">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-            <p className="font-nav text-xs font-medium text-slate-400">
+            <p className="font-sans text-xs font-medium text-slate-400">
               © {new Date().getFullYear()} {siteConfig.legalName}. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-xs text-slate-500">

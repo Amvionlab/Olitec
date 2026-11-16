@@ -142,7 +142,7 @@ export function BusinessLines() {
         </div>
 
         <div className="mt-8 flex items-start justify-between border-t-[0.751px] border-[#262626] pt-[15px]">
-          <p className="font-nav text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
+          <p className="font-sans text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
             <span className="text-black">{String(active + 1).padStart(2, "0")}</span> of {String(businessLines.length).padStart(2, "0")}
           </p>
           <CarouselControls
