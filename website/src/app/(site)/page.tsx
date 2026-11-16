@@ -50,15 +50,17 @@ export default function HomePage() {
       {/* About — Figma two-column text section */}
       <section id="about" className="pt-12 pb-16 xl:pt-20 xl:pb-24 scroll-mt-6" aria-labelledby="about-title">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-12 xl:gap-16">
-            <div className="lg:max-w-[480px] shrink-0">
-              <SectionTitle id="about-title">Our Legacy</SectionTitle>
-              <p className="mt-5 text-[21px] sm:text-[23px] font-semibold leading-[32px] text-black">{legacyLead.statement}</p>
-            </div>
-            <div className="max-w-[620px] space-y-5 text-base sm:text-lg font-medium leading-7 text-black lg:pt-3">
-              {legacyLead.paragraphs.map((p) => (
-                <p key={p}>{p}</p>
-              ))}
+          <HomeContainer className="max-w-[1260px] xl:max-w-[1300px]">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-10 xl:gap-14">
+              <div className="lg:max-w-[460px] shrink-0">
+                <SectionTitle id="about-title">Our Legacy</SectionTitle>
+                <p className="mt-5 text-[21px] sm:text-[23px] font-semibold leading-[32px] text-black">{legacyLead.statement}</p>
+              </div>
+              <div className="max-w-[600px] space-y-5 text-base sm:text-lg font-medium leading-7 text-black lg:pt-3">
+                {legacyLead.paragraphs.map((p) => (
+                  <p key={p}>{p}</p>
+                ))}
+              </div>
             </div>
           </HomeContainer>
         </ScrollReveal>
@@ -69,15 +71,17 @@ export default function HomePage() {
       {/* Synergy — Figma dark-green band */}
       <section className="bg-forest py-12 xl:py-16" aria-label="How our businesses connect">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-14 xl:gap-20">
-            <h2 className="max-w-[560px] text-[28px] font-semibold leading-[38px] text-white xl:text-[34px] xl:leading-[46px]">{synergy.statement}</h2>
-            <AnimatedIllustration
-              src={synergy.image}
-              alt={synergy.imageAlt}
-              overlay="synergy"
-              sizes="(min-width: 1280px) 582px, 100vw"
-              className="aspect-[582/360] w-full max-w-[582px] shrink-0 rounded-[40px] lg:w-[46%] xl:rounded-[53px]"
-            />
+          <HomeContainer className="max-w-[1260px] xl:max-w-[1300px]">
+            <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-10 xl:gap-14">
+              <h2 className="max-w-[540px] text-[28px] font-semibold leading-[38px] text-white xl:text-[34px] xl:leading-[46px]">{synergy.statement}</h2>
+              <AnimatedIllustration
+                src={synergy.image}
+                alt={synergy.imageAlt}
+                overlay="synergy"
+                sizes="(min-width: 1280px) 582px, 100vw"
+                className="aspect-[582/360] w-full max-w-[560px] shrink-0 rounded-[40px] lg:w-[48%] xl:rounded-[53px]"
+              />
+            </div>
           </HomeContainer>
         </ScrollReveal>
       </section>
@@ -136,25 +140,27 @@ export default function HomePage() {
       {/* Values — Figma image + text section */}
       <section className="mt-12 xl:mt-16" aria-labelledby="values-title">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-14 xl:gap-20">
-            <AnimatedIllustration
-              src={values.image}
-              alt={values.imageAlt}
-              overlay="values"
-              sizes="(min-width: 1280px) 480px, 100vw"
-              className="aspect-[5/6] w-full max-w-[460px] xl:max-w-[480px] shrink-0 rounded-[40px] lg:w-[42%] xl:rounded-[53px]"
-            />
-            <div className="max-w-[640px] lg:w-[54%]">
-              <SectionTitle id="values-title" className="xl:leading-[58px]">
-                {values.title}
-              </SectionTitle>
-              <div className="mt-6 space-y-4 text-base sm:text-lg font-medium leading-relaxed text-black">
-                {values.paragraphs.map((p) => (
-                  <p key={p}>{p}</p>
-                ))}
-              </div>
-              <div className="mt-7">
-                <ArrowPillLink href={values.link.href} label="Meet the leadership team" width={270} />
+          <HomeContainer className="max-w-[1260px] xl:max-w-[1300px]">
+            <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-10 xl:gap-14">
+              <AnimatedIllustration
+                src={values.image}
+                alt={values.imageAlt}
+                overlay="values"
+                sizes="(min-width: 1280px) 460px, 100vw"
+                className="aspect-[5/6] w-full max-w-[440px] xl:max-w-[460px] shrink-0 rounded-[40px] lg:w-[42%] xl:rounded-[53px]"
+              />
+              <div className="max-w-[620px] lg:w-[54%]">
+                <SectionTitle id="values-title" className="xl:leading-[58px]">
+                  {values.title}
+                </SectionTitle>
+                <div className="mt-6 space-y-4 text-base sm:text-lg font-medium leading-relaxed text-black">
+                  {values.paragraphs.map((p) => (
+                    <p key={p}>{p}</p>
+                  ))}
+                </div>
+                <div className="mt-7">
+                  <ArrowPillLink href={values.link.href} label="Meet the leadership team" width={270} />
+                </div>
               </div>
             </div>
           </HomeContainer>
