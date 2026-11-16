@@ -48,14 +48,14 @@ export default function HomePage() {
       <Hero />
 
       {/* About — Figma two-column text section */}
-      <section id="about" className="mt-12 scroll-mt-6 xl:mt-16" aria-labelledby="about-title">
+      <section id="about" className="pt-12 pb-16 xl:pt-20 xl:pb-24 scroll-mt-6" aria-labelledby="about-title">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-center lg:gap-14 xl:gap-20">
-            <div className="lg:max-w-[478px]">
+          <HomeContainer className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-center lg:gap-12 xl:gap-16">
+            <div className="lg:w-[440px] shrink-0">
               <SectionTitle id="about-title">Our Legacy</SectionTitle>
-              <p className="mt-6 text-[23px] font-semibold leading-[32px] text-black">{legacyLead.statement}</p>
+              <p className="mt-5 text-[21px] sm:text-[23px] font-semibold leading-[32px] text-black">{legacyLead.statement}</p>
             </div>
-            <div className="max-w-[620px] space-y-6 text-lg font-medium leading-7 text-black lg:pt-4">
+            <div className="max-w-[580px] space-y-5 text-base sm:text-lg font-medium leading-7 text-black lg:pt-3">
               {legacyLead.paragraphs.map((p) => (
                 <p key={p}>{p}</p>
               ))}
