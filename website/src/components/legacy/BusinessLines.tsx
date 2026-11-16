@@ -5,7 +5,6 @@ import { businessLines, businessLinesIntro } from "@/content/legacy";
 import { CarouselControls, HomeContainer, SectionTitle } from "@/components/home/primitives";
 import { cn } from "@/lib/cn";
 import { AnimatedIllustration } from "./AnimatedIllustration";
-import { ChevronDown, CheckCircle2 } from "lucide-react";
 
 const LAST = businessLines.length - 1;
 
@@ -226,49 +225,21 @@ export function BusinessLines() {
             </div>
           </div>
 
-          {/* Bottom Navigation & Scroll Indicator Bar */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t-[0.751px] border-[#262626]/20 pt-4">
-            <div className="flex items-center gap-4">
-              <p className="font-sans text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
-                <span className="font-bold text-black">{String(active + 1).padStart(2, "0")}</span> of{" "}
-                {String(businessLines.length).padStart(2, "0")}
-              </p>
+          {/* Bottom Navigation & Controls */}
+          <div className="mt-8 flex items-center justify-between border-t-[0.751px] border-[#262626]/20 pt-4">
+            <p className="font-sans text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
+              <span className="font-bold text-black">{String(active + 1).padStart(2, "0")}</span> of{" "}
+              {String(businessLines.length).padStart(2, "0")}
+            </p>
 
-              {/* Dynamic scroll hint */}
-              <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-600 bg-white/70 backdrop-blur-xs border border-slate-200 px-3.5 py-1.5 rounded-full">
-                {active === 0 && (
-                  <span>Scroll down for 02: Inverters & Storage ↓</span>
-                )}
-                {active === 1 && (
-                  <span>Scroll down for 03: Turnkey Solutions ↓</span>
-                )}
-                {active === 2 && (
-                  <span className="text-emerald-700 font-bold flex items-center gap-1.5">
-                    <CheckCircle2 size={13} className="text-emerald-600" />
-                    All 3 lines explored • Continue scrolling for Synergy ↓
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Progress bar */}
-              <div className="w-20 sm:w-28 h-1.5 rounded-full bg-slate-300 overflow-hidden">
-                <div
-                  className="h-full bg-brand-500 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.round(progress * 100)}%` }}
-                />
-              </div>
-
-              <CarouselControls
-                label="line of business"
-                gap={7.5}
-                canPrev={active > 0}
-                canNext={active < LAST}
-                onPrev={() => goToSlide(active - 1)}
-                onNext={() => goToSlide(active + 1)}
-              />
-            </div>
+            <CarouselControls
+              label="line of business"
+              gap={7.5}
+              canPrev={active > 0}
+              canNext={active < LAST}
+              onPrev={() => goToSlide(active - 1)}
+              onNext={() => goToSlide(active + 1)}
+            />
           </div>
         </HomeContainer>
       </div>
