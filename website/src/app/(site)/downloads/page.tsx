@@ -25,10 +25,10 @@ export default function DownloadsPage() {
             <h2 className={cn(headingFont, "mb-2 text-[26px] font-semibold")}>{group.title}</h2>
             <ul className="mb-12 border-b border-[#e6e6e6]">
               {group.files.map((file) => (
-                <li key={file.href} className="flex flex-wrap items-center gap-[18px] border-t border-[#e6e6e6] py-[22px]">
+                <li key={file.href} className="group flex flex-wrap items-center gap-[18px] border-t border-[#e6e6e6] py-[22px] px-3 -mx-3 rounded-2xl transition-all duration-300 ease-out hover:bg-slate-50">
                   <IconTile icon="file" size={52} />
                   <div className="min-w-0 flex-[1_1_360px]">
-                    <div className="text-[19px] font-semibold text-black">{file.title}</div>
+                    <div className="text-[19px] font-semibold text-black transition-colors duration-300 group-hover:text-brand-700">{file.title}</div>
                     <div className="text-[15px] text-muted">{file.description}</div>
                   </div>
                   <span className="flex-none text-sm text-muted">{file.size}</span>

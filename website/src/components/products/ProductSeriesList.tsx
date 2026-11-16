@@ -43,7 +43,7 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
             <ScrollReveal key={item.title} delay={index * 120}>
               <article
                 className={cn(
-                  "grid gap-6 xl:gap-8 lg:grid-cols-12 border-t border-[#e6e6e6] pt-10 pb-12 items-stretch transition-all duration-300",
+                  "group grid gap-6 xl:gap-8 lg:grid-cols-12 border-t border-[#e6e6e6] pt-10 pb-12 items-stretch transition-all duration-300",
                   index === series.length - 1 && "border-b",
                 )}
               >

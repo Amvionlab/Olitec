@@ -145,27 +145,67 @@ const tileTones = {
 } as const;
 
 /** Round icon badge, as the orange circles in the Figma "Why Choose" list. */
-export function IconTile({ icon, tone = "orange", size = 56 }: { icon: LegacyIconName; tone?: keyof typeof tileTones; size?: 44 | 52 | 56 | 90 }) {
+export function IconTile({
+  icon,
+  tone = "orange",
+  size = 56,
+  className,
+}: {
+  icon: LegacyIconName;
+  tone?: keyof typeof tileTones;
+  size?: 44 | 52 | 56 | 90;
+  className?: string;
+}) {
   return (
-    <div className={cn("flex flex-none items-center justify-center rounded-full", tileTones[tone])} style={{ width: size, height: size }}>
-      <LegacyIcon name={icon} size={size === 44 ? 22 : size === 90 ? 40 : 26} />
+    <div
+      className={cn(
+        "flex flex-none items-center justify-center rounded-full transition-all duration-300 ease-out shadow-xs",
+        "group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-md",
+        tone === "orange"
+          ? "group-hover:shadow-amber-500/25 group-hover:bg-gradient-to-tr group-hover:from-amber-500 group-hover:to-orange-400"
+          : "group-hover:shadow-emerald-500/25",
+        tileTones[tone],
+        className,
+      )}
+      style={{ width: size, height: size }}
+    >
+      <div className="transition-transform duration-300 ease-out group-hover:scale-105">
+        <LegacyIcon name={icon} size={size === 44 ? 22 : size === 90 ? 40 : 26} />
+      </div>
     </div>
   );
 }
 
 /** White card with the thin grey outline of the Figma product cards. */
 export function LegacyCard({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn("rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-7", className)}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "group rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-7 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-brand-400 hover:shadow-lg hover:shadow-brand-500/5",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 /** Grey rounded card (Figma quality / FAQ cards) with an icon, title and description. */
 export function FeatureCard({ icon, title, body, step }: { icon: LegacyIconName; title: string; body: string; step?: string }) {
   return (
-    <div className="rounded-[30px] bg-[rgb(230_230_230/0.4)] p-7">
-      {step && <div className="mb-3 text-sm font-semibold uppercase tracking-[0.12em] text-brand-600">{step}</div>}
+    <div className="group relative rounded-[30px] border border-transparent bg-[rgb(230_230_230/0.4)] p-7 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-brand-300 hover:bg-white hover:shadow-xl hover:shadow-brand-500/8">
+      {step && (
+        <div className="mb-3 text-sm font-semibold uppercase tracking-[0.12em] text-brand-600 transition-colors duration-300 group-hover:text-brand-700">
+          {step}
+        </div>
+      )}
       <IconTile icon={icon} />
-      <h3 className="mt-5 text-[22.663px] font-semibold leading-[29.786px] text-black">{title}</h3>
-      <p className="mt-2 text-base font-medium leading-[25px] text-black">{body}</p>
+      <h3 className="mt-5 text-[22.663px] font-semibold leading-[29.786px] text-black transition-colors duration-300 group-hover:text-brand-950">
+        {title}
+      </h3>
+      <p className="mt-2 text-base font-medium leading-[25px] text-black/85 transition-colors duration-300">
+        {body}
+      </p>
     </div>
   );
 }

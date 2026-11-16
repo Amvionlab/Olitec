@@ -104,23 +104,23 @@ export default function HomePage() {
             {productsPage.series.map((item, index) => (
               <li key={item.title} className="w-full max-w-[382px]">
                 <ScrollReveal delay={index * 140}>
-                  <div className="flex w-full flex-col overflow-hidden rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-[16.4px] transition hover:shadow-lg">
-                    <div className={item.tone === "green" ? "rounded-[16.411px] bg-leaf/15 py-12" : "brand-gradient rounded-[16.411px] py-12"}>
+                  <div className="group flex w-full flex-col overflow-hidden rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-[16.4px] transition-all duration-300 ease-out hover:-translate-y-2 hover:border-brand-400 hover:shadow-xl hover:shadow-brand-500/10">
+                    <div className={item.tone === "green" ? "rounded-[16.411px] bg-leaf/15 py-12 transition-colors duration-300 group-hover:bg-leaf/20" : "brand-gradient rounded-[16.411px] py-12 transition-all duration-300 group-hover:brightness-105"}>
                       <div className="flex justify-center">
                         <IconTile icon={item.icon} tone={item.tone === "green" ? "green" : "orange"} size={90} />
                       </div>
                       <p className="mt-4 text-center text-sm font-semibold uppercase tracking-[0.12em] text-black">{item.eyebrow}</p>
                     </div>
-                    <h3 className="mt-6 text-center text-[26px] font-semibold leading-[1.3] text-black">{item.title}</h3>
+                    <h3 className="mt-6 text-center text-[26px] font-semibold leading-[1.3] text-black transition-colors duration-300 group-hover:text-brand-600">{item.title}</h3>
                     <p className="mx-auto mt-2 max-w-[280px] flex-1 text-center text-[14.587px] font-medium leading-[21.881px] text-black">{item.tagline}</p>
                     <div className="mb-3 mt-6 flex justify-center">
                       <Link
                         href="/products"
-                        className="brand-gradient inline-flex h-[52.88px] w-[166.84px] items-center justify-center gap-3 rounded-[26.895px] text-[12.941px] font-semibold text-black transition hover:brightness-105"
+                        className="brand-gradient inline-flex h-[52.88px] w-[166.84px] items-center justify-center gap-3 rounded-[26.895px] text-[12.941px] font-semibold text-black transition hover:brightness-105 group-hover:shadow-md"
                         aria-label={`Know more about the ${item.title}`}
                       >
                         Know More
-                        <svg aria-hidden width="22" height="16" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg aria-hidden width="22" height="16" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 group-hover:translate-x-1">
                           <path d="M2 9h19M14 2l7 7-7 7" />
                         </svg>
                       </Link>

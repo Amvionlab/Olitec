@@ -24,13 +24,13 @@ export default function ApplicationsPage() {
               key={item.id}
               href={`#${item.id}`}
               className={cn(
-                "reveal-on-scroll flex items-start gap-4 rounded-[25.528px] border border-[#e6e6e6] bg-white p-[22px] transition-colors hover:border-brand-500",
+                "group reveal-on-scroll flex items-start gap-4 rounded-[25.528px] border border-[#e6e6e6] bg-white p-[22px] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-brand-500 hover:shadow-lg hover:shadow-brand-500/10",
                 `reveal-delay-${(idx % 3) + 1}`,
               )}
             >
               <IconTile icon={item.icon} size={52} />
               <span className="min-w-0">
-                <span className="mb-1 block text-[19px] font-semibold text-black">{item.title}</span>
+                <span className="mb-1 block text-[19px] font-semibold text-black transition-colors duration-300 group-hover:text-brand-600">{item.title}</span>
                 <span className="block text-[15px] text-muted">{item.tagline}</span>
               </span>
             </a>
