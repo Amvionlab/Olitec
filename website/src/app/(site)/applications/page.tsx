@@ -1,7 +1,8 @@
 /** Applications — from the Olitec HTML design (Olitec-Website/applications.html). */
 import type { Metadata } from "next";
 import { applicationsPage } from "@/content/pages";
-import { BulletList, CtaPanel, IconTile, LegacyCard, LegacyPage, PageHero, Section, headingFont } from "@/components/legacy/ui";
+import { CtaPanel, IconTile, LegacyPage, PageHero, Section } from "@/components/legacy/ui";
+import { ApplicationScrollRow } from "@/components/applications/ApplicationScrollRow";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
@@ -9,8 +10,6 @@ export const metadata: Metadata = {
   description: applicationsPage.lead,
   alternates: { canonical: "/applications" },
 };
-
-const cardTitle = cn(headingFont, "mb-2.5 text-[18px] font-semibold");
 
 export default function ApplicationsPage() {
   const { items, cta } = applicationsPage;
@@ -39,38 +38,12 @@ export default function ApplicationsPage() {
         </nav>
       </Section>
 
-      {items.map((item, index) => (
-        <Section key={item.id} id={item.id} muted={index % 2 === 1} innerClassName="py-16">
-          <div className="reveal-on-scroll">
-            <div className="mb-3.5 flex items-center gap-4">
-              <IconTile icon={item.icon} />
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-brand-600">Application</p>
-            </div>
-            <h2 className={cn(headingFont, "mb-1.5 text-[34px] font-semibold leading-[1.15]")}>{item.title}</h2>
-            <p className="mb-8 text-[20px] font-semibold text-ink">{item.tagline}</p>
-          </div>
-          <div className="grid gap-5 lg:grid-cols-3">
-            <div className="reveal-on-scroll reveal-delay-1">
-              <LegacyCard>
-                <h3 className={cardTitle}>The challenge</h3>
-                <p className="text-base">{item.challenge}</p>
-              </LegacyCard>
-            </div>
-            <div className="reveal-on-scroll reveal-delay-2">
-              <LegacyCard className="border-brand-300 bg-brand-50">
-                <h3 className={cardTitle}>The Olitec system</h3>
-                <BulletList items={item.system} className="text-base" />
-              </LegacyCard>
-            </div>
-            <div className="reveal-on-scroll reveal-delay-3">
-              <LegacyCard className="border-leaf/40 bg-leaf/5">
-                <h3 className={cardTitle}>The outcome</h3>
-                <BulletList items={item.outcome} className="text-base" />
-              </LegacyCard>
-            </div>
-          </div>
-        </Section>
-      ))}
+      {/* Sequential scroll-pinned applications (one by one box arrival, row completes, moves to next) */}
+      <div className="relative">
+        {items.map((item, index) => (
+          <ApplicationScrollRow key={item.id} item={item} index={index} />
+        ))}
+      </div>
 
       <div className="reveal-on-scroll">
         <CtaPanel title={cta.title} body={cta.body} primary={cta.action} secondary={{ href: "/channel-partners", label: "Become a partner" }} />
