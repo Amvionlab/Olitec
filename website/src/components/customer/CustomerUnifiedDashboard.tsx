@@ -177,7 +177,7 @@ export function CustomerUnifiedDashboard() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-6">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
-            Customer Dashboard
+            Dashboard
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">
             Welcome back, {profile.name}!
