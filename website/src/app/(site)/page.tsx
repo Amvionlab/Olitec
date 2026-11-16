@@ -50,12 +50,12 @@ export default function HomePage() {
       {/* About — Figma two-column text section */}
       <section id="about" className="pt-12 pb-16 xl:pt-20 xl:pb-24 scroll-mt-6" aria-labelledby="about-title">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-center lg:gap-12 xl:gap-16">
-            <div className="lg:w-[440px] shrink-0">
+          <HomeContainer className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-12 xl:gap-16">
+            <div className="lg:max-w-[480px] shrink-0">
               <SectionTitle id="about-title">Our Legacy</SectionTitle>
               <p className="mt-5 text-[21px] sm:text-[23px] font-semibold leading-[32px] text-black">{legacyLead.statement}</p>
             </div>
-            <div className="max-w-[580px] space-y-5 text-base sm:text-lg font-medium leading-7 text-black lg:pt-3">
+            <div className="max-w-[620px] space-y-5 text-base sm:text-lg font-medium leading-7 text-black lg:pt-3">
               {legacyLead.paragraphs.map((p) => (
                 <p key={p}>{p}</p>
               ))}
@@ -69,7 +69,7 @@ export default function HomePage() {
       {/* Synergy — Figma dark-green band */}
       <section className="bg-forest py-12 xl:py-16" aria-label="How our businesses connect">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-center lg:gap-14 xl:gap-20">
+          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-14 xl:gap-20">
             <h2 className="max-w-[560px] text-[28px] font-semibold leading-[38px] text-white xl:text-[34px] xl:leading-[46px]">{synergy.statement}</h2>
             <AnimatedIllustration
               src={synergy.image}
@@ -136,15 +136,15 @@ export default function HomePage() {
       {/* Values — Figma image + text section */}
       <section className="mt-12 xl:mt-16" aria-labelledby="values-title">
         <ScrollReveal>
-          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-center lg:gap-14 xl:gap-20">
+          <HomeContainer className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-14 xl:gap-20">
             <AnimatedIllustration
               src={values.image}
               alt={values.imageAlt}
               overlay="values"
-              sizes="(min-width: 1280px) 460px, 100vw"
-              className="aspect-[5/6] w-full max-w-[420px] shrink-0 rounded-[40px] lg:w-[38%] xl:rounded-[53px]"
+              sizes="(min-width: 1280px) 480px, 100vw"
+              className="aspect-[5/6] w-full max-w-[460px] xl:max-w-[480px] shrink-0 rounded-[40px] lg:w-[42%] xl:rounded-[53px]"
             />
-            <div className="max-w-[620px]">
+            <div className="max-w-[640px] lg:w-[54%]">
               <SectionTitle id="values-title" className="xl:leading-[58px]">
                 {values.title}
               </SectionTitle>
