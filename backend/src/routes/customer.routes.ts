@@ -7,4 +7,5 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
   app.get("/me", customerController.getMe);
   app.get("/dashboard", customerController.getDashboard);
   app.patch("/me", customerController.updateMe);
+  app.post("/change-password", customerController.changePassword);
 };

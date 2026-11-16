@@ -11,6 +11,7 @@ export interface UserProfile {
   mobile: string;
   role: "customer" | "admin";
   status: "active" | "inactive";
+  is_email_verified?: boolean;
   address?: string | null;
   city?: string | null;
   state?: string | null;
@@ -30,6 +31,7 @@ interface UserRow {
   password_hash: string;
   role: "customer" | "admin";
   status: "active" | "inactive";
+  is_email_verified?: boolean | number;
   address: string | null;
   city: string | null;
   state: string | null;
@@ -183,7 +185,7 @@ export const authService: AuthService = {
 
   async getCurrentUser(id: number): Promise<UserProfile> {
     const user = await queryOne<UserRow>(
-      "SELECT id, name, email, mobile, role, status, address, city, state, pincode FROM users WHERE id = ?",
+      "SELECT id, name, email, mobile, role, status, is_email_verified, address, city, state, pincode FROM users WHERE id = ?",
       [id],
     );
     if (!user) throw new NotFoundError("User not found");
@@ -195,6 +197,7 @@ export const authService: AuthService = {
       mobile: user.mobile,
       role: user.role,
       status: user.status,
+      is_email_verified: Boolean(user.is_email_verified),
       address: user.address,
       city: user.city,
       state: user.state,

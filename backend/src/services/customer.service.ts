@@ -1,17 +1,22 @@
 import { query, execute } from "../db/pool.js";
-import { NotFoundError } from "../utils/errors.js";
+import { hashPassword, verifyPassword } from "../utils/crypto.js";
+import { BadRequestError, NotFoundError } from "../utils/errors.js";
 
 export const customerService = {
   async getProfile(userId: number | string) {
     const rows = await query<any>(
-      `SELECT id, name, email, mobile, city, state, address, pincode, role, status, created_at
+      `SELECT id, name, email, mobile, city, state, address, pincode, role, status, is_email_verified, created_at
        FROM users WHERE id = ? LIMIT 1`,
       [userId]
     );
     if (!rows || rows.length === 0) {
       throw new NotFoundError("Customer not found");
     }
-    return rows[0];
+    const r = rows[0];
+    return {
+      ...r,
+      is_email_verified: Boolean(r.is_email_verified),
+    };
   },
 
   async getDashboard(userId: number | string, email?: string, mobile?: string) {
@@ -99,5 +104,26 @@ export const customerService = {
     }
 
     return this.getProfile(userId);
+  },
+
+  async changePassword(userId: number | string, currentPass: string, newPass: string) {
+    if (!currentPass || !newPass) {
+      throw new BadRequestError("Both current password and new password are required.");
+    }
+    if (newPass.length < 6) {
+      throw new BadRequestError("New password must be at least 6 characters long.");
+    }
+    const rows = await query<any>("SELECT id, password_hash FROM users WHERE id = ? LIMIT 1", [userId]);
+    if (!rows || rows.length === 0) {
+      throw new NotFoundError("Customer not found.");
+    }
+    const user = rows[0];
+    const isMatch = await verifyPassword(currentPass, user.password_hash);
+    if (!isMatch) {
+      throw new BadRequestError("The current password you entered is incorrect.");
+    }
+    const newHash = await hashPassword(newPass);
+    await execute("UPDATE users SET password_hash = ? WHERE id = ?", [newHash, userId]);
+    return { success: true, message: "Password updated successfully." };
   },
 };

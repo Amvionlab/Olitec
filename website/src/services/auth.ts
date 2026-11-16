@@ -7,6 +7,7 @@ export interface UserProfile {
   mobile: string;
   role: "customer" | "admin";
   status: "active" | "inactive";
+  is_email_verified?: boolean;
   city?: string;
   state?: string;
 }
@@ -189,5 +190,121 @@ export async function logout(): Promise<void> {
     // Ignore error on network fail during logout
   } finally {
     clearStoredSession();
+  }
+}
+
+// ----------------- EMAIL OTP VERIFICATION -----------------
+
+export type SimpleResult = { ok: true; message: string; data?: any } | { ok: false; message: string };
+
+export async function sendVerificationOtp(email: string): Promise<SimpleResult> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/send-verification-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim().toLowerCase() }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      return { ok: false, message: data.error?.message || data.message || "Failed to send verification code." };
+    }
+    return { ok: true, message: data.data?.message || "Verification code sent to your email." };
+  } catch (err: any) {
+    return { ok: false, message: err?.message || "Failed to connect to server." };
+  }
+}
+
+export async function verifyEmailOtp(email: string, otp: string): Promise<SimpleResult> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/verify-email-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.trim() }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      return { ok: false, message: data.error?.message || data.message || "Invalid verification code." };
+    }
+
+    // Update stored user if currently logged in
+    const stored = getStoredUser();
+    if (stored && stored.email.toLowerCase() === email.trim().toLowerCase()) {
+      stored.is_email_verified = true;
+      localStorage.setItem("olitec_user", JSON.stringify(stored));
+      window.dispatchEvent(new Event("olitec_auth_change"));
+    }
+
+    return { ok: true, message: data.data?.message || "Email verified successfully!" };
+  } catch (err: any) {
+    return { ok: false, message: err?.message || "Failed to connect to server." };
+  }
+}
+
+// ----------------- FORGOT PASSWORD VIA OTP -----------------
+
+export async function sendForgotPasswordOtp(email: string): Promise<SimpleResult> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/forgot-password/send-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim().toLowerCase() }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      return { ok: false, message: data.error?.message || data.message || "Failed to send reset code." };
+    }
+    return { ok: true, message: data.data?.message || "Reset code sent to your email." };
+  } catch (err: any) {
+    return { ok: false, message: err?.message || "Failed to connect to server." };
+  }
+}
+
+export async function resetPasswordWithOtp(
+  email: string,
+  otp: string,
+  newPassword: string
+): Promise<SimpleResult> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/forgot-password/reset`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email.trim().toLowerCase(),
+        otp: otp.trim(),
+        newPassword,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      return { ok: false, message: data.error?.message || data.message || "Failed to reset password." };
+    }
+    return { ok: true, message: data.data?.message || "Password reset successfully!" };
+  } catch (err: any) {
+    return { ok: false, message: err?.message || "Failed to connect to server." };
+  }
+}
+
+// ----------------- CHANGE PASSWORD (LOGGED IN) -----------------
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<SimpleResult> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/customers/change-password`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      return {
+        ok: false,
+        message: data.error?.message || data.message || "Current password incorrect or failed to update.",
+      };
+    }
+    return { ok: true, message: data.data?.message || "Password updated successfully." };
+  } catch (err: any) {
+    return { ok: false, message: err?.message || "Failed to connect to server." };
   }
 }

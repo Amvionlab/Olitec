@@ -238,3 +238,70 @@ export async function sendInquiryNotification(inquiry: {
     // Silent fail; do not reject form submission
   }
 }
+
+export async function sendOtpEmail(params: {
+  to: string;
+  otp: string;
+  purpose: "verify_email" | "reset_password";
+  name?: string;
+}): Promise<{ success: boolean; message?: string }> {
+  try {
+    const { transporter, smtp } = await createTransporter();
+    const isReset = params.purpose === "reset_password";
+    const subject = isReset
+      ? `[Olitec] Your Password Reset Code: ${params.otp}`
+      : `[Olitec] Your Email Verification Code: ${params.otp}`;
+    const heading = isReset ? "Reset Your Password" : "Verify Your Email Address";
+    const actionDesc = isReset
+      ? "We received a request to reset your password for your Olitec account. Use the verification code below to set a new password."
+      : "Thank you for being with Olitec Clean Energy. Please enter the verification code below to verify your email address.";
+
+    const html = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 20px; background-color: #ffffff; color: #1e293b;">
+        <div style="border-bottom: 2px solid #f99f1e; padding-bottom: 14px; margin-bottom: 22px;">
+          <h2 style="color: #f99f1e; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">OLITEC CLEAN ENERGY</h2>
+          <p style="color: #64748b; font-size: 13px; margin: 4px 0 0 0;">Customer Account Security</p>
+        </div>
+
+        <h3 style="color: #0f172a; margin: 0 0 12px 0; font-size: 18px; font-weight: 700;">${heading}</h3>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 20px 0;">
+          ${params.name ? `Hello <strong>${params.name}</strong>,<br/>` : "Hello,<br/>"}
+          ${actionDesc}
+        </p>
+
+        <div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 2px dashed #f59e0b; border-radius: 16px; padding: 20px; text-align: center; margin: 24px 0;">
+          <span style="font-size: 11px; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 8px;">Your 6-Digit One-Time Password</span>
+          <div style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 900; letter-spacing: 10px; color: #92400e; padding-left: 10px;">
+            ${params.otp}
+          </div>
+          <span style="font-size: 12px; color: #78350f; font-weight: 600; display: block; margin-top: 8px;">Valid for 10 minutes</span>
+        </div>
+
+        <div style="background-color: #f8fafc; border-radius: 12px; padding: 14px; margin-top: 20px; border: 1px solid #f1f5f9;">
+          <p style="margin: 0; font-size: 12px; color: #64748b; line-height: 1.5;">
+            🔒 <strong>Security Warning:</strong> Never share this code with anyone. Olitec support team members will never ask for your OTP. If you did not make this request, you can safely ignore this email.
+          </p>
+        </div>
+
+        <div style="margin-top: 28px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+          © ${new Date().getFullYear()} Olitec Clean Energy. All rights reserved.
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"${smtp.from_name}" <${smtp.from_email}>`,
+      to: params.to,
+      subject,
+      html,
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    console.error("Failed to send OTP email:", err);
+    return {
+      success: false,
+      message: err?.message || "Failed to send verification code via email.",
+    };
+  }
+}

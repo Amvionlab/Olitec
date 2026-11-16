@@ -13,6 +13,7 @@ export interface CustomerProfile {
   pincode?: string | null;
   role: string;
   status: string;
+  is_email_verified?: boolean;
   created_at: string;
 }
 

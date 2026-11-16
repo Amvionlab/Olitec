@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(255) NOT NULL,
   role          ENUM('customer', 'admin') NOT NULL DEFAULT 'customer',
   status        ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+  is_email_verified BOOLEAN NOT NULL DEFAULT FALSE,
   address       VARCHAR(255) NULL,
   city          VARCHAR(100) NULL,
   state         VARCHAR(100) NULL,
@@ -148,3 +149,16 @@ CREATE TABLE IF NOT EXISTS smtp_settings (
 INSERT INTO smtp_settings (id, host, port, secure, username, password, from_email, from_name, admin_email, is_enabled)
 VALUES (1, 'smtp.gmail.com', 587, FALSE, 'arish@amvionlabs.com', '', 'arish@amvionlabs.com', 'Olitec Clean Energy', 'arish@amvionlabs.com', TRUE)
 ON DUPLICATE KEY UPDATE id=1;
+
+-- 7. Email OTPs (For email verification and password reset)
+CREATE TABLE IF NOT EXISTS email_otps (
+  id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  email           VARCHAR(191) NOT NULL,
+  otp             VARCHAR(10)  NOT NULL,
+  purpose         ENUM('verify_email', 'reset_password') NOT NULL,
+  expires_at      DATETIME     NOT NULL,
+  is_used         BOOLEAN      NOT NULL DEFAULT FALSE,
+  created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_email_purpose (email, purpose, is_used)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

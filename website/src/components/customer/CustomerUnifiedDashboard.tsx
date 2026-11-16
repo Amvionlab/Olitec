@@ -26,6 +26,9 @@ import {
   Calendar,
   Sparkles,
   RefreshCw,
+  KeyRound,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   getCustomerDashboard,
@@ -33,7 +36,14 @@ import {
   type CustomerDashboardData,
   type CustomerProfile,
 } from "@/services/customer-dashboard";
-import { getStoredToken, getStoredUser, clearStoredSession } from "@/services/auth";
+import {
+  getStoredToken,
+  getStoredUser,
+  clearStoredSession,
+  sendVerificationOtp,
+  verifyEmailOtp,
+  changePassword,
+} from "@/services/auth";
 
 export function CustomerUnifiedDashboard() {
   const router = useRouter();
@@ -60,6 +70,105 @@ export function CustomerUnifiedDashboard() {
   });
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState<string>();
+
+  // Email OTP Verification State
+  const [showVerifyBox, setShowVerifyBox] = useState(false);
+  const [verifyOtp, setVerifyOtp] = useState("");
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [verifyMsg, setVerifyMsg] = useState<string>();
+  const [verifyErr, setVerifyErr] = useState<string>();
+
+  // Change Password State (Using Old Password)
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showCurrentPass, setShowCurrentPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [changePassLoading, setChangePassLoading] = useState(false);
+  const [changePassMsg, setChangePassMsg] = useState<string>();
+  const [changePassErr, setChangePassErr] = useState<string>();
+
+  const handleSendVerificationCode = async (email: string) => {
+    setVerifyLoading(true);
+    setVerifyErr(undefined);
+    setVerifyMsg(undefined);
+    const res = await sendVerificationOtp(email);
+    setVerifyLoading(false);
+    if (!res.ok) {
+      setVerifyErr(res.message);
+      return;
+    }
+    setOtpSent(true);
+    setVerifyMsg(res.message);
+  };
+
+  const handleVerifyEmail = async (email: string) => {
+    if (!verifyOtp.trim()) {
+      setVerifyErr("Please enter the 6-digit OTP code.");
+      return;
+    }
+    setVerifyLoading(true);
+    setVerifyErr(undefined);
+    const res = await verifyEmailOtp(email, verifyOtp);
+    setVerifyLoading(false);
+    if (!res.ok) {
+      setVerifyErr(res.message);
+      return;
+    }
+    setVerifyMsg("Email address verified successfully!");
+    setData((prev) => {
+      if (!prev || !prev.profile) return prev;
+      return {
+        ...prev,
+        profile: { ...prev.profile, is_email_verified: true },
+      };
+    });
+    setTimeout(() => {
+      setShowVerifyBox(false);
+      setOtpSent(false);
+      setVerifyOtp("");
+      setVerifyMsg(undefined);
+    }, 2000);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangePassErr(undefined);
+    setChangePassMsg(undefined);
+
+    if (!currentPassword) {
+      setChangePassErr("Please enter your current password.");
+      return;
+    }
+    if (!newPassword || newPassword.length < 6) {
+      setChangePassErr("New password must be at least 6 characters long.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setChangePassErr("New password and confirm password do not match.");
+      return;
+    }
+
+    setChangePassLoading(true);
+    const res = await changePassword(currentPassword, newPassword);
+    setChangePassLoading(false);
+
+    if (!res.ok) {
+      setChangePassErr(res.message);
+      return;
+    }
+
+    setChangePassMsg("Password updated successfully!");
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setTimeout(() => {
+      setShowChangePassword(false);
+      setChangePassMsg(undefined);
+    }, 2500);
+  };
 
   const loadDashboard = async () => {
     const token = getStoredToken();
@@ -227,23 +336,42 @@ export function CustomerUnifiedDashboard() {
             </div>
           </div>
 
-          {!editingProfile ? (
+          <div className="flex items-center gap-2 self-start sm:self-auto">
             <button
-              onClick={() => setEditingProfile(true)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer self-start sm:self-auto"
+              type="button"
+              onClick={() => {
+                setShowChangePassword((v) => !v);
+                setChangePassMsg(undefined);
+                setChangePassErr(undefined);
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition cursor-pointer ${
+                showChangePassword
+                  ? "border-brand-400 bg-brand-50 text-brand-800"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
             >
-              <Edit2 size={13} />
-              Edit Profile
+              <KeyRound size={13} />
+              Change Password
             </button>
-          ) : (
-            <button
-              onClick={() => setEditingProfile(false)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer self-start sm:self-auto"
-            >
-              <X size={14} />
-              Cancel
-            </button>
-          )}
+
+            {!editingProfile ? (
+              <button
+                onClick={() => setEditingProfile(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+              >
+                <Edit2 size={13} />
+                Edit Profile
+              </button>
+            ) : (
+              <button
+                onClick={() => setEditingProfile(false)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+              >
+                <X size={14} />
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
 
         {!editingProfile ? (
@@ -253,9 +381,28 @@ export function CustomerUnifiedDashboard() {
               <p className="text-sm font-bold text-slate-900 mt-0.5">{profile.name}</p>
             </div>
             <div>
-              <span className="text-xs text-slate-400 block font-medium">Email Address</span>
-              <p className="text-sm font-semibold text-slate-900 mt-0.5 flex items-center gap-1.5">
-                <Mail size={13} className="text-slate-400" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-400 block font-medium">Email Address</span>
+                {profile.is_email_verified ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700">
+                    <CheckCircle2 size={11} className="text-emerald-600" /> Verified
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowVerifyBox((v) => !v);
+                      setVerifyErr(undefined);
+                      setVerifyMsg(undefined);
+                    }}
+                    className="inline-flex items-center gap-1 text-[10.5px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full transition cursor-pointer"
+                  >
+                    <ShieldCheck size={11} /> Verify with OTP
+                  </button>
+                )}
+              </div>
+              <p className="text-sm font-semibold text-slate-900 mt-0.5 flex items-center gap-1.5 truncate">
+                <Mail size={13} className="text-slate-400 shrink-0" />
                 {profile.email}
               </p>
             </div>
@@ -356,6 +503,212 @@ export function CustomerUnifiedDashboard() {
               </button>
             </div>
           </form>
+        )}
+
+        {/* Email OTP Verification Box */}
+        {showVerifyBox && !profile.is_email_verified && (
+          <div className="mt-6 rounded-2xl bg-amber-50/70 border border-amber-200 p-4 sm:p-5">
+            <div className="flex items-center justify-between pb-3 border-b border-amber-200/60 mb-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={16} className="text-amber-700" />
+                <h4 className="text-xs sm:text-sm font-bold text-amber-950 uppercase tracking-wider">
+                  Verify Email Address ({profile.email})
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowVerifyBox(false)}
+                className="text-amber-700 hover:text-amber-900 cursor-pointer"
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            {verifyMsg && (
+              <div className="mb-3 rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 text-xs font-semibold text-emerald-800 flex items-center gap-2">
+                <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                <span>{verifyMsg}</span>
+              </div>
+            )}
+            {verifyErr && (
+              <div className="mb-3 rounded-xl bg-red-50 border border-red-200 p-2.5 text-xs font-semibold text-red-700 flex items-center gap-2">
+                <AlertCircle size={15} className="text-red-500 shrink-0" />
+                <span>{verifyErr}</span>
+              </div>
+            )}
+
+            {!otpSent ? (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <p className="text-xs text-amber-900/80">
+                  Click below to receive a 6-digit one-time password (OTP) at <strong>{profile.email}</strong>.
+                </p>
+                <button
+                  type="button"
+                  disabled={verifyLoading}
+                  onClick={() => handleSendVerificationCode(profile.email)}
+                  className="brand-gradient inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold text-black transition-all hover:brightness-105 active:scale-95 disabled:opacity-60 cursor-pointer shrink-0"
+                >
+                  <RefreshCw size={13} className={verifyLoading ? "animate-spin" : ""} />
+                  <span>{verifyLoading ? "Sending Code…" : "Send Verification OTP"}</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    maxLength={6}
+                    placeholder="Enter 6-digit OTP code"
+                    value={verifyOtp}
+                    onChange={(e) => setVerifyOtp(e.target.value.replace(/\D/g, ""))}
+                    className="w-full h-10 rounded-xl border border-amber-300 bg-white px-3 text-center font-mono text-base font-bold tracking-widest text-slate-900 focus:border-brand-500 focus:outline-none"
+                  />
+                </div>
+                <button
+                  type="button"
+                  disabled={verifyLoading}
+                  onClick={() => handleVerifyEmail(profile.email)}
+                  className="brand-gradient inline-flex items-center justify-center gap-1.5 rounded-xl px-5 py-2 text-xs font-bold text-black transition-all hover:brightness-105 active:scale-95 disabled:opacity-60 cursor-pointer"
+                >
+                  <CheckCircle2 size={14} />
+                  <span>{verifyLoading ? "Verifying…" : "Confirm Code"}</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={verifyLoading}
+                  onClick={() => handleSendVerificationCode(profile.email)}
+                  className="inline-flex items-center justify-center text-xs font-semibold text-amber-900 hover:underline px-2 py-2 cursor-pointer"
+                >
+                  Resend OTP
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Change Password Subcard (Using Old Password) */}
+        {showChangePassword && (
+          <div className="mt-6 rounded-2xl bg-slate-50 border border-slate-200 p-4 sm:p-6">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+              <div className="flex items-center gap-2">
+                <KeyRound size={16} className="text-brand-600" />
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Change Account Password
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowChangePassword(false)}
+                className="text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            {changePassMsg && (
+              <div className="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs font-semibold text-emerald-800 flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                <span>{changePassMsg}</span>
+              </div>
+            )}
+            {changePassErr && (
+              <div className="mb-4 rounded-xl bg-red-50 border border-red-200 p-3 text-xs font-semibold text-red-700 flex items-center gap-2">
+                <AlertCircle size={16} className="text-red-500 shrink-0" />
+                <span>{changePassErr}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Current Password <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showCurrentPass ? "text" : "password"}
+                      required
+                      placeholder="Enter current password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 pr-9 text-xs text-slate-900 focus:border-brand-500 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPass((v) => !v)}
+                      className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                    >
+                      {showCurrentPass ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    New Password <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showNewPass ? "text" : "password"}
+                      required
+                      placeholder="At least 6 characters"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 pr-9 text-xs text-slate-900 focus:border-brand-500 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPass((v) => !v)}
+                      className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                    >
+                      {showNewPass ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Confirm New Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type={showNewPass ? "text" : "password"}
+                    required
+                    placeholder="Re-type new password"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    className="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-brand-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowChangePassword(false)}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={changePassLoading}
+                  className="brand-gradient inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-xs font-bold text-black transition-all hover:brightness-105 active:scale-95 disabled:opacity-60 cursor-pointer"
+                >
+                  {changePassLoading ? (
+                    <>
+                      <RefreshCw size={13} className="animate-spin" />
+                      <span>Updating…</span>
+                    </>
+                  ) : (
+                    <>
+                      <KeyRound size={13} />
+                      <span>Update Password</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         )}
       </section>
 

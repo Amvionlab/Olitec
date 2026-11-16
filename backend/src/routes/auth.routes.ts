@@ -8,4 +8,12 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
   app.post("/admin/login", { schema: loginSchema }, authController.adminLogin);
   app.get("/me", authController.me);
   app.post("/logout", authController.logout);
+
+  // Email verification OTP routes
+  app.post("/send-verification-otp", authController.sendVerificationOtp);
+  app.post("/verify-email-otp", authController.verifyEmailOtp);
+
+  // Forgot password OTP routes
+  app.post("/forgot-password/send-otp", authController.sendForgotPasswordOtp);
+  app.post("/forgot-password/reset", authController.resetPasswordWithOtp);
 };

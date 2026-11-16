@@ -1,6 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { LoginBody, RegisterBody } from "../schemas/auth.schema.js";
 import { authService } from "../services/auth.service.js";
+import { otpService } from "../services/otp.service.js";
 import { extractBearerToken } from "../middleware/auth.js";
 import { verifyToken } from "../utils/crypto.js";
 import { UnauthorizedError } from "../utils/errors.js";
@@ -39,5 +40,31 @@ export const authController = {
       "olitec_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
     );
     return ok(await authService.logout());
+  },
+
+  sendVerificationOtp: async (request: FastifyRequest<{ Body: { email: string } }>) => {
+    const result = await otpService.sendVerificationOtp(request.body.email);
+    return ok(result);
+  },
+
+  verifyEmailOtp: async (request: FastifyRequest<{ Body: { email: string; otp: string } }>) => {
+    const result = await otpService.verifyEmailOtp(request.body.email, request.body.otp);
+    return ok(result);
+  },
+
+  sendForgotPasswordOtp: async (request: FastifyRequest<{ Body: { email: string } }>) => {
+    const result = await otpService.sendForgotPasswordOtp(request.body.email);
+    return ok(result);
+  },
+
+  resetPasswordWithOtp: async (
+    request: FastifyRequest<{ Body: { email: string; otp: string; newPassword: string } }>
+  ) => {
+    const result = await otpService.resetPasswordWithOtp(
+      request.body.email,
+      request.body.otp,
+      request.body.newPassword
+    );
+    return ok(result);
   },
 };
