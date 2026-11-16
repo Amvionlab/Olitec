@@ -27,18 +27,13 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<UserProfile | null>(() => {
-    return getStoredUser();
-  });
+  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [authorized, setAuthorized] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    const token = getStoredToken();
-    const storedUser = getStoredUser();
-    return Boolean(token && storedUser?.role === "admin");
-  });
+  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const token = getStoredToken();
     const storedUser = getStoredUser();
 
@@ -53,6 +48,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setUser(storedUser);
     setAuthorized(true);
   }, [pathname]);
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-slate-950" />;
+  }
 
   if (!authorized) {
     return (
