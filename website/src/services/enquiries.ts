@@ -1,43 +1,55 @@
-// Service requests are saved through POST /api/service-requests.
-// Partner, consultation and careers forms are still simulated (Phase 2: POST /api/enquiries/:kind).
 import type { SubmitResult } from "@/lib/types";
 import type { EnquiryKind } from "@/content/forms";
 import { apiPost, fileToUpload } from "@/lib/api";
-import { mockDelay } from "./mock-delay";
 
 export type EnquiryValues = Record<string, string>;
 
-/** Enquiry kinds that are actually sent and saved; the form says so when a submission is only simulated. */
-export const savedEnquiryKinds: readonly EnquiryKind[] = ["service"];
+/** All inquiry kinds are live and stored in MySQL database */
+export const savedEnquiryKinds: readonly EnquiryKind[] = [
+  "service",
+  "career",
+  "partner",
+  "consultation",
+];
 
 export async function submitEnquiry(
   kind: EnquiryKind,
   values: EnquiryValues,
   files: Record<string, File> = {},
 ): Promise<SubmitResult<{ reference?: string }>> {
-  if (kind === "service") {
-    const result = await apiPost<{ ticketNumber: string }>("/service-requests", {
-      name: values.name.trim(),
-      mobile: values.mobile.replace(/\D/g, ""),
-      email: values.email.trim(),
-      model: values.model,
-      serial: values.serial.trim(),
-      issue: values.issue,
-      description: values.description.trim(),
-      visitDate: values.visitDate || undefined,
-      pincode: values.pincode.trim(),
-      photo: files.photos ? await fileToUpload(files.photos) : undefined,
-    });
-    if (!result.ok) {
-      // The form names the photo input "photos"; the API calls it "photo".
-      const { photo, ...fieldErrors } = result.fields;
-      return { ok: false, message: result.message, fieldErrors: photo ? { ...fieldErrors, photos: photo } : fieldErrors };
-    }
-    return { ok: true, data: { reference: result.data.ticketNumber }, message: "Service request registered." };
+  const name = (values.name || values.fullName || "Customer").trim();
+  const email = (values.email || "").trim().toLowerCase();
+  const mobile = (values.mobile || "").replace(/\D/g, "");
+  const city = values.city || values.location || values.pincode || undefined;
+
+  let fileUrl: string | undefined;
+  if (files.photos) {
+    fileUrl = files.photos.name;
+  } else if (files.resume) {
+    fileUrl = files.resume.name;
   }
 
-  // MOCK for the partner, consultation and careers forms: nothing is sent, saved or uploaded.
-  await mockDelay();
-  void values;
-  return { ok: true, data: {}, message: "Submitted." };
+  const result = await apiPost<{ referenceNo: string }>("/inquiries", {
+    kind,
+    name,
+    email,
+    mobile,
+    city,
+    details: values,
+    fileUrl,
+  });
+
+  if (!result.ok) {
+    return {
+      ok: false,
+      message: result.message || "Failed to submit request.",
+      fieldErrors: result.fields,
+    };
+  }
+
+  return {
+    ok: true,
+    data: { reference: result.data.referenceNo },
+    message: "Your submission has been received successfully.",
+  };
 }

@@ -7,6 +7,7 @@ import { serviceRequestRoutes } from "./service-request.routes.js";
 import { supportRoutes } from "./support.routes.js";
 import { warrantyRegistrationRoutes } from "./warranty-registration.routes.js";
 import { warrantyRoutes } from "./warranty.routes.js";
+import { publicInquiryRoutes, adminInquiryRoutes } from "./inquiry.routes.js";
 
 /** Registers every API group under the /api prefix (set in app.ts). */
 export const apiRoutes: FastifyPluginAsync = async (app) => {
@@ -15,6 +16,8 @@ export const apiRoutes: FastifyPluginAsync = async (app) => {
   await app.register(productRoutes, { prefix: "/products" });
   await app.register(warrantyRoutes, { prefix: "/warranties" });
   await app.register(adminRoutes, { prefix: "/admin" });
+  await app.register(adminInquiryRoutes, { prefix: "/admin" });
+  await app.register(publicInquiryRoutes, { prefix: "/inquiries" });
   await app.register(supportRoutes, { prefix: "/support" });
   await app.register(serviceRequestRoutes, { prefix: "/service-requests" });
   await app.register(warrantyRegistrationRoutes, { prefix: "/warranty-registrations" });

@@ -69,7 +69,7 @@ export const enquiryForms: Record<EnquiryKind, EnquiryFormConfig> = {
     submitLabel: "Submit enquiry",
     success: {
       title: "Enquiry received",
-      message: "Thank you for your interest in partnering with Olitec. Our channel team will contact you within two working days.",
+      message: "Thank you for your interest in partnering with Olitec. Your inquiry reference is {reference}. Our channel team will contact you within two working days.",
     },
   },
   consultation: {
@@ -114,7 +114,7 @@ export const enquiryForms: Record<EnquiryKind, EnquiryFormConfig> = {
     submitLabel: "Request consultation",
     success: {
       title: "Request received",
-      message: "Thank you. An Olitec engineer will call you within one working day to understand your requirement.",
+      message: "Thank you. Your consultation request has been logged with reference {reference}. An Olitec engineer will call you within one working day to understand your requirement.",
     },
   },
   career: {
@@ -161,7 +161,7 @@ export const enquiryForms: Record<EnquiryKind, EnquiryFormConfig> = {
     success: {
       title: "Application received",
       message:
-        "Thank you for your interest in Olitec. Our team will review your profile and contact you if there is a suitable opening.",
+        "Thank you for your interest in Olitec. Your application has been logged with reference {reference}. Our team will review your profile and contact you if there is a suitable opening.",
     },
   },
   service: {

@@ -14,6 +14,8 @@ import {
   Menu,
   X,
   UserCheck,
+  Inbox,
+  Mail,
 } from "lucide-react";
 import { getStoredToken, getStoredUser, logout, type UserProfile } from "@/services/auth";
 
@@ -22,6 +24,8 @@ const navItems = [
   { label: "Product Master", href: "/admin/products", icon: Package },
   { label: "User Management", href: "/admin/users", icon: Users },
   { label: "Warranty Desk", href: "/admin/warranties", icon: ShieldCheck },
+  { label: "Form Submissions", href: "/admin/inquiries", icon: Inbox },
+  { label: "SMTP Settings", href: "/admin/smtp", icon: Mail },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -95,7 +99,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Brand */}
         <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-3.5">
           <Link href="/" className="flex w-full items-center transition hover:opacity-95" aria-label="Olitec Home">
-            <div className="flex w-full items-center justify-center rounded-xl bg-white px-3 py-1.5 shadow-xs">
+            <div className="flex w-full items-center justify-center rounded-xl px-3 py-1.5 shadow-xs">
               <Image
                 src="/images/home/olitec-logo.png"
                 alt="Olitec"
@@ -258,7 +262,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   ? "User Management"
                   : pathname.includes("/warranties")
                     ? "Warranty Desk & Registrations"
-                    : "Administration & Analytics"}
+                    : pathname.includes("/inquiries")
+                      ? "Form Submissions & Leads"
+                      : pathname.includes("/smtp")
+                        ? "SMTP & Email Configuration"
+                        : "Dashboard"}
             </h1>
           </div>
 

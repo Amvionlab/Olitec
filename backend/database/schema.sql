@@ -108,3 +108,43 @@ CREATE TABLE IF NOT EXISTS support_requests (
   KEY idx_support_user (user_id),
   KEY idx_support_status (status)
 ) ENGINE = InnoDB;
+
+-- 5. Inquiries & Form Submissions (Service, Careers, Channel Partners, Consultations)
+CREATE TABLE IF NOT EXISTS inquiries (
+  id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  kind            ENUM('service', 'career', 'partner', 'consultation') NOT NULL,
+  reference_no    VARCHAR(50)  NOT NULL,
+  name            VARCHAR(150) NOT NULL,
+  email           VARCHAR(191) NOT NULL,
+  mobile          VARCHAR(20)  NOT NULL,
+  city            VARCHAR(100) NULL,
+  status          ENUM('new', 'contacted', 'in_progress', 'resolved', 'closed') NOT NULL DEFAULT 'new',
+  details         JSON         NOT NULL,
+  file_url        VARCHAR(512) NULL,
+  admin_notes     TEXT         NULL,
+  created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_inquiries_ref (reference_no),
+  KEY idx_inquiries_kind_status (kind, status),
+  KEY idx_inquiries_created (created_at)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- 6. SMTP Settings (Configurable from Admin Portal)
+CREATE TABLE IF NOT EXISTS smtp_settings (
+  id              INT UNSIGNED NOT NULL PRIMARY KEY DEFAULT 1,
+  host            VARCHAR(191) NOT NULL DEFAULT 'smtp.gmail.com',
+  port            INT UNSIGNED NOT NULL DEFAULT 587,
+  secure          BOOLEAN      NOT NULL DEFAULT FALSE,
+  username        VARCHAR(191) NOT NULL DEFAULT 'arish@amvionlabs.com',
+  password        VARCHAR(255) NULL,
+  from_email      VARCHAR(191) NOT NULL DEFAULT 'arish@amvionlabs.com',
+  from_name       VARCHAR(191) NOT NULL DEFAULT 'Olitec Clean Energy',
+  admin_email     VARCHAR(191) NOT NULL DEFAULT 'arish@amvionlabs.com',
+  is_enabled      BOOLEAN      NOT NULL DEFAULT TRUE,
+  updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+INSERT INTO smtp_settings (id, host, port, secure, username, password, from_email, from_name, admin_email, is_enabled)
+VALUES (1, 'smtp.gmail.com', 587, FALSE, 'arish@amvionlabs.com', '', 'arish@amvionlabs.com', 'Olitec Clean Energy', 'arish@amvionlabs.com', TRUE)
+ON DUPLICATE KEY UPDATE id=1;

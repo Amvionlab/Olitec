@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
   RefreshCw,
   TrendingUp,
+  Inbox,
 } from "lucide-react";
 import { getAdminAnalytics, type AnalyticsData } from "@/services/admin";
 import { getStoredToken, clearStoredSession } from "@/services/auth";
@@ -140,6 +141,13 @@ export default function AdminDashboardPage() {
             <RefreshCw size={14} />
             Refresh
           </button>
+          <Link
+            href="/admin/inquiries"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 shadow-sm"
+          >
+            <Inbox size={14} />
+            Form Submissions
+          </Link>
           <Link
             href="/admin/products"
             className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-xs font-semibold text-slate-950 transition hover:bg-amber-400 shadow-sm"
