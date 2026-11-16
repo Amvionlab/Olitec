@@ -64,9 +64,7 @@ export default function HomePage() {
         </ScrollReveal>
       </section>
 
-      <ScrollReveal delay={120}>
-        <BusinessLines />
-      </ScrollReveal>
+      <BusinessLines />
 
       {/* Synergy — Figma dark-green band */}
       <section className="bg-forest py-14 xl:py-[86px]" aria-label="How our businesses connect">

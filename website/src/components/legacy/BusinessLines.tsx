@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { businessLines, businessLinesIntro } from "@/content/legacy";
 import { CarouselControls, HomeContainer, SectionTitle } from "@/components/home/primitives";
 import { cn } from "@/lib/cn";
 import { AnimatedIllustration } from "./AnimatedIllustration";
+import { ChevronDown, CheckCircle2 } from "lucide-react";
 
-const SLIDE_GAP = 32;
 const LAST = businessLines.length - 1;
 
 function EpcIcon() {
@@ -56,105 +56,222 @@ function TurnkeyIcon() {
 const icons = { epc: EpcIcon, storage: StorageIcon, turnkey: TurnkeyIcon };
 
 /**
- * "What Olitec does": the HTML design's three business lines, in the Figma products-band layout
- * (grey band, pill tabs, "01 of 03" counter and round carousel buttons). Slides scroll-snap.
+ * "What Olitec does": Scroll-driven 3-slide presentation.
+ * As the user scrolls vertically down, it pins in place and slides smoothly through:
+ * 1. Ground-mount open-access EPC
+ * 2. Inverters and energy storage
+ * 3. Turnkey solutions
+ * Once the 3rd slide is complete, continuing scroll naturally moves to the next section below.
  */
 export function BusinessLines() {
-  const railRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
-
-  const step = useCallback(() => {
-    const first = railRef.current?.querySelector("article");
-    return first ? first.getBoundingClientRect().width + SLIDE_GAP : 0;
-  }, []);
-
-  const currentIndex = useCallback(() => {
-    const s = step();
-    return s && railRef.current ? Math.max(0, Math.min(LAST, Math.round(railRef.current.scrollLeft / s))) : 0;
-  }, [step]);
-
-  const go = (index: number) => {
-    railRef.current?.scrollTo({ left: Math.max(0, Math.min(LAST, index)) * step(), behavior: "smooth" });
-  };
+  const [progress, setProgress] = useState(0);
+  const [isClient, setIsClient] = useState(false);
+  const isNavigatingRef = useRef(false);
 
   useEffect(() => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const sync = () => setActive(currentIndex());
-    rail.addEventListener("scroll", sync, { passive: true });
-    return () => rail.removeEventListener("scroll", sync);
-  }, [currentIndex]);
+    setIsClient(true);
+    let rafId: number | null = null;
+
+    const handleScroll = () => {
+      if (isNavigatingRef.current) return;
+      if (!containerRef.current) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const totalScrollable = containerRef.current.offsetHeight - windowHeight;
+
+      if (totalScrollable <= 0) return;
+
+      const scrolled = -rect.top;
+      const rawProgress = scrolled / totalScrollable;
+      const clamped = Math.min(Math.max(rawProgress, 0), 1);
+      setProgress(clamped);
+
+      // Map progress to active slide (0, 1, 2)
+      let nextIndex = 0;
+      if (clamped >= 0.68) {
+        nextIndex = 2;
+      } else if (clamped >= 0.32) {
+        nextIndex = 1;
+      } else {
+        nextIndex = 0;
+      }
+
+      setActive(nextIndex);
+    };
+
+    const onScroll = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(handleScroll);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  const goToSlide = (targetIndex: number) => {
+    const nextIdx = Math.max(0, Math.min(LAST, targetIndex));
+    setActive(nextIdx);
+
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const containerTop = scrollTop + rect.top;
+    const totalScrollable = containerRef.current.offsetHeight - window.innerHeight;
+
+    // Slide 0: ~15%, Slide 1: ~50%, Slide 2: ~85%
+    const progressOffsets = [0.15, 0.50, 0.85];
+    const targetScroll = containerTop + totalScrollable * progressOffsets[nextIdx];
+
+    isNavigatingRef.current = true;
+    window.scrollTo({
+      top: targetScroll,
+      behavior: "smooth",
+    });
+
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 600);
+  };
 
   return (
-    <section id="services" className="mt-16 scroll-mt-6 bg-[rgb(217_217_217/0.44)] py-12 xl:mt-[86px] xl:py-[56px]" aria-labelledby="business-lines-title">
-      <HomeContainer>
-        <SectionTitle id="business-lines-title">{businessLinesIntro.title}</SectionTitle>
-        <p className="mt-3 max-w-[811px] text-base font-medium leading-6 text-black">{businessLinesIntro.subtitle}</p>
+    <section
+      id="services"
+      ref={containerRef}
+      className="relative min-h-[220vh] md:min-h-[260vh] scroll-mt-6 bg-[rgb(217_217_217/0.44)]"
+      aria-labelledby="business-lines-title"
+    >
+      {/* Sticky presentation viewport */}
+      <div className="sticky top-16 md:top-20 z-10 flex min-h-[calc(100vh-4rem)] flex-col justify-center py-8 xl:py-12">
+        <HomeContainer>
+          <SectionTitle id="business-lines-title">{businessLinesIntro.title}</SectionTitle>
+          <p className="mt-2.5 max-w-[811px] text-base font-medium leading-6 text-black">
+            {businessLinesIntro.subtitle}
+          </p>
 
-        <div className="mt-8 flex flex-wrap gap-3" role="group" aria-label="Lines of business">
-          {businessLines.map((line, index) => {
-            const Icon = icons[line.key];
-            const isActive = index === active;
-            return (
-              <button
-                key={line.key}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => go(index)}
-                className={cn(
-                  "inline-flex h-[58px] items-center gap-3 rounded-[29.5px] pl-2 pr-6 text-[14.195px] font-semibold transition",
-                  isActive ? "brand-gradient text-black" : "bg-white text-black hover:bg-black/5",
-                )}
-              >
-                <span className={cn("flex size-[44px] items-center justify-center rounded-full", isActive ? "bg-white" : "bg-[rgb(217_217_217/0.6)]")}>
-                  <Icon />
-                </span>
-                {line.title}
-              </button>
-            );
-          })}
-        </div>
+          {/* Interactive Pill Tabs */}
+          <div className="mt-6 flex flex-wrap gap-2.5 sm:gap-3" role="group" aria-label="Lines of business">
+            {businessLines.map((line, index) => {
+              const Icon = icons[line.key];
+              const isActive = index === active;
+              return (
+                <button
+                  key={line.key}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => goToSlide(index)}
+                  className={cn(
+                    "inline-flex h-[52px] sm:h-[58px] items-center gap-2.5 sm:gap-3 rounded-[29.5px] pl-2 pr-5 sm:pr-6 text-[13.5px] sm:text-[14.195px] font-semibold transition-all cursor-pointer shadow-xs",
+                    isActive
+                      ? "brand-gradient text-black ring-2 ring-brand-400/40"
+                      : "bg-white text-black hover:bg-black/5"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex size-[38px] sm:size-[44px] items-center justify-center rounded-full transition-colors",
+                      isActive ? "bg-white" : "bg-[rgb(217_217_217/0.6)]"
+                    )}
+                  >
+                    <Icon />
+                  </span>
+                  <span>{line.title}</span>
+                </button>
+              );
+            })}
+          </div>
 
-        <div
-          ref={railRef}
-          className="mt-8 flex snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {businessLines.map((line) => (
-            <article
-              key={line.key}
-              className="flex min-w-0 flex-[0_0_100%] snap-start flex-wrap items-center gap-8 rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-5 sm:p-8 xl:gap-12"
+          {/* Animated Horizontal Slide Deck */}
+          <div className="mt-6 sm:mt-8 overflow-hidden rounded-[25.528px]">
+            <div
+              className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              style={{ transform: `translateX(-${active * 100}%)` }}
             >
-              <div className="min-w-0 flex-[1_1_320px] xl:pl-4">
-                <h3 className="text-[33.173px] font-semibold leading-[1.2] text-black xl:text-[40px]">{line.title}</h3>
-                <p className="mt-5 max-w-[520px] text-lg font-medium leading-7 text-black">{line.body}</p>
+              {businessLines.map((line, idx) => (
+                <article
+                  key={line.key}
+                  className="flex min-w-full w-full flex-shrink-0 flex-wrap items-center gap-6 sm:gap-8 rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-5 sm:p-8 xl:gap-12 shadow-sm"
+                >
+                  <div className="min-w-0 flex-[1_1_320px] xl:pl-4">
+                    <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-brand-50 border border-brand-200 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-700">
+                      <span>Business Line 0{idx + 1} of 03</span>
+                    </div>
+                    <h3 className="text-[26px] sm:text-[33px] font-semibold leading-[1.2] text-black xl:text-[40px]">
+                      {line.title}
+                    </h3>
+                    <p className="mt-4 max-w-[520px] text-base sm:text-lg font-medium leading-relaxed text-black">
+                      {line.body}
+                    </p>
+                  </div>
+                  <div className="min-w-0 flex-[1.3_1_420px]">
+                    <AnimatedIllustration
+                      src={line.image}
+                      alt={line.imageAlt}
+                      overlay={line.overlay}
+                      sizes="(min-width: 1280px) 640px, 100vw"
+                      className="aspect-[16/10] sm:aspect-[16/11] w-full rounded-[16.411px] xl:rounded-[25px]"
+                    />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom Navigation & Scroll Indicator Bar */}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t-[0.751px] border-[#262626]/20 pt-4">
+            <div className="flex items-center gap-4">
+              <p className="font-sans text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
+                <span className="font-bold text-black">{String(active + 1).padStart(2, "0")}</span> of{" "}
+                {String(businessLines.length).padStart(2, "0")}
+              </p>
+
+              {/* Dynamic scroll hint */}
+              <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-600 bg-white/70 backdrop-blur-xs border border-slate-200 px-3.5 py-1.5 rounded-full">
+                {active === 0 && (
+                  <span>Scroll down for 02: Inverters & Storage ↓</span>
+                )}
+                {active === 1 && (
+                  <span>Scroll down for 03: Turnkey Solutions ↓</span>
+                )}
+                {active === 2 && (
+                  <span className="text-emerald-700 font-bold flex items-center gap-1.5">
+                    <CheckCircle2 size={13} className="text-emerald-600" />
+                    All 3 lines explored • Continue scrolling for Synergy ↓
+                  </span>
+                )}
               </div>
-              <div className="min-w-0 flex-[1.3_1_420px]">
-                <AnimatedIllustration
-                  src={line.image}
-                  alt={line.imageAlt}
-                  overlay={line.overlay}
-                  sizes="(min-width: 1280px) 640px, 100vw"
-                  className="aspect-[16/11] rounded-[16.411px] xl:rounded-[25px]"
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Progress bar */}
+              <div className="w-20 sm:w-28 h-1.5 rounded-full bg-slate-300 overflow-hidden">
+                <div
+                  className="h-full bg-brand-500 rounded-full transition-all duration-300"
+                  style={{ width: `${Math.round(progress * 100)}%` }}
                 />
               </div>
-            </article>
-          ))}
-        </div>
 
-        <div className="mt-8 flex items-start justify-between border-t-[0.751px] border-[#262626] pt-[15px]">
-          <p className="font-sans text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
-            <span className="text-black">{String(active + 1).padStart(2, "0")}</span> of {String(businessLines.length).padStart(2, "0")}
-          </p>
-          <CarouselControls
-            label="line of business"
-            gap={7.5}
-            canPrev={active > 0}
-            canNext={active < LAST}
-            onPrev={() => go(currentIndex() - 1)}
-            onNext={() => go(currentIndex() + 1)}
-          />
-        </div>
-      </HomeContainer>
+              <CarouselControls
+                label="line of business"
+                gap={7.5}
+                canPrev={active > 0}
+                canNext={active < LAST}
+                onPrev={() => goToSlide(active - 1)}
+                onNext={() => goToSlide(active + 1)}
+              />
+            </div>
+          </div>
+        </HomeContainer>
+      </div>
     </section>
   );
 }
