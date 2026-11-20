@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Inbox,
+import { usePathname } from "next/navigation";
+import {  Inbox,
   Search,
   Filter,
   CheckCircle2,
@@ -28,10 +28,10 @@ import {
   getInquiryStats,
   updateInquiryStatus,
   deleteInquiryRecord,
+  assignEngineerToInquiry,
   type InquiryItem,
   type InquiryStats,
 } from "@/services/admin-inquiries";
-
 const KIND_CONFIG: Record<
   string,
   { label: string; icon: any; color: string; badge: string }
@@ -68,17 +68,32 @@ const STATUS_CONFIG: Record<string, { label: string; badge: string }> = {
   in_progress: { label: "In Progress", badge: "bg-indigo-100 text-indigo-700 border-indigo-200" },
   resolved: { label: "Resolved", badge: "bg-emerald-100 text-emerald-700 border-emerald-200" },
   closed: { label: "Closed", badge: "bg-slate-100 text-slate-700 border-slate-200" },
+  assigned: {
+  label: "Assigned",
+  badge: "bg-purple-100 text-purple-700 border-purple-200",
+},
+technician_visit: {
+  label: "Technician Visit",
+  badge: "bg-orange-100 text-orange-700 border-orange-200",
+},
+under_service: {
+  label: "Under Service",
+  badge: "bg-cyan-100 text-cyan-700 border-cyan-200",
+},
 };
 
 export default function AdminInquiriesPage() {
+  const pathname = usePathname();
+  const isServiceRequestsPage = pathname === "/admin/service-requests";
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
   const [stats, setStats] = useState<InquiryStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
   // Filter states
-  const [activeKind, setActiveKind] = useState<string>("all");
-  const [activeStatus, setActiveStatus] = useState<string>("all");
+const [activeKind, setActiveKind] = useState<string>(
+  pathname === "/admin/service-requests" ? "service" : "all"
+);  const [activeStatus, setActiveStatus] = useState<string>("all");
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -89,7 +104,9 @@ export default function AdminInquiriesPage() {
   const [adminNotes, setAdminNotes] = useState<string>("");
   const [updating, setUpdating] = useState(false);
   const [actionSuccess, setActionSuccess] = useState<string>();
-
+  const [showEngineerForm, setShowEngineerForm] = useState(false);
+  const [engineerName, setEngineerName] = useState("");
+  const [engineerContact, setEngineerContact] = useState("");
   const loadData = async () => {
     setLoading(true);
     setError(undefined);
@@ -126,11 +143,14 @@ export default function AdminInquiriesPage() {
     loadData();
   };
 
-  const openDetailModal = (inq: InquiryItem) => {
-    setSelectedInquiry(inq);
-    setAdminNotes(inq.admin_notes || "");
-    setActionSuccess(undefined);
-  };
+const openDetailModal = (inq: InquiryItem) => {
+  setSelectedInquiry(inq);
+  setAdminNotes(inq.admin_notes || "");
+  setActionSuccess(undefined);
+  setShowEngineerForm(false);
+  setEngineerName("");
+  setEngineerContact("");
+};
 
   const handleStatusChange = async (newStatus: string) => {
     if (!selectedInquiry) return;
@@ -148,21 +168,78 @@ export default function AdminInquiriesPage() {
       setUpdating(false);
     }
   };
+  const handleAssignEngineer = async () => {
+  if (!selectedInquiry) return;
 
-  const handleSaveNotes = async () => {
-    if (!selectedInquiry) return;
-    setUpdating(true);
-    try {
-      const updated = await updateInquiryStatus(selectedInquiry.id, selectedInquiry.status, adminNotes);
-      setSelectedInquiry(updated);
-      setInquiries((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
-      setActionSuccess("Admin notes saved successfully.");
-    } catch (err: any) {
-      alert("Failed to save notes: " + err.message);
-    } finally {
-      setUpdating(false);
-    }
-  };
+  if (!engineerName.trim() || !engineerContact.trim()) {
+    alert("Please enter engineer name and contact number.");
+    return;
+  }
+
+  if (!/^\d{10,15}$/.test(engineerContact.replace(/\D/g, ""))) {
+    alert("Please enter a valid engineer contact number.");
+    return;
+  }
+
+  setUpdating(true);
+
+  try {
+    const updated = await assignEngineerToInquiry(
+      selectedInquiry.id,
+      engineerName,
+      engineerContact
+    );
+
+    setSelectedInquiry(updated);
+
+    setInquiries((prev) =>
+      prev.map((item) => item.id === updated.id ? updated : item)
+    );
+
+    setShowEngineerForm(false);
+    setActionSuccess("Engineer assigned successfully!");
+
+    getInquiryStats().then(setStats).catch(() => {});
+  } catch (err: any) {
+    alert("Failed to assign engineer: " + err.message);
+  } finally {
+    setUpdating(false);
+  }
+};
+  
+const handleSaveNotes = async () => {
+  if (!selectedInquiry) return;
+
+  setUpdating(true);
+  setActionSuccess(undefined);
+
+  try {
+    const updated = await updateInquiryStatus(
+      selectedInquiry.id,
+      selectedInquiry.status,
+      adminNotes
+    );
+
+    console.log("Saved inquiry response:", updated);
+
+    setSelectedInquiry(updated);
+    setAdminNotes(updated.admin_notes || "");
+
+    setInquiries((prev) =>
+      prev.map((item) =>
+        item.id === updated.id ? updated : item
+      )
+    );
+
+    setActionSuccess("Admin notes saved successfully!");
+  } catch (err: any) {
+    console.error("Save notes error:", err);
+    alert("Failed to save notes: " + err.message);
+  } finally {
+    setUpdating(false);
+  }
+};
+
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this submission?")) return;
@@ -175,16 +252,29 @@ export default function AdminInquiriesPage() {
       alert("Failed to delete submission: " + err.message);
     }
   };
-
+  const serviceStatusCards = [
+  { label: "Total Complaints", value: stats?.serviceCount ?? 0, status: "all" },
+  { label: "Received", value: stats?.receivedCount ?? 0, status: "new" },
+  { label: "Assigned", value: stats?.assignedCount ?? 0, status: "assigned" },
+  { label: "Technician Visit", value: stats?.technicianVisitCount ?? 0, status: "technician_visit" },
+  { label: "Under Service", value: stats?.underServiceCount ?? 0, status: "under_service" },
+  { label: "Resolved", value: stats?.resolvedCount ?? 0, status: "resolved" },
+  { label: "Closed", value: stats?.closedCount ?? 0, status: "closed" },
+];
   return (
     <div className="space-y-6">
       {/* Top Banner */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Form Submissions</h2>
-          <p className="text-xs text-slate-500">
-            Incoming service requests, job applications, channel partners, and consultation leads
-          </p>
+         <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+  {isServiceRequestsPage ? "Service Requests" : "Form Submissions"}
+</h2>
+
+<p className="text-xs text-slate-500">
+  {isServiceRequestsPage
+    ? "Manage customer service requests and track their status."
+    : "Incoming service requests, job applications, channel partners, and consultation leads"}
+</p>
         </div>
         <button
           onClick={loadData}
@@ -195,39 +285,48 @@ export default function AdminInquiriesPage() {
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
-          <p className="text-xs font-semibold text-slate-500">Total Submissions</p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{stats?.total ?? totalCount}</p>
-        </div>
-        <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 shadow-xs">
-          <p className="text-xs font-semibold text-blue-700">New / Unread</p>
-          <p className="mt-1 text-2xl font-bold text-blue-900">{stats?.newCount ?? 0}</p>
-        </div>
-        <div className="rounded-2xl border border-red-200 bg-red-50/60 p-4 shadow-xs">
-          <p className="text-xs font-semibold text-red-700">Service Requests</p>
-          <p className="mt-1 text-2xl font-bold text-red-900">{stats?.serviceCount ?? 0}</p>
-        </div>
-        <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 shadow-xs">
-          <p className="text-xs font-semibold text-blue-700">Careers</p>
-          <p className="mt-1 text-2xl font-bold text-blue-900">{stats?.careerCount ?? 0}</p>
-        </div>
-        <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-4 shadow-xs">
-          <p className="text-xs font-semibold text-purple-700">Channel Partners</p>
-          <p className="mt-1 text-2xl font-bold text-purple-900">{stats?.partnerCount ?? 0}</p>
-        </div>
-        <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 shadow-xs">
-          <p className="text-xs font-semibold text-amber-700">Consultations</p>
-          <p className="mt-1 text-2xl font-bold text-amber-900">{stats?.consultationCount ?? 0}</p>
-        </div>
-      </div>
+ {/* Stats Cards */}
+{isServiceRequestsPage ? (
+
+<div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-7">
+  {serviceStatusCards.map((card, index) => (
+    <button
+      key={card.status}
+      type="button"
+      onClick={() => {
+        setActiveStatus(card.status);
+        setPage(1);
+      }}
+      aria-pressed={activeStatus === card.status}
+      className={`min-w-0 rounded-2xl border bg-white p-3 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
+        activeStatus === card.status
+          ? "border-amber-300 ring-1 ring-amber-100"
+          : "border-slate-100"
+      }`}
+    >
+      <p className="min-h-7 text-[10px] font-semibold leading-4 text-slate-500">
+        {card.label}
+      </p>
+
+      <p className={`mt-1 text-2xl font-bold ${
+        index === 0 ? "text-amber-600" : "text-slate-900"
+      }`}>
+        {card.value}
+      </p>
+    </button>
+  ))}
+</div>
+
+) : (
+  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    {/* Existing 6 stats cards inga same-ah retain pannu */}
+  </div>
+)}
 
       {/* Kind Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
-        {[
+{!isServiceRequestsPage && (
+  <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">        {[
           { key: "all", label: "All Forms" },
-          { key: "service", label: "Service Requests", icon: Wrench },
           { key: "career", label: "Careers", icon: Briefcase },
           { key: "partner", label: "Channel Partners", icon: Users },
           { key: "consultation", label: "Consultations", icon: Lightbulb },
@@ -252,8 +351,7 @@ export default function AdminInquiriesPage() {
             </button>
           );
         })}
-      </div>
-
+      </div>)}
       {/* Filter and Search Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md">
@@ -277,12 +375,15 @@ export default function AdminInquiriesPage() {
             }}
             className="h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 focus:border-amber-500 focus:outline-none"
           >
-            <option value="all">All Statuses</option>
-            <option value="new">New</option>
-            <option value="contacted">Contacted</option>
-            <option value="in_progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
+       <option value="all">All Statuses</option>
+<option value="new">Received</option>
+<option value="contacted">Contacted</option>
+<option value="in_progress">In Progress</option>
+<option value="assigned">Assigned</option>
+<option value="technician_visit">Technician Visit</option>
+<option value="under_service">Under Service</option>
+<option value="resolved">Resolved</option>
+<option value="closed">Closed</option>
           </select>
         </div>
       </div>
@@ -551,14 +652,23 @@ export default function AdminInquiriesPage() {
                   Update Lead Status
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {["new", "contacted", "in_progress", "resolved", "closed"].map((st) => (
+                  {["new", "contacted", "in_progress", "assigned", "technician_visit", "under_service", "resolved", "closed"].map((st) => (
                     <button
                       key={st}
                       type="button"
                       disabled={updating}
-                      onClick={() => handleStatusChange(st)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                        selectedInquiry.status === st
+                      onClick={() => {
+                        if (st === "assigned" && selectedInquiry.kind === "service") {
+                          setEngineerName("");
+                          setEngineerContact("");
+                          setShowEngineerForm(true);
+                        } else {
+                          handleStatusChange(st);
+                        }
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer 
+                          ${
+                          selectedInquiry.status === st
                           ? "bg-slate-900 text-white shadow-xs"
                           : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                       }`}
@@ -579,6 +689,66 @@ export default function AdminInquiriesPage() {
                     onChange={(e) => setAdminNotes(e.target.value)}
                     className="w-full rounded-xl border border-slate-300 p-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none"
                   />
+
+{showEngineerForm && selectedInquiry.kind === "service" && (
+  <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5 space-y-4">
+    <div>
+      <h4 className="text-sm font-bold text-slate-900">
+        Assign Engineer
+      </h4>
+      <p className="mt-1 text-xs text-slate-500">
+        Enter the engineer details for this service request.
+      </p>
+    </div>
+
+    <div>
+      <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+        Engineer Name *
+      </label>
+      <input
+        type="text"
+        value={engineerName}
+        onChange={(e) => setEngineerName(e.target.value)}
+        placeholder="Enter engineer name"
+        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-amber-500"
+      />
+    </div>
+
+    <div>
+      <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+        Engineer Contact *
+      </label>
+      <input
+        type="tel"
+        value={engineerContact}
+        onChange={(e) => setEngineerContact(e.target.value)}
+        placeholder="Enter mobile number"
+        maxLength={15}
+        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-amber-500"
+      />
+    </div>
+
+    <div className="flex justify-end gap-2">
+      <button
+        type="button"
+        onClick={() => setShowEngineerForm(false)}
+        className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        disabled={updating}
+        onClick={handleAssignEngineer}
+        className="rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-white hover:bg-amber-600 disabled:opacity-50"
+      >
+        {updating ? "Saving..." : "Save Assignment"}
+      </button>
+    </div>
+  </div>
+)}
+
                   <div className="mt-2 flex justify-end">
                     <button
                       type="button"

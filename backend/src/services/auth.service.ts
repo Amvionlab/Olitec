@@ -166,17 +166,33 @@ export const authService: AuthService = {
   },
 
   async loginAdmin(input: LoginBody): Promise<AuthResponse> {
-    const email = input.email.trim().toLowerCase();
-    const user = await queryOne<UserRow>("SELECT * FROM users WHERE email = ? AND role = 'admin'", [email]);
+  const email = input.email.trim().toLowerCase();
 
-    if (!user) {
-      throw new UnauthorizedError("Invalid admin credentials.");
-    }
+  const user = await queryOne<UserRow>(
+    "SELECT * FROM users WHERE email = ? AND role = 'admin'",
+    [email]
+  );
 
-    const isValid = await verifyPassword(input.password, user.password_hash);
-    if (!isValid) {
-      throw new UnauthorizedError("Invalid admin credentials.");
-    }
+  // DEBUG LOG 1
+  console.log("Admin found:", !!user);
+
+  if (!user) {
+    throw new UnauthorizedError("Invalid admin credentials.");
+  }
+
+  const isValid = await verifyPassword(
+    input.password,
+    user.password_hash
+  );
+
+  // DEBUG LOG 2
+  console.log("Password verification:", isValid);
+
+  if (!isValid) {
+    throw new UnauthorizedError("Invalid admin credentials.");
+  }
+
+  // Keep the remaining existing code below unchanged
 
     if (user.status === "inactive") {
       throw new ForbiddenError("This admin account is deactivated.");

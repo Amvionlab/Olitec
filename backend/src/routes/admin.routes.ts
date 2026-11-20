@@ -25,9 +25,15 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
   app.patch("/warranties/:id/status", adminController.updateWarrantyStatus);
 
   // Product Master
-  app.get("/products", adminController.listProducts);
-  app.get("/products/:id", adminController.getProduct);
-  app.post("/products", adminController.createProduct);
-  app.put("/products/:id", adminController.updateProduct);
-  app.delete("/products/:id", adminController.deleteProduct);
+// Product Master
+app.get("/products", adminController.listProducts);
+app.get("/products/:id", adminController.getProduct);
+app.post("/products", adminController.createProduct);
+app.put("/products/:id", adminController.updateProduct);
+app.delete("/products/:id", adminController.deleteProduct);
+
+ // Serial Number Audit
+  app.get("/serial-numbers", adminController.listSerialNumbers);
+  app.get("/serial-numbers/stats", adminController.serialNumberStats);
+  app.post("/serial-numbers", adminController.createSerialNumber);
 };

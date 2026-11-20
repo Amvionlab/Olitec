@@ -3,7 +3,6 @@
  * (channel partners, homes and businesses, careers, service request).
  * Rendered by components/legacy/EnquiryForm.tsx.
  */
-import { productModelGroups } from "./pages";
 
 export type EnquiryKind = "partner" | "consultation" | "career" | "service";
 
@@ -167,8 +166,13 @@ export const enquiryForms: Record<EnquiryKind, EnquiryFormConfig> = {
   service: {
     fields: [
       ...contactFields("Full name"),
-      { name: "model", label: "Product model", type: "select", required: true, emptyOption: "Select your product", groups: productModelGroups },
-      { name: "serial", label: "Serial number", type: "serial", required: true },
+{
+  name: "model",
+  label: "Product model",
+  type: "select",
+  required: true,
+  emptyOption: "Select your product",
+},      { name: "serial", label: "Serial number", type: "serial", required: true },
       {
         name: "issue",
         label: "Type of issue",

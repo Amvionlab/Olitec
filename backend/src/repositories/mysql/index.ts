@@ -11,6 +11,7 @@ import type {
   ProductRepository,
   ServiceRequest,
   ServiceRequestRepository,
+  SerialNumberRepository,
   SupportCategory,
   SupportRepository,
   SupportRequest,
@@ -436,5 +437,30 @@ export const mysqlWarrantyRegistrationRepository: WarrantyRegistrationRepository
       }
       throw error;
     }
+  },
+};
+export const mysqlSerialNumberRepository: SerialNumberRepository = {
+  async findBySerial(serialNumber) {
+    const row = await queryOne<Row>(
+      `SELECT
+         sn.serial_number,
+         sn.product_id,
+         p.name AS product_name,
+         p.model_number
+       FROM serial_numbers sn
+       INNER JOIN products p ON p.id = sn.product_id
+       WHERE UPPER(sn.serial_number) = ?
+       LIMIT 1`,
+      [serialNumber.trim().toUpperCase()],
+    );
+
+    if (!row) return undefined;
+
+    return {
+      serialNumber: row.serial_number,
+      productId: Number(row.product_id),
+      productName: row.product_name,
+      modelNumber: row.model_number,
+    };
   },
 };

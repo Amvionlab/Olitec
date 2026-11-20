@@ -2,8 +2,15 @@ import { query, execute } from "../db/pool.js";
 import { sendInquiryNotification } from "./mail.service.js";
 
 export type InquiryKind = "service" | "career" | "partner" | "consultation";
-export type InquiryStatus = "new" | "contacted" | "in_progress" | "resolved" | "closed";
-
+export type InquiryStatus =
+  | "new"
+  | "contacted"
+  | "in_progress"
+  | "assigned"
+  | "technician_visit"
+  | "under_service"
+  | "resolved"
+  | "closed";
 export interface CreateInquiryInput {
   kind: InquiryKind;
   name: string;
@@ -28,6 +35,8 @@ export interface InquiryRecord {
   admin_notes: string | null;
   created_at: string;
   updated_at: string;
+  engineer_name: string | null;
+  engineer_contact: string | null;
 }
 
 const KIND_PREFIXES: Record<InquiryKind, string> = {
@@ -131,7 +140,7 @@ export async function listInquiries(filters: {
 
   // Fetch paginated
   const rows = await query<any>(
-    `SELECT id, kind, reference_no, name, email, mobile, city, status, details, file_url, admin_notes, created_at, updated_at
+    `SELECT id, kind, reference_no, name, email, mobile, city, status, details, file_url, admin_notes,engineer_name, engineer_contact, created_at, updated_at
      FROM inquiries
      ${whereClause}
      ORDER BY created_at DESC
@@ -151,6 +160,8 @@ export async function listInquiries(filters: {
     details: typeof r.details === "string" ? JSON.parse(r.details) : r.details || {},
     file_url: r.file_url,
     admin_notes: r.admin_notes,
+    engineer_name: r.engineer_name,
+    engineer_contact: r.engineer_contact,
     created_at: r.created_at,
     updated_at: r.updated_at,
   }));
@@ -165,7 +176,7 @@ export async function listInquiries(filters: {
 
 export async function getInquiryById(id: number): Promise<InquiryRecord | null> {
   const rows = await query<any>(
-    `SELECT id, kind, reference_no, name, email, mobile, city, status, details, file_url, admin_notes, created_at, updated_at
+    `SELECT id, kind, reference_no, name, email, mobile, city, status, details, file_url, admin_notes, engineer_name, engineer_contact, created_at, updated_at
      FROM inquiries WHERE id = ? LIMIT 1`,
     [id]
   );
@@ -184,6 +195,8 @@ export async function getInquiryById(id: number): Promise<InquiryRecord | null> 
     details: typeof r.details === "string" ? JSON.parse(r.details) : r.details || {},
     file_url: r.file_url,
     admin_notes: r.admin_notes,
+    engineer_name: r.engineer_name,
+    engineer_contact: r.engineer_contact,
     created_at: r.created_at,
     updated_at: r.updated_at,
   };
@@ -218,6 +231,7 @@ export async function deleteInquiry(id: number): Promise<boolean> {
   return result.affectedRows > 0;
 }
 
+
 export async function getInquiryStats(): Promise<{
   total: number;
   newCount: number;
@@ -225,6 +239,12 @@ export async function getInquiryStats(): Promise<{
   careerCount: number;
   partnerCount: number;
   consultationCount: number;
+  receivedCount: number;
+  assignedCount: number;
+  technicianVisitCount: number;
+  underServiceCount: number;
+  resolvedCount: number;
+  closedCount: number;
 }> {
   const rows = await query<any>(`
     SELECT
@@ -233,11 +253,19 @@ export async function getInquiryStats(): Promise<{
       SUM(CASE WHEN kind = 'service' THEN 1 ELSE 0 END) as serviceCount,
       SUM(CASE WHEN kind = 'career' THEN 1 ELSE 0 END) as careerCount,
       SUM(CASE WHEN kind = 'partner' THEN 1 ELSE 0 END) as partnerCount,
-      SUM(CASE WHEN kind = 'consultation' THEN 1 ELSE 0 END) as consultationCount
+      SUM(CASE WHEN kind = 'consultation' THEN 1 ELSE 0 END) as consultationCount,
+
+      SUM(CASE WHEN kind = 'service' AND status = 'new' THEN 1 ELSE 0 END) as receivedCount,
+      SUM(CASE WHEN kind = 'service' AND status = 'assigned' THEN 1 ELSE 0 END) as assignedCount,
+      SUM(CASE WHEN kind = 'service' AND status = 'technician_visit' THEN 1 ELSE 0 END) as technicianVisitCount,
+      SUM(CASE WHEN kind = 'service' AND status = 'under_service' THEN 1 ELSE 0 END) as underServiceCount,
+      SUM(CASE WHEN kind = 'service' AND status = 'resolved' THEN 1 ELSE 0 END) as resolvedCount,
+      SUM(CASE WHEN kind = 'service' AND status = 'closed' THEN 1 ELSE 0 END) as closedCount
     FROM inquiries
   `);
 
   const r = rows[0] || {};
+
   return {
     total: Number(r.total || 0),
     newCount: Number(r.newCount || 0),
@@ -245,5 +273,31 @@ export async function getInquiryStats(): Promise<{
     careerCount: Number(r.careerCount || 0),
     partnerCount: Number(r.partnerCount || 0),
     consultationCount: Number(r.consultationCount || 0),
+    receivedCount: Number(r.receivedCount || 0),
+    assignedCount: Number(r.assignedCount || 0),
+    technicianVisitCount: Number(r.technicianVisitCount || 0),
+    underServiceCount: Number(r.underServiceCount || 0),
+    resolvedCount: Number(r.resolvedCount || 0),
+    closedCount: Number(r.closedCount || 0),
   };
+}
+export async function assignEngineer(
+  id: number,
+  engineerName: string,
+  engineerContact: string
+): Promise<InquiryRecord | null> {
+  await execute(
+    `UPDATE inquiries
+     SET engineer_name = ?,
+         engineer_contact = ?,
+         status = 'assigned'
+     WHERE id = ? AND kind = 'service'`,
+    [
+      engineerName.trim(),
+      engineerContact.replace(/\D/g, ""),
+      id,
+    ]
+  );
+
+  return getInquiryById(id);
 }

@@ -5,6 +5,7 @@ import {
   getInquiryById,
   updateInquiry,
   deleteInquiry,
+  assignEngineer,
   getInquiryStats,
   type InquiryKind,
 } from "../services/inquiry.service.js";
@@ -102,7 +103,57 @@ export const inquiryController = {
       return reply.status(500).send(fail("UPDATE_FAILED", error.message || "Failed to update inquiry"));
     }
   },
+// Admin: Assign engineer to service request
+async assignEngineer(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { id } = request.params as { id: string };
+    const { engineerName, engineerContact } = request.body as {
+      engineerName?: string;
+      engineerContact?: string;
+    };
 
+    const inquiryId = Number(id);
+
+    if (!Number.isInteger(inquiryId) || inquiryId <= 0) {
+      return reply.status(400).send(
+        fail("INVALID_ID", "Invalid service request ID")
+      );
+    }
+
+    if (!engineerName?.trim() || !engineerContact?.trim()) {
+      return reply.status(400).send(
+        fail("VALIDATION_ERROR", "Engineer name and contact are required")
+      );
+    }
+
+    const contact = engineerContact.replace(/\D/g, "");
+
+    if (contact.length < 10 || contact.length > 15) {
+      return reply.status(400).send(
+        fail("INVALID_CONTACT", "Enter a valid engineer contact number")
+      );
+    }
+
+    const updated = await assignEngineer(
+      inquiryId,
+      engineerName,
+      contact
+    );
+
+    if (!updated) {
+      return reply.status(404).send(
+        fail("NOT_FOUND", "Service request not found")
+      );
+    }
+
+    return ok(updated);
+  } catch (error: any) {
+    request.log.error(error);
+    return reply.status(500).send(
+      fail("ASSIGN_FAILED", error.message || "Failed to assign engineer")
+    );
+  }
+},
   // Admin: Delete inquiry
   async remove(request: FastifyRequest, reply: FastifyReply) {
     try {

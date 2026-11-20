@@ -8,7 +8,7 @@ import { validateEmail, validateMobile, validateName, validateRequired, validate
 import { cn } from "@/lib/cn";
 import { legacyButton, legacyButtonSecondary } from "./ui";
 import { getStoredUser, type UserProfile } from "@/services/auth";
-
+import { getActiveProductModels, type ServiceProductOption } from "@/services/products";
 const controlClass =
   "box-border block min-h-12 w-full rounded-[12px] border bg-white px-3.5 py-3 text-base text-black focus:outline-none focus:border-brand-500 focus:shadow-[0_0_0_3px_rgb(249_159_30/0.2)]";
 
@@ -66,11 +66,40 @@ export function EnquiryForm({ kind }: { kind: EnquiryKind }) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
-
+  const [productOptions, setProductOptions] = useState<ServiceProductOption[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
   useEffect(() => {
     setCurrentUser(getStoredUser());
   }, []);
+  useEffect(() => {
+  if (kind !== "service") return;
 
+  let cancelled = false;
+
+  async function loadProducts() {
+    setProductsLoading(true);
+
+    try {
+      const products = await getActiveProductModels();
+
+      if (!cancelled) {
+        setProductOptions(products);
+      }
+    } catch (error) {
+      console.error("Product loading failed:", error);
+    } finally {
+      if (!cancelled) {
+        setProductsLoading(false);
+      }
+    }
+  }
+
+  loadProducts();
+
+  return () => {
+    cancelled = true;
+  };
+}, [kind]);
   function getAutofillValue(fieldName: string): string {
     if (!currentUser) return "";
     switch (fieldName) {
@@ -181,19 +210,45 @@ export function EnquiryForm({ kind }: { kind: EnquiryKind }) {
               {field.required && <span className="sr-only"> (required)</span>}
             </label>
             {field.type === "select" ? (
-              <select {...common} defaultValue="">
-                <option value="">{field.emptyOption ?? "Select"}</option>
-                {field.options?.map((option) => (
-                  <option key={option}>{option}</option>
-                ))}
-                {field.groups?.map((group) => (
-                  <optgroup key={group.label} label={group.label}>
-                    {group.options.map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+  <select
+    {...common}
+    defaultValue=""
+    disabled={field.name === "model" && productsLoading}
+  >
+    <option value="">
+      {field.name === "model" && productsLoading
+        ? "Loading products..."
+        : field.name === "model" && productOptions.length === 0
+          ? "No active products available"
+          : field.emptyOption ?? "Select"}
+    </option>
+
+    {field.name === "model" ? (
+      productOptions.map((product) => (
+        <option key={product.id} value={product.model}>
+          {product.model}
+        </option>
+      ))
+    ) : (
+      <>
+        {field.options?.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+
+        {field.groups?.map((group) => (
+          <optgroup key={group.label} label={group.label}>
+            {group.options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </>
+    )}
+  </select>
             ) : field.type === "textarea" ? (
               <textarea
                 {...common}

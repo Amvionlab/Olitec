@@ -1,7 +1,9 @@
 import { getAuthHeaders } from "./auth";
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "");
-
+const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "http://localhost:4000/api"
+).replace(/\/$/, "");
 export interface AnalyticsData {
   totalWarranties: number;
   activeWarranties: number;
@@ -56,7 +58,25 @@ export interface AdminProduct {
   isActive: boolean;
   createdAt: string;
 }
+// ------------------- Serial Numbers -------------------
 
+export interface AdminSerialNumber {
+  id: number;
+  serialNumber: string;
+  productName: string;
+  modelNumber: string;
+  batchNumber: string;
+  productionMonth: string;
+  qrCode: string | null;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface SerialNumberStats {
+  totalSerialNumbers: number;
+  totalProducts: number;
+  generatedBatches: number;
+}
 export interface AdminWarranty {
   id: string;
   numericId: number;
@@ -146,18 +166,39 @@ export async function getAdminProducts(params?: {
   q?: string;
   category?: string;
 }): Promise<AdminProduct[]> {
-  const query = new URLSearchParams();
-  if (params?.q) query.set("q", params.q);
-  if (params?.category) query.set("category", params.category);
 
-  const res = await fetch(`${API_BASE_URL}/admin/products?${query.toString()}`, {
+  const query = new URLSearchParams();
+
+  if (params?.q) {
+    query.set("q", params.q);
+  }
+
+  if (params?.category) {
+    query.set("category", params.category);
+  }
+
+  const url = `${API_BASE_URL}/admin/products?${query.toString()}`;
+
+  console.log("Products API URL:", url);
+
+  const res = await fetch(url, {
+    method: "GET",
     headers: getAuthHeaders(),
     cache: "no-store",
   });
+
   const data = await res.json();
+
+  console.log("Products API Response:", data);
+
   if (!res.ok || !data.success) {
-    throw new Error(data.error?.message || "Failed to load products.");
+    throw new Error(
+      data.error?.message ||
+      data.message ||
+      `Failed to load products. Status: ${res.status}`
+    );
   }
+
   return data.data;
 }
 
@@ -170,52 +211,103 @@ export async function createAdminProduct(product: {
   shortDescription?: string;
   description?: string;
   isActive?: boolean;
+  image?: File | null;
 }): Promise<AdminProduct> {
+  const formData = new FormData();
+
+  formData.append("name", product.name);
+  formData.append("modelNumber", product.modelNumber);
+  formData.append("category", product.category);
+  formData.append("warrantyMonths", String(product.warrantyMonths ?? 12));
+  formData.append("priceInr", String(product.priceInr ?? 0));
+  formData.append("shortDescription", product.shortDescription ?? "");
+  formData.append("description", product.description ?? "");
+  formData.append("isActive", String(product.isActive ?? true));
+
+  if (product.image) {
+    formData.append("image", product.image);
+  }
+
+  // Remove JSON Content-Type header
+  const headers = new Headers(getAuthHeaders() as HeadersInit);
+  headers.delete("Content-Type");
+
   const res = await fetch(`${API_BASE_URL}/admin/products`, {
     method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(product),
+    headers,
+    body: formData,
   });
+
   const data = await res.json();
+
   if (!res.ok || !data.success) {
     throw new Error(data.error?.message || "Failed to create product.");
   }
+
   return data.data;
 }
-
 export async function updateAdminProduct(
   id: string | number,
-  product: Partial<{
+  input: {
     name: string;
     modelNumber: string;
     category: string;
     warrantyMonths: number;
     priceInr: number;
-    shortDescription: string;
-    description: string;
+    shortDescription?: string;
+    description?: string;
     isActive: boolean;
-  }>,
+    image?: File | null;
+  },
 ): Promise<AdminProduct> {
-  const res = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
+  const headers = new Headers(getAuthHeaders() as HeadersInit);
+  headers.delete("Content-Type");
+
+  const formData = new FormData();
+  formData.append("name", input.name);
+  formData.append("modelNumber", input.modelNumber);
+  formData.append("category", input.category);
+  formData.append("warrantyMonths", String(input.warrantyMonths));
+  formData.append("priceInr", String(input.priceInr));
+  formData.append("shortDescription", input.shortDescription ?? "");
+  formData.append("description", input.description ?? "");
+  formData.append("isActive", String(input.isActive));
+
+  if (input.image instanceof File) {
+    formData.append("image", input.image);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
     method: "PUT",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(product),
+    headers,
+    body: formData,
   });
-  const data = await res.json();
-  if (!res.ok || !data.success) {
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
     throw new Error(data.error?.message || "Failed to update product.");
   }
+
   return data.data;
 }
 
-export async function deleteAdminProduct(id: string | number): Promise<void> {
+export async function deleteAdminProduct(
+  id: string | number,
+): Promise<void> {
+  const headers = { ...getAuthHeaders() };
+
+  delete headers["Content-Type"];
+  delete headers["content-type"];
+
   const res = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
+    headers,
   });
+
   const data = await res.json();
+
   if (!res.ok || !data.success) {
-    throw new Error(data.error?.message || "Failed to deactivate product.");
+    throw new Error(data.error?.message || "Failed to delete product.");
   }
 }
 
@@ -270,5 +362,87 @@ export async function rejectWarranty(
   if (!res.ok || !data.success) {
     throw new Error(data.error?.message || "Failed to reject warranty.");
   }
+  return data.data;
+}
+
+// ------------------- Serial Number Audit -------------------
+
+export async function getAdminSerialNumbers(params?: {
+  search?: string;
+  model?: string;
+  productionMonth?: string;
+}): Promise<AdminSerialNumber[]> {
+  const query = new URLSearchParams();
+
+  if (params?.search) query.set("search", params.search);
+  if (params?.model && params.model !== "all") {
+    query.set("model", params.model);
+  }
+  if (params?.productionMonth && params.productionMonth !== "all") {
+    query.set("productionMonth", params.productionMonth);
+  }
+
+  const res = await fetch(
+    `${API_BASE_URL}/admin/serial-numbers?${query.toString()}`,
+    {
+      headers: getAuthHeaders(),
+      cache: "no-store",
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(
+      data.error?.message || "Failed to load serial numbers."
+    );
+  }
+
+  return data.data;
+}
+
+export async function getSerialNumberStats(): Promise<SerialNumberStats> {
+  const res = await fetch(
+    `${API_BASE_URL}/admin/serial-numbers/stats`,
+    {
+      headers: getAuthHeaders(),
+      cache: "no-store",
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(
+      data.error?.message || "Failed to load serial number statistics."
+    );
+  }
+
+  return data.data;
+}
+export async function createAdminSerialNumber(input: {
+  productId: number;
+  serialNumber: string;
+  batchNumber: string;
+  productionMonth: string;
+  qrCode?: string;
+}) {
+  const res = await fetch(
+    `${API_BASE_URL}/admin/serial-numbers`,
+    {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(input),
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(
+      data.error?.message || "Failed to create serial number."
+    );
+  }
+
   return data.data;
 }

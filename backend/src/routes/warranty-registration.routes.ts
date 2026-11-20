@@ -4,6 +4,8 @@ import { rateLimit } from "../utils/rate-limit.js";
 import {
   createWarrantyRegistrationSchema,
   warrantyStatusLookupSchema,
+  validateSerialNumberSchema,
+  type ValidateSerialNumberBody,
   type CreateWarrantyRegistrationBody,
   type WarrantyStatusLookupBody,
 } from "../schemas/warranty-registration.schema.js";
@@ -20,7 +22,14 @@ export const warrantyRegistrationRoutes: FastifyPluginAsync = async (app) => {
     },
     warrantyRegistrationController.create,
   );
-
+app.post<{ Body: ValidateSerialNumberBody }>(
+  "/validate-serial",
+  {
+    schema: validateSerialNumberSchema,
+    preValidation: [rateLimit("serial-validation", 20, 600_000)],
+  },
+  warrantyRegistrationController.validateSerialNumber,
+);
   // Public status check for /warranty-status. POST keeps the mobile number out of URLs and access logs;
   // the rate limit slows down guessing serial/mobile pairs.
   app.post<{ Body: WarrantyStatusLookupBody }>(

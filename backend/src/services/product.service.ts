@@ -78,7 +78,7 @@ export const productService = {
   },
 
   async listAllForAdmin(filter: { q?: string; category?: string }) {
-    const conditions: string[] = [];
+const conditions: string[] = ["is_active = TRUE"];
     const params: unknown[] = [];
 
     if (filter.category) {

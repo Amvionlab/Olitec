@@ -944,6 +944,40 @@ export function CustomerUnifiedDashboard() {
                   <p className="text-[11px] text-slate-500 mt-0.5">
                     {srv.details?.description ? String(srv.details.description).slice(0, 100) + "..." : ""}
                   </p>
+                  {(() => {
+                    const assignedEngineer = srv as typeof srv & {
+                      engineer_name?: string | null;
+                      engineer_contact?: string | null;
+                    };
+
+                    if (srv.status !== "assigned" || !assignedEngineer.engineer_name) {
+                      return null;
+                    }
+
+                    return (
+                      <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                        <p className="text-xs font-bold text-emerald-800 mb-2">
+                          Engineer Assigned
+                        </p>
+
+                        <div className="flex items-center gap-2 text-xs text-slate-700">
+                          <User size={14} className="text-emerald-700" />
+                          <span>
+                            Assigned To: <strong>{assignedEngineer.engineer_name}</strong>
+                          </span>
+                        </div>
+
+                        {assignedEngineer.engineer_contact && (
+                          <div className="flex items-center gap-2 mt-2 text-xs text-slate-700">
+                            <Phone size={14} className="text-emerald-700" />
+                            <span>
+                              Contact: <strong>{assignedEngineer.engineer_contact}</strong>
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div className="text-left sm:text-right shrink-0">
                   <p className="text-[11px] text-slate-400">

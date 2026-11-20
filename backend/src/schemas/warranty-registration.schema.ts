@@ -47,7 +47,29 @@ export const warrantyStatusLookupSchema = {
     },
   },
 } as const;
+export const validateSerialNumberSchema = {
+  body: {
+    type: "object",
+    required: ["serialNumber", "productModel"],
+    additionalProperties: false,
+    properties: {
+      serialNumber: {
+        type: "string",
+        pattern: "^[A-Za-z0-9-]{6,30}$",
+      },
+      productModel: {
+        type: "string",
+        minLength: 2,
+        maxLength: 100,
+      },
+    },
+  },
+} as const;
 
+export interface ValidateSerialNumberBody {
+  serialNumber: string;
+  productModel: string;
+}
 export interface WarrantyStatusLookupBody {
   serialNumber: string;
   mobile: string;

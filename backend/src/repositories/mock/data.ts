@@ -9,7 +9,32 @@ export const products: Product[] = [
   { id: "prd_105", slug: "aerosilent-bldc-fan", name: "AeroSilent BLDC Ceiling Fan", model: "AS-BLDC-1200", category: "Ceiling Fan", warrantyMonths: 36, priceInr: 3990, description: "Energy-efficient 28 W BLDC fan with remote." },
   { id: "prd_106", slug: "chefpro-750w-mixer-grinder", name: "ChefPro 750W Mixer Grinder", model: "CP-MG-750", category: "Kitchen Appliance", warrantyMonths: 24, priceInr: 4290, description: "750 W motor with three stainless steel jars." },
 ];
-
+export const serialNumbers = [
+  {
+    serialNumber: "APRO750TEST001",
+    productId: 101,
+  },
+  {
+    serialNumber: "PM1100TEST001",
+    productId: 102,
+  },
+  {
+    serialNumber: "LLTT150TEST001",
+    productId: 103,
+  },
+  {
+    serialNumber: "BCDC55TEST001",
+    productId: 104,
+  },
+  {
+    serialNumber: "ASBLDCTEST001",
+    productId: 105,
+  },
+  {
+    serialNumber: "CPMG750TEST001",
+    productId: 106,
+  },
+];
 export const customers: Customer[] = [
   { id: "cus_2041", name: "Priya Sharma", email: "priya.sharma@example.com", mobile: "9876543210", city: "Bengaluru", state: "Karnataka", status: "Active", createdAt: "2023-04-18T10:00:00+05:30" },
   { id: "cus_2042", name: "Arjun Mehta", email: "arjun.mehta@example.com", mobile: "9845012345", city: "Pune", state: "Maharashtra", status: "Active", createdAt: "2024-01-09T14:20:00+05:30" },

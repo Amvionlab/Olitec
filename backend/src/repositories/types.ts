@@ -204,3 +204,15 @@ export interface WarrantyRegistrationRepository {
   /** Saves a Pending registration with its invoice and installation document. */
   create(input: NewWarrantyRegistration): Promise<WarrantyRegistration>;
 }
+export interface SerialNumberRecord {
+  serialNumber: string;
+  productId: number;
+  productName: string;
+  modelNumber: string;
+}
+
+export interface SerialNumberRepository {
+  findBySerial(
+    serialNumber: string
+  ): Promise<SerialNumberRecord | undefined>;
+}

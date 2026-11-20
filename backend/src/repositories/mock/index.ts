@@ -7,8 +7,15 @@ import type {
   WarrantyRegistrationRepository,
   WarrantyRepository,
   WarrantyStatus,
+  SerialNumberRepository,
 } from "../types.js";
-import { customers, products, supportRequests, warranties } from "./data.js";
+import {
+  customers,
+  products,
+  serialNumbers,
+  supportRequests,
+  warranties,
+} from "./data.js";
 
 const contains = (value: string, q: string) => value.toLowerCase().includes(q);
 
@@ -148,6 +155,30 @@ export const mockWarrantyRegistrationRepository: WarrantyRegistrationRepository 
       installationDocumentFileName: installationDocument.originalFileName,
       status: "Pending",
       createdAt: new Date().toISOString(),
+    };
+  },
+};
+export const mockSerialNumberRepository: SerialNumberRepository = {
+  async findBySerial(serialNumber) {
+    const found = serialNumbers.find(
+      (item) =>
+        item.serialNumber.toUpperCase() ===
+        serialNumber.trim().toUpperCase(),
+    );
+
+    if (!found) return undefined;
+
+    const product = products.find(
+      (p) => Number(p.id.replace("prd_", "")) === found.productId,
+    );
+
+    if (!product) return undefined;
+
+    return {
+      serialNumber: found.serialNumber,
+      productId: found.productId,
+      productName: product.name,
+      modelNumber: product.model,
     };
   },
 };

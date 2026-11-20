@@ -16,6 +16,10 @@ export const adminInquiryRoutes: FastifyPluginAsync = async (app) => {
   app.get("/inquiries/stats", inquiryController.stats);
   app.get("/inquiries/:id", inquiryController.getOne);
   app.patch("/inquiries/:id", inquiryController.update);
+  app.post(
+  "/inquiries/:id/assign-engineer",
+  inquiryController.assignEngineer
+);
   app.delete("/inquiries/:id", inquiryController.remove);
 
   // SMTP Settings

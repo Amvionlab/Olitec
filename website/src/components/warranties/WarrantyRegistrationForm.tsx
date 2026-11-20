@@ -2,7 +2,20 @@
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { CheckCircle2, ShieldCheck, RefreshCw, Eye, EyeOff, ArrowRight } from "lucide-react";
+import {
+  CheckCircle2,
+  ShieldCheck,
+  RefreshCw,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  User,
+  Package,
+  ShoppingBag,
+  FileText,
+  Check,
+} from "lucide-react";
+
 import { apiPost, fileToUpload } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { fetchActiveProducts, type ApiProductItem } from "@/services/products";
@@ -138,6 +151,30 @@ function SectionTitle({ children }: { children: ReactNode }) {
 
 /** Public warranty registration (no account needed). Saved through POST /api/warranty-registrations. */
 export function WarrantyRegistrationForm({ defaultProductModel = "" }: { defaultProductModel?: string }) {
+  const [currentStep, setCurrentStep] = useState(1);
+
+const steps = [
+  {
+    number: 1,
+    title: "Customer Details",
+    description: "Your personal information",
+  },
+  {
+    number: 2,
+    title: "Product Details",
+    description: "Product and serial number",
+  },
+  {
+    number: 3,
+    title: "Purchase Details",
+    description: "Purchase and dealer information",
+  },
+  {
+    number: 4,
+    title: "Documents",
+    description: "Upload required documents",
+  },
+];
   const formRef = useRef<HTMLFormElement>(null);
   const [products, setProducts] = useState<ApiProductItem[]>([]);
   const [isCustomModel, setIsCustomModel] = useState(false);
@@ -177,6 +214,11 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
 
   const [files, setFiles] = useState<Files>({ invoice: null, installationDocument: null });
   const [errors, setErrors] = useState<Errors>({});
+  const [serialStatus, setSerialStatus] = useState<
+  "idle" | "checking" | "valid" | "invalid"
+>("idle");
+const [serialMessage, setSerialMessage] = useState("");
+const [serialValidated, setSerialValidated] = useState(false);
   const [formError, setFormError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<{ registrationNumber: string; serialNumber: string; persisted: boolean }>();
@@ -189,7 +231,34 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
     setValues((v) => ({ ...v, [field]: value }));
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
   }
+  async function handleSerialValidation() {
+  if (!values.serialNumber.trim() || !values.productModel.trim()) {
+    setSerialStatus("idle");
+    setSerialValidated(false);
+    return;
+  }
+  setSerialStatus("idle");
+  setSerialValidated(false);
+  setSerialMessage("");
+  setSerialStatus("checking");
+  setSerialValidated(false);
+  setSerialMessage("");
 
+  const result = await apiPost("/warranty-registrations/validate-serial", {
+    serialNumber: values.serialNumber.trim(),
+    productModel: values.productModel.trim(),
+  });
+
+  if (result.ok) {
+    setSerialStatus("valid");
+    setSerialValidated(true);
+    setSerialMessage("Serial number verified successfully.");
+  } else {
+    setSerialStatus("invalid");
+    setSerialValidated(false);
+    setSerialMessage(result.message || "Invalid serial number.");
+  }
+}
   function updateFile(field: FileFieldName, file: File | null) {
     setFiles((f) => ({ ...f, [field]: file }));
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
@@ -225,11 +294,87 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
     };
   }
 
+function validateCurrentStep() {
+  const allErrors = validate(values, files, today);
+
+  const fieldsByStep: Record<number, FieldName[]> = {
+    1: ["customerName", "email", "mobile", "installationAddress"],
+    2: ["productModel", "serialNumber"],
+    3: [
+      "purchaseDate",
+      "installationDate",
+      "dealerName",
+      "dealerContact",
+    ],
+    4: ["invoice", "installationDocument"],
+  };
+
+  const currentFields = fieldsByStep[currentStep];
+  const stepErrors: Errors = {};
+
+  currentFields.forEach((field) => {
+    if (allErrors[field]) {
+      stepErrors[field] = allErrors[field];
+    }
+  });
+
+  setErrors((prev) => ({
+    ...prev,
+    ...stepErrors,
+  }));
+
+  const firstInvalid = currentFields.find(
+    (field) => allErrors[field]
+  );
+
+  if (firstInvalid) {
+    formRef.current
+      ?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)
+      ?.focus();
+
+    return false;
+  }
+  if (currentStep === 2 && serialStatus === "checking") {
+  setFormError("Serial number verification is in progress. Please wait.");
+  return false;
+}
+  if (currentStep === 2 && !serialValidated) {
+    setFormError(
+      "Please verify a valid serial number before continuing."
+    );
+    return false;
+  }
+if (currentStep === 4 && !currentUser) {
+  const passErr = validateNewPassword(signupPassword);
+
+  if (passErr) {
+    setFormError(passErr);
+    return false;
+  }
+
+  if (signupPassword !== signupConfirmPassword) {
+    setFormError("Passwords do not match.");
+    return false;
+  }
+
+  if (!otpSent || signupOtp.trim().length !== 6) {
+    setFormError("Please send OTP and enter the 6-digit verification code.");
+    return false;
+  }
+}
+  setFormError(undefined);
+  return true;
+}
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(undefined);
     const nextErrors = validate(values, files, today);
     setErrors(nextErrors);
+    if (!serialValidated) {
+  setFormError("Please verify a valid serial number before submitting.");
+  return;
+}
     const firstInvalid = fieldOrder.find((field) => nextErrors[field]);
     if (firstInvalid) {
       formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
@@ -329,8 +474,7 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
         <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
           <Link
             href="/warranties"
-            className="brand-gradient inline-flex h-11 items-center justify-center gap-2 rounded-full px-7 text-sm font-bold text-black transition hover:brightness-105 shadow-sm"
-          >
+className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-green-600 px-7 text-sm font-bold text-white shadow-sm transition hover:bg-green-700"          >
             <span>Go to Your Dashboard</span>
             <ArrowRight size={16} />
           </Link>
@@ -344,8 +488,7 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
               setOtpSent(false);
               setOtpMsg(undefined);
             }}
-            className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 px-6 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 cursor-pointer"
-          >
+           className="inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 px-7 text-sm font-bold text-black shadow-sm transition hover:brightness-105 cursor-pointer">
             Register Another Product
           </button>
         </div>
@@ -355,6 +498,62 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
 
   return (
     <form key={formKey} ref={formRef} onSubmit={handleSubmit} noValidate>
+      <div className="mb-8">
+  <div className="mb-6 flex items-center justify-between">
+    <div>
+      <p className="text-sm font-semibold text-slate-500">
+        STEP {currentStep} OF 4
+      </p>
+      <h2 className="mt-1 text-xl font-bold text-slate-900">
+        {steps[currentStep - 1].title}
+      </h2>
+      <p className="mt-1 text-sm text-slate-500">
+        {steps[currentStep - 1].description}
+      </p>
+    </div>
+
+    <div className="text-2xl font-bold text-brand-600">
+      {Math.round((currentStep / 4) * 100)}%
+    </div>
+  </div>
+
+  <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+    <div
+      className="h-full rounded-full bg-brand-500 transition-all duration-300"
+      style={{ width: `${(currentStep / 4) * 100}%` }}
+    />
+  </div>
+
+  <div className="mt-6 grid grid-cols-4 gap-2">
+    {steps.map((step) => (
+      <div key={step.number} className="text-center">
+        <div
+          className={`mx-auto flex size-9 items-center justify-center rounded-full text-sm font-bold ${
+            currentStep >= step.number
+              ? "bg-brand-500 text-black"
+              : "bg-slate-100 text-slate-400"
+          }`}
+        >
+          {currentStep > step.number ? (
+            <Check size={17} />
+          ) : (
+            step.number
+          )}
+        </div>
+
+        <p
+          className={`mt-2 hidden text-xs font-semibold sm:block ${
+            currentStep >= step.number
+              ? "text-slate-900"
+              : "text-slate-400"
+          }`}
+        >
+          {step.title}
+        </p>
+      </div>
+    ))}
+  </div>
+</div>
       {/* Autofill Notification Banner for Logged-in Users */}
       {currentUser && (
         <div className="mb-8 flex items-center gap-2.5 rounded-2xl bg-amber-50 border border-amber-200/80 px-4 py-3 text-xs font-semibold text-amber-950">
@@ -365,8 +564,9 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
         </div>
       )}
 
-      <section className="mb-10">
-        <SectionTitle>01. Customer Information</SectionTitle>
+      {currentStep === 1 && (
+  <section className="mb-10">
+    <SectionTitle>01. Customer Information</SectionTitle>
         <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
           <Field id="customerName" label="Customer Name" required error={errors.customerName}>
             <input {...inputProps("customerName")} type="text" autoComplete="name" placeholder="Enter your full name" onChange={(e) => update("customerName", e.target.value)} />
@@ -395,10 +595,11 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
             />
           </Field>
         </div>
-      </section>
+      </section>)}
 
-      <section className="mb-10">
-        <SectionTitle>02. Product Information</SectionTitle>
+      {currentStep === 2 && (
+  <section className="mb-10">
+    <SectionTitle>02. Product Information</SectionTitle>
         <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
           <Field
             id="productModel"
@@ -427,6 +628,9 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
                     } else {
                       update("productModel", val);
                     }
+                    setSerialStatus("idle");
+                    setSerialValidated(false);
+                    setSerialMessage("");
                   }}
                 >
                   <option value="">-- Choose Product Model --</option>
@@ -445,8 +649,12 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
                     {...inputProps("productModel")}
                     type="text"
                     placeholder="e.g. OLI-1H3L or custom model"
-                    onChange={(e) => update("productModel", e.target.value)}
-                  />
+onChange={(e) => {
+  update("productModel", e.target.value);
+  setSerialStatus("idle");
+  setSerialValidated(false);
+  setSerialMessage("");
+}}                  />
                   <button
                     type="button"
                     onClick={() => {
@@ -467,14 +675,38 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
               type="text"
               autoComplete="off"
               placeholder="Enter serial number"
-              onChange={(e) => update("serialNumber", e.target.value.toUpperCase())}
-            />
+onChange={(e) => {
+  update("serialNumber", e.target.value.toUpperCase());
+  setSerialStatus("idle");
+  setSerialValidated(false);
+  setSerialMessage("");
+}}
+onBlur={handleSerialValidation}            />
+{serialStatus === "checking" && (
+  <p className="mt-1.5 text-xs text-slate-500">
+    Checking serial number...
+  </p>
+)}
+
+{serialStatus === "valid" && (
+  <p className="mt-1.5 flex items-center gap-1 text-xs text-emerald-600">
+    <CheckCircle2 size={14} />
+    {serialMessage}
+  </p>
+)}
+
+{serialStatus === "invalid" && (
+  <p className="mt-1.5 text-xs text-red-600">
+    {serialMessage}
+  </p>
+)}
           </Field>
         </div>
-      </section>
+      </section>)}
 
-      <section className="mb-10">
-        <SectionTitle>03. Purchase &amp; Installation Details</SectionTitle>
+      {currentStep === 3 && (
+  <section className="mb-10">
+    <SectionTitle>03. Purchase &amp; Installation Details</SectionTitle>
         <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
           <Field id="purchaseDate" label="Purchase Date" required error={errors.purchaseDate}>
             <input {...inputProps("purchaseDate")} type="date" max={today} onChange={(e) => update("purchaseDate", e.target.value)} />
@@ -495,10 +727,12 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
             <input {...inputProps("dealerContact")} type="tel" placeholder="Enter dealer contact" onChange={(e) => update("dealerContact", e.target.value)} />
           </Field>
         </div>
-      </section>
+      </section>)}
 
-      <section className="mb-8">
-        <SectionTitle>04. Document Upload</SectionTitle>
+      {currentStep === 4 && (
+  <>
+    <section className="mb-8">
+      <SectionTitle>04. Document Upload</SectionTitle>
         <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
           {(
             [
@@ -524,7 +758,7 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
           ))}
         </div>
       </section>
-
+    
       {/* 05. Account Activation & Email OTP (Only for users not currently signed in) */}
       {!currentUser && (
         <section className="mb-8">
@@ -613,31 +847,66 @@ export function WarrantyRegistrationForm({ defaultProductModel = "" }: { default
             </div>
           </div>
         </section>
-      )}
+      )}  
+  </>
+)}
 
-      <div className="border-t border-[#e6e6e6] pt-5">
-        <p className="mb-5 text-xs text-muted">Please verify all details before submitting your warranty registration.</p>
-        {formError && (
-          <p role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {formError}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={submitting || otpLoading}
-          className="brand-gradient flex h-[52px] w-full items-center justify-center rounded-full text-[15px] font-semibold text-black transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
-        >
-          {submitting
-            ? currentUser
-              ? "Submitting Warranty…"
-              : "Verifying & Registering…"
-            : currentUser
-              ? "Submit Warranty Registration"
-              : otpSent
-                ? "Verify OTP & Register Warranty"
-                : "Verify Email & Register Warranty"}
-        </button>
-      </div>
+   
+<div className="border-t border-[#e6e6e6] pt-5">
+  <p className="mb-5 text-xs text-muted">
+    Please verify all details before submitting your warranty registration.
+  </p>
+
+  {formError && (
+    <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+      {formError}
+    </div>
+  )}
+
+  <div className="flex items-center justify-between gap-3">
+    {/* Previous Button */}
+    <button
+      type="button"
+      onClick={() => {
+        setCurrentStep((step) => step - 1);
+        setFormError(undefined);
+      }}
+      disabled={currentStep === 1}
+      className="rounded-lg border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      Previous
+    </button>
+
+    {/* Next Button */}
+    {currentStep < 4 ? (
+      <button
+        type="button"
+        onClick={() => {
+          if (validateCurrentStep()) {
+            setCurrentStep((step) => step + 1);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        }}
+className="rounded-lg bg-green-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-green-700"      >
+        Next
+      </button>
+    ) : (
+      /* Final Submit Button */
+      <button
+        type="submit"
+        disabled={
+          submitting ||
+          otpLoading ||
+          !serialValidated ||
+          serialStatus === "checking"
+        }
+className="rounded-lg bg-green-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"      >
+        {submitting ? "Submitting..." : "Submit Registration"}
+      </button>
+    )}
+  </div>
+</div>
+
     </form>
   );
 }

@@ -9,6 +9,7 @@ import {
   mockSupportRepository,
   mockWarrantyRegistrationRepository,
   mockWarrantyRepository,
+  mockSerialNumberRepository,
 } from "./mock/index.js";
 import {
   mysqlCustomerRepository,
@@ -17,7 +18,9 @@ import {
   mysqlSupportRepository,
   mysqlWarrantyRegistrationRepository,
   mysqlWarrantyRepository,
+  mysqlSerialNumberRepository,
 } from "./mysql/index.js";
+
 
 const useDatabase = env.dataSource === "database";
 
@@ -28,6 +31,6 @@ export const repositories = {
   support: useDatabase ? mysqlSupportRepository : mockSupportRepository,
   serviceRequests: useDatabase ? mysqlServiceRequestRepository : mockServiceRequestRepository,
   warrantyRegistrations: useDatabase ? mysqlWarrantyRegistrationRepository : mockWarrantyRegistrationRepository,
-};
+serialNumbers: useDatabase ? mysqlSerialNumberRepository : mockSerialNumberRepository,};
 
 export type Repositories = typeof repositories;

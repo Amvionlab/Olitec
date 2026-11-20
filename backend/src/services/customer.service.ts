@@ -43,13 +43,30 @@ export const customerService = {
     const registeredProducts = warranties.filter((w: any) => w.status !== "rejected");
 
     // 4. Inquiries matching user email or mobile
-    const inquiries = await query<any>(
-      `SELECT id, kind, reference_no, name, email, mobile, city, status, details, file_url, admin_notes, created_at
-       FROM inquiries
-       WHERE email = ? OR (mobile = ? AND mobile != '')
-       ORDER BY created_at DESC`,
-      [userEmail, userMobile]
-    );
+   
+// 4. Inquiries matching user email or mobile
+const inquiries = await query<any>(
+  `SELECT
+      id,
+      kind,
+      reference_no,
+      name,
+      email,
+      mobile,
+      city,
+      status,
+      details,
+      file_url,
+      admin_notes,
+      engineer_name,
+      engineer_contact,
+      created_at
+   FROM inquiries
+   WHERE email = ? OR (mobile = ? AND mobile != '')
+   ORDER BY created_at DESC`,
+  [userEmail, userMobile]
+);
+
 
     const parsedInquiries = inquiries.map((inq: any) => ({
       ...inq,

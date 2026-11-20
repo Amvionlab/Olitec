@@ -10,8 +10,15 @@ export interface InquiryItem {
   email: string;
   mobile: string;
   city: string | null;
-  status: "new" | "contacted" | "in_progress" | "resolved" | "closed";
-  details: Record<string, any>;
+status:
+  | "new"
+  | "contacted"
+  | "in_progress"
+  | "assigned"
+  | "technician_visit"
+  | "under_service"
+  | "resolved"
+  | "closed";  details: Record<string, any>;
   file_url: string | null;
   admin_notes: string | null;
   created_at: string;
@@ -25,6 +32,13 @@ export interface InquiryStats {
   careerCount: number;
   partnerCount: number;
   consultationCount: number;
+
+  receivedCount: number;
+  assignedCount: number;
+  technicianVisitCount: number;
+  underServiceCount: number;
+  resolvedCount: number;
+  closedCount: number;
 }
 
 export interface SmtpConfigData {
@@ -152,5 +166,32 @@ export async function sendTestEmail(targetEmail?: string): Promise<{ success: bo
   if (!res.ok || !data.success) {
     throw new Error(data.error?.message || "Failed to send test email");
   }
+  return data.data;
+}
+export async function assignEngineerToInquiry(
+  id: number,
+  engineerName: string,
+  engineerContact: string
+): Promise<InquiryItem> {
+  const res = await fetch(
+    `${API_BASE_URL}/admin/inquiries/${id}/assign-engineer`,
+    {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        engineerName,
+        engineerContact,
+      }),
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(
+      data.error?.message || "Failed to assign engineer"
+    );
+  }
+
   return data.data;
 }

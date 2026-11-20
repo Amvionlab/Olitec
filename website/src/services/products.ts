@@ -50,7 +50,44 @@ export async function getProducts(filter?: { category?: string; q?: string }): P
     return true;
   });
 }
+export interface ServiceProductOption {
+  id: string;
+  name: string;
+  model: string;
+  isActive: boolean;
+}
 
+export interface ServiceProductOption {
+  id: string;
+  name: string;
+  model: string;
+}
+
+export async function getActiveProductModels(): Promise<ServiceProductOption[]> {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/products?pageSize=100`,
+      { cache: "no-store" }
+    );
+
+    const data = await res.json();
+
+    console.log("PRODUCT API STATUS:", res.status);
+    console.log("PRODUCT API RESPONSE:", data);
+
+    if (!res.ok || !data.success || !Array.isArray(data.data)) {
+      return [];
+    }
+
+    return data.data.filter(
+      (product: ServiceProductOption) =>
+        Boolean(product.model?.trim())
+    );
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    return [];
+  }
+}
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
   try {
     const res = await fetch(`${API_BASE_URL}/products/${slug}`, { cache: "no-store" });

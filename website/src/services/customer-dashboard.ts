@@ -48,6 +48,8 @@ export interface CustomerInquiry {
   details: Record<string, any>;
   file_url?: string | null;
   admin_notes?: string | null;
+  engineer_name: string | null;
+  engineer_contact: string | null;
   created_at: string;
 }
 
@@ -58,6 +60,7 @@ export interface CustomerDashboardData {
   serviceRequests: CustomerInquiry[];
   otherSubmissions: CustomerInquiry[];
   careerApplications: CustomerInquiry[];
+
 }
 
 export async function getCustomerDashboard(): Promise<CustomerDashboardData> {

@@ -1,6 +1,10 @@
 import { repositories } from "../repositories/index.js";
 import type { WarrantyRegistration, WarrantyStatusLookup } from "../repositories/types.js";
-import type { CreateWarrantyRegistrationBody, WarrantyStatusLookupBody } from "../schemas/warranty-registration.schema.js";
+import type {
+  CreateWarrantyRegistrationBody,
+  WarrantyStatusLookupBody,
+  ValidateSerialNumberBody,
+} from "../schemas/warranty-registration.schema.js";
 import { BusinessRuleError, ConflictError, NotFoundError } from "../utils/errors.js";
 import { decodeUpload } from "../utils/uploads.js";
 import { INVOICE_MAX_BYTES } from "./warranty.service.js";
@@ -16,9 +20,38 @@ export const warrantyRegistrationService = {
     if (!found) throw new NotFoundError("Warranty");
     return found;
   },
+async validateSerialNumber(input: ValidateSerialNumberBody) {
+  const serialNumber = input.serialNumber.trim().toUpperCase();
 
+  const serialRecord =
+    await repositories.serialNumbers.findBySerial(serialNumber);
+
+  if (!serialRecord) {
+    throw new BusinessRuleError("Invalid serial number.");
+  }
+
+  if (
+    serialRecord.modelNumber.trim().toUpperCase() !==
+    input.productModel.trim().toUpperCase()
+  ) {
+    throw new BusinessRuleError(
+      "Serial number does not match the selected product model.",
+    );
+  }
+
+  if (await repositories.warrantyRegistrations.existsBySerial(serialNumber)) {
+    throw new ConflictError("This serial number is already registered.");
+  }
+
+  return {
+    valid: true,
+    message: "Serial number verified successfully.",
+    productModel: serialRecord.modelNumber,
+  };
+},
   /** Public warranty registration from the website form; saved as Pending with both documents. */
   async create(input: CreateWarrantyRegistrationBody): Promise<WarrantyRegistration> {
+    
     // Compared in IST so "today" matches what the customer sees in India.
     const todayIst = new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
     const oldest = `${Number(todayIst.slice(0, 4)) - MAX_PURCHASE_AGE_YEARS}${todayIst.slice(4)}`;
@@ -28,6 +61,18 @@ export const warrantyRegistrationService = {
     if (input.installationDate < input.purchaseDate) throw new BusinessRuleError("Installation date cannot be before the purchase date.");
 
     const serialNumber = input.serialNumber.trim().toUpperCase();
+    const serialRecord = await repositories.serialNumbers.findBySerial(serialNumber);
+
+if (!serialRecord) {
+  throw new BusinessRuleError("Invalid serial number. Please enter a valid serial number.");
+}
+
+if (
+  serialRecord.modelNumber.trim().toUpperCase() !==
+  input.productModel.trim().toUpperCase()
+) {
+  throw new BusinessRuleError("Serial number does not match the selected product model.");
+}
     if (await repositories.warrantyRegistrations.existsBySerial(serialNumber)) {
       throw new ConflictError("A warranty is already registered for this serial number.");
     }

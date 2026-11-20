@@ -16,15 +16,17 @@ import {
   UserCheck,
   Inbox,
   Mail,
+  Wrench,
 } from "lucide-react";
 import { getStoredToken, getStoredUser, logout, type UserProfile } from "@/services/auth";
 
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Product Master", href: "/admin/products", icon: Package },
+  { label: "Product Master", href: "/admin/dashboard/products", icon: Package },
   { label: "User Management", href: "/admin/users", icon: Users },
   { label: "Warranty Desk", href: "/admin/warranties", icon: ShieldCheck },
   { label: "Form Submissions", href: "/admin/inquiries", icon: Inbox },
+  { label: "Service Requests", href: "/admin/service-requests", icon: Wrench },
   { label: "SMTP Settings", href: "/admin/smtp", icon: Mail },
 ];
 
@@ -262,8 +264,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   ? "User Management"
                   : pathname.includes("/warranties")
                     ? "Warranty Desk & Registrations"
-                    : pathname.includes("/inquiries")
-                      ? "Form Submissions & Leads"
+                    : pathname === "/admin/service-requests"
+                      ? "Service Requests"
+                      : pathname.includes("/inquiries")
+                        ? "Form Submissions & Leads"
                       : pathname.includes("/smtp")
                         ? "SMTP & Email Configuration"
                         : "Dashboard"}
