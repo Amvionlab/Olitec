@@ -20,6 +20,8 @@ import { apiPost, fileToUpload } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { fetchActiveProducts, type ApiProductItem } from "@/services/products";
 import { getStoredUser, register, sendRegistrationOtp, type UserProfile } from "@/services/auth";
+import { DownloadWarrantyPdfButton } from "./DownloadWarrantyPdfButton";
+import type { WarrantyCertificateData } from "@/lib/warranty-certificate-pdf";
 import {
   INVOICE_ACCEPTED_TYPES,
   INVOICE_MAX_BYTES,
@@ -222,6 +224,7 @@ const [serialValidated, setSerialValidated] = useState(false);
   const [formError, setFormError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<{ registrationNumber: string; serialNumber: string; persisted: boolean }>();
+  const [submittedData, setSubmittedData] = useState<WarrantyCertificateData | null>(null);
   // Reset file inputs after a successful submission (they cannot be cleared through React state).
   const [formKey, setFormKey] = useState(0);
 
@@ -445,6 +448,26 @@ if (currentStep === 4 && !currentUser) {
         setFormError(result.message);
         return;
       }
+      const matchedProduct = products.find((p) => p.model === values.productModel);
+      setSubmittedData({
+        warrantyNumber: result.data.registrationNumber,
+        serialNumber: result.data.serialNumber,
+        customerName: values.customerName.trim(),
+        email: values.email.trim(),
+        mobile: values.mobile.replace(/\D/g, ""),
+        installationAddress: values.installationAddress.trim(),
+        productName: matchedProduct?.name || values.productModel,
+        productModel: values.productModel.trim(),
+        capacity: (matchedProduct as any)?.capacity || "",
+        mrp: matchedProduct?.priceInr || 0,
+        warrantyMonths: matchedProduct?.warrantyMonths || 60,
+        purchaseDate: values.purchaseDate,
+        installationDate: values.installationDate,
+        dealerName: values.dealerName.trim(),
+        dealerContact: values.dealerContact.trim() || undefined,
+        status: "Active",
+      });
+
       setSubmitted({ ...result.data, persisted: result.persisted !== false });
       setValues(emptyValues);
       setFiles({ invoice: null, installationDocument: null });
@@ -472,9 +495,18 @@ if (currentStep === 4 && !currentUser) {
           Your account is active and verified. This warranty has been registered directly to your Olitec Dashboard.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+          {submittedData && (
+            <DownloadWarrantyPdfButton
+              data={submittedData}
+              variant="primary"
+              label="Download Warranty Certificate (PDF)"
+              className="h-11 px-7 rounded-full text-sm font-bold shadow-md"
+            />
+          )}
           <Link
             href="/warranties"
-className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-green-600 px-7 text-sm font-bold text-white shadow-sm transition hover:bg-green-700"          >
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-slate-900 px-7 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800"
+          >
             <span>Go to Your Dashboard</span>
             <ArrowRight size={16} />
           </Link>
@@ -482,13 +514,15 @@ className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-gr
             type="button"
             onClick={() => {
               setSubmitted(undefined);
+              setSubmittedData(null);
               setSignupPassword("");
               setSignupConfirmPassword("");
               setSignupOtp("");
               setOtpSent(false);
               setOtpMsg(undefined);
             }}
-           className="inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 px-7 text-sm font-bold text-black shadow-sm transition hover:brightness-105 cursor-pointer">
+            className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-7 text-sm font-bold text-slate-800 shadow-sm transition hover:bg-slate-50 cursor-pointer"
+          >
             Register Another Product
           </button>
         </div>

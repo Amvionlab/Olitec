@@ -23,6 +23,7 @@ import {
   type PaginationMeta,
 } from "@/services/admin";
 import { getStoredToken, clearStoredSession } from "@/services/auth";
+import { DownloadWarrantyPdfButton } from "@/components/warranties/DownloadWarrantyPdfButton";
 
 export default function WarrantyDeskPage() {
   const router = useRouter();
@@ -269,15 +270,36 @@ export default function WarrantyDeskPage() {
                       </td>
                       <td className="px-6 py-4 text-slate-500">{w.submittedAt.slice(0, 10)}</td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => {
-                            setSelectedWarranty(w);
-                            setReviewRemark(w.adminRemark || "");
-                          }}
-                          className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50"
-                        >
-                          Review Desk
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <DownloadWarrantyPdfButton
+                            data={{
+                              warrantyNumber: w.warrantyNumber,
+                              serialNumber: w.serialNumber,
+                              customerName: w.customerName,
+                              email: w.email,
+                              mobile: w.mobile,
+                              installationAddress: w.installationAddress,
+                              productName: w.productModel,
+                              productModel: w.productModel,
+                              dealerName: w.dealerName,
+                              purchaseDate: w.purchaseDate,
+                              startDate: w.startDate || undefined,
+                              endDate: w.endDate || undefined,
+                              status: w.status,
+                            }}
+                            variant="compact"
+                            label="PDF"
+                          />
+                          <button
+                            onClick={() => {
+                              setSelectedWarranty(w);
+                              setReviewRemark(w.adminRemark || "");
+                            }}
+                            className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50"
+                          >
+                            Review Desk
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -409,6 +431,26 @@ export default function WarrantyDeskPage() {
                 </button>
 
                 <div className="flex items-center gap-2">
+                  <DownloadWarrantyPdfButton
+                    data={{
+                      warrantyNumber: selectedWarranty.warrantyNumber,
+                      serialNumber: selectedWarranty.serialNumber,
+                      customerName: selectedWarranty.customerName,
+                      email: selectedWarranty.email,
+                      mobile: selectedWarranty.mobile,
+                      installationAddress: selectedWarranty.installationAddress,
+                      productName: selectedWarranty.productModel,
+                      productModel: selectedWarranty.productModel,
+                      dealerName: selectedWarranty.dealerName,
+                      purchaseDate: selectedWarranty.purchaseDate,
+                      startDate: selectedWarranty.startDate || undefined,
+                      endDate: selectedWarranty.endDate || undefined,
+                      status: selectedWarranty.status,
+                    }}
+                    variant="outline"
+                    label="Download Certificate PDF"
+                  />
+
                   <button
                     type="button"
                     disabled={actionLoading}

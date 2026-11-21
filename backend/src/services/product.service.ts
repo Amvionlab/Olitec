@@ -8,6 +8,7 @@ export interface CreateProductInput {
   name: string;
   modelNumber: string;
   category: string;
+  capacity?: string;
   slug?: string;
   shortDescription?: string;
   description?: string;
@@ -21,6 +22,7 @@ export interface UpdateProductInput {
   name?: string;
   modelNumber?: string;
   category?: string;
+  capacity?: string;
   slug?: string;
   shortDescription?: string;
   description?: string;
@@ -67,6 +69,7 @@ export const productService = {
       name: row.name,
       model: row.model_number,
       category: row.category,
+      capacity: row.capacity ?? "",
       shortDescription: row.short_description ?? "",
       description: row.description ?? "",
       warrantyMonths: row.warranty_months,
@@ -104,6 +107,7 @@ const conditions: string[] = ["is_active = TRUE"];
       name: row.name,
       model: row.model_number,
       category: row.category,
+      capacity: row.capacity ?? "",
       shortDescription: row.short_description ?? "",
       description: row.description ?? "",
       warrantyMonths: row.warranty_months,
@@ -130,14 +134,15 @@ const conditions: string[] = ["is_active = TRUE"];
 
     const result = await execute(
       `INSERT INTO products (
-         slug, name, model_number, category, short_description,
+         slug, name, model_number, category, capacity, short_description,
          description, warranty_months, price_inr, image_url, is_active
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         slug,
         name,
         modelNumber,
         input.category.trim(),
+        input.capacity?.trim() || null,
         input.shortDescription?.trim() || null,
         input.description?.trim() || null,
         input.warrantyMonths ?? 12,
@@ -159,6 +164,7 @@ const conditions: string[] = ["is_active = TRUE"];
     const name = input.name !== undefined ? input.name.trim() : existing.name;
     const modelNumber = input.modelNumber !== undefined ? input.modelNumber.trim() : existing.model_number;
     const category = input.category !== undefined ? input.category.trim() : existing.category;
+    const capacity = input.capacity !== undefined ? input.capacity.trim() : existing.capacity;
     const shortDesc = input.shortDescription !== undefined ? input.shortDescription.trim() : existing.short_description;
     const desc = input.description !== undefined ? input.description.trim() : existing.description;
     const warrantyMonths = input.warrantyMonths !== undefined ? input.warrantyMonths : existing.warranty_months;
@@ -168,11 +174,11 @@ const conditions: string[] = ["is_active = TRUE"];
 
     await execute(
       `UPDATE products SET
-         slug = ?, name = ?, model_number = ?, category = ?,
+         slug = ?, name = ?, model_number = ?, category = ?, capacity = ?,
          short_description = ?, description = ?, warranty_months = ?,
          price_inr = ?, image_url = ?, is_active = ?
        WHERE id = ?`,
-      [slug, name, modelNumber, category, shortDesc, desc, warrantyMonths, priceInr, imageUrl, isActive, numericId],
+      [slug, name, modelNumber, category, capacity, shortDesc, desc, warrantyMonths, priceInr, imageUrl, isActive, numericId],
     );
 
     return productService.getById(numericId);

@@ -50,6 +50,7 @@ export interface AdminProduct {
   name: string;
   model: string;
   category: string;
+  capacity?: string;
   shortDescription: string;
   description: string;
   warrantyMonths: number;
@@ -65,6 +66,9 @@ export interface AdminSerialNumber {
   serialNumber: string;
   productName: string;
   modelNumber: string;
+  capacity?: string;
+  mrp?: number;
+  warrantyMonths?: number;
   batchNumber: string;
   productionMonth: string;
   qrCode: string | null;

@@ -60,9 +60,12 @@ export const serialNumberService = {
         sn.serial_number AS serialNumber,
         p.name AS productName,
         p.model_number AS modelNumber,
+        COALESCE(p.capacity, '-') AS capacity,
+        COALESCE(p.price_inr, 0) AS mrp,
+        COALESCE(p.warranty_months, 12) AS warrantyMonths,
         sb.batch_number AS batchNumber,
         sb.production_month AS productionMonth,
-        sn.qr_code AS qrCode,
+        COALESCE(sn.qr_code, '') AS qrCode,
         sn.created_at AS createdAt,
         COALESCE(u.name, 'Unknown') AS createdBy
 

@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Package, Barcode } from "lucide-react";
+import { Package, Barcode, ShieldCheck } from "lucide-react";
 
 const tabs = [
   {
@@ -14,9 +14,15 @@ const tabs = [
     activeColor: "bg-amber-500 text-slate-950",
   },
   {
-    label: "Serial Number",
+    label: "Serial Number Report",
     href: "/admin/dashboard/serial-numbers",
     icon: Barcode,
+    activeColor: "bg-amber-500 text-slate-950",
+  },
+  {
+    label: "Product Registration History",
+    href: "/admin/dashboard/warranties",
+    icon: ShieldCheck,
     activeColor: "bg-amber-500 text-slate-950",
   },
 ];
@@ -26,7 +32,7 @@ export default function ProductManagementTabs() {
 
   return (
     <div className="flex justify-center sm:justify-start">
-      <div className="inline-grid grid-cols-2 gap-1 rounded-xl
+      <div className="inline-grid grid-cols-1 sm:grid-cols-3 gap-1 rounded-xl
         border border-slate-200 bg-white p-1 shadow-sm">
 
         {tabs.map((tab) => {

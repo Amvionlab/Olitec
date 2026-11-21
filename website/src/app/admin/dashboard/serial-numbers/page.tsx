@@ -133,28 +133,64 @@ export default function SerialNumbersPage() {
     });
   }, [serialNumbers, search, selectedModel, selectedMonth]);
 
+  const formatProductionMonth = (m?: string): string => {
+    if (!m) return "—";
+    if (m.includes("-") && m.length === 7) {
+      const [year, month] = m.split("-");
+      const date = new Date(Number(year), Number(month) - 1, 1);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+      }
+    }
+    return m;
+  };
+
+  const getQrUrl = (item: AdminSerialNumber): string => {
+    if (item.qrCode && (item.qrCode.startsWith("http://") || item.qrCode.startsWith("https://"))) {
+      return item.qrCode;
+    }
+    return `https://olitec.in/warranties/register?serial=${encodeURIComponent(item.serialNumber)}`;
+  };
+
+  const formatWarranty = (months?: number): string => {
+    if (!months) return "—";
+    const years = Math.round(months / 12);
+    return years >= 1 ? `${years} years` : `${months} months`;
+  };
+
+  const formatMrp = (mrp?: number): string => {
+    if (!mrp) return "—";
+    return `₹${Number(mrp).toLocaleString("en-IN")}`;
+  };
+
   // Export CSV
   const exportCSV = () => {
     if (!filteredSerials.length) return;
 
     const headers = [
-      "Serial Number",
-      "Model Number",
-      "Product Name",
-      "Batch Number",
-      "Production Month",
-      "QR Code",
-      "Created At",
-      "Created By",
+      "PRODUCT",
+      "MODEL",
+      "CAPACITY",
+      "MRP",
+      "WARRANTY",
+      "SERIAL NUMBER",
+      "QR URL",
+      "PRODUCTION MONTH",
+      "BATCH NUMBER",
+      "CREATED AT",
+      "CREATED BY",
     ];
 
     const rows = filteredSerials.map((item) => [
-      item.serialNumber,
-      item.modelNumber,
       item.productName,
+      item.modelNumber,
+      item.capacity || "-",
+      formatMrp(item.mrp),
+      formatWarranty(item.warrantyMonths),
+      item.serialNumber,
+      getQrUrl(item),
+      formatProductionMonth(item.productionMonth),
       item.batchNumber,
-      item.productionMonth,
-      item.qrCode || "",
       item.createdAt,
       item.createdBy,
     ]);
@@ -167,7 +203,7 @@ export default function SerialNumbersPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `serial-numbers-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `serial-number-report-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -413,22 +449,26 @@ export default function SerialNumbersPage() {
       {/* Header Tabs */}
       <ProductManagementTabs />
 
-      {/* Header Bar — Matching Product Master */}
+      {/* Header Bar — Matching Serial Report */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Serial Numbers</h2>
-            <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-700">
-              {serialNumbers.length} Serials
-            </span>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 mb-0.5">
+            SERIAL NUMBER AUDIT
           </div>
-          <p className="text-xs text-slate-500">
-            Authorized unit serial numbers for genuine verification, batch warranty tracking, and customer registrations.
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Generated Serial Numbers</h2>
+          </div>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Complete product, serial, QR, batch and creation audit details.
           </p>
         </div>
 
         {/* Action Buttons Group */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-xs font-semibold text-slate-500">
+            <strong className="text-slate-900">{filteredSerials.length}</strong> of {serialNumbers.length} serials
+          </span>
+
           <button
             onClick={() => {
               setBulkFile(null);
@@ -436,21 +476,11 @@ export default function SerialNumbersPage() {
               setBulkResult(null);
               setIsBulkOpen(true);
             }}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow-xs transition hover:bg-slate-50"
             title="Import serial numbers from CSV or Excel"
           >
-            <Upload size={15} className="text-amber-600" />
-            <span>Bulk Import (CSV / Excel)</span>
-          </button>
-
-          <button
-            onClick={exportCSV}
-            disabled={filteredSerials.length === 0}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
-            title="Export filtered records to CSV"
-          >
-            <Download size={15} className="text-slate-500" />
-            <span>Export CSV</span>
+            <Upload size={14} className="text-amber-600" />
+            <span>Bulk Import</span>
           </button>
 
           <button
@@ -464,10 +494,20 @@ export default function SerialNumbersPage() {
               });
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-semibold text-slate-950 shadow-sm transition hover:bg-amber-400"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow-xs transition hover:bg-slate-50"
           >
-            <Plus size={16} />
-            <span>Add Serial Number</span>
+            <Plus size={14} className="text-slate-600" />
+            <span>Add Single</span>
+          </button>
+
+          <button
+            onClick={exportCSV}
+            disabled={filteredSerials.length === 0}
+            className="flex items-center gap-2 rounded-xl bg-orange-500 hover:bg-orange-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition disabled:opacity-40"
+            title="Export filtered records to CSV"
+          >
+            <span>Export CSV</span>
+            <Download size={14} />
           </button>
         </div>
       </div>
@@ -491,16 +531,16 @@ export default function SerialNumbersPage() {
         </div>
       )}
 
-      {/* Filter / Search Bar — Matching Product Master */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      {/* Filter / Search Bar */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-3 text-slate-400" size={16} />
+          <Search className="absolute left-3.5 top-2.5 text-slate-400" size={15} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by serial number, model, product, batch, or created by..."
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-xs text-slate-900 placeholder-slate-400 transition focus:border-amber-500 focus:bg-white focus:outline-none"
+            placeholder="Search product, model, serial, QR, batch or created by..."
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-4 text-xs text-slate-900 placeholder-slate-400 transition focus:border-amber-500 focus:bg-white focus:outline-none"
           />
         </div>
 
@@ -511,7 +551,7 @@ export default function SerialNumbersPage() {
             onChange={(e) => setSelectedModel(e.target.value)}
             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 focus:border-amber-500 focus:bg-white focus:outline-none"
           >
-            <option value="all">All Models ({models.length})</option>
+            <option value="all">All models</option>
             {models.map((m) => (
               <option key={m} value={m}>
                 {m}
@@ -525,113 +565,141 @@ export default function SerialNumbersPage() {
             onChange={(e) => setSelectedMonth(e.target.value)}
             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 focus:border-amber-500 focus:bg-white focus:outline-none"
           >
-            <option value="all">All Months</option>
+            <option value="all">All production months</option>
             {months.map((month) => (
               <option key={month} value={month}>
-                {month}
+                {formatProductionMonth(month)}
               </option>
             ))}
           </select>
+
+          {(search || selectedModel !== "all" || selectedMonth !== "all") && (
+            <button
+              onClick={() => {
+                setSearch("");
+                setSelectedModel("all");
+                setSelectedMonth("all");
+              }}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              Clear
+            </button>
+          )}
 
           <button
             onClick={loadData}
             className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100"
             title="Reload records"
           >
-            <RefreshCw size={15} />
+            <RefreshCw size={14} />
           </button>
         </div>
       </div>
 
-      {/* Serial Numbers Table — Matching Product Master */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      {/* Serial Numbers Table — Matching Exact Report Layout */}
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-100 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+          <table className="w-full text-left text-xs whitespace-nowrap">
+            <thead className="border-b border-slate-100 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
               <tr>
-                <th className="px-6 py-4">S.NO</th>
-                <th className="px-6 py-4">Serial Number</th>
-                <th className="px-6 py-4">Model Number</th>
-                <th className="px-6 py-4">Product Name</th>
-                <th className="px-6 py-4">Batch Number</th>
-                <th className="px-6 py-4">Mfg Month</th>
-                <th className="px-6 py-4">QR / Tag</th>
-                <th className="px-6 py-4">Created At</th>
-                <th className="px-6 py-4">Created By</th>
+                <th className="px-5 py-3.5">PRODUCT</th>
+                <th className="px-5 py-3.5">MODEL</th>
+                <th className="px-5 py-3.5">CAPACITY</th>
+                <th className="px-5 py-3.5">MRP</th>
+                <th className="px-5 py-3.5">WARRANTY</th>
+                <th className="px-5 py-3.5">SERIAL NUMBER</th>
+                <th className="px-5 py-3.5">QR URL</th>
+                <th className="px-5 py-3.5">PRODUCTION MONTH</th>
+                <th className="px-5 py-3.5">BATCH NUMBER</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-10 text-center text-slate-400">
+                  <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
                     <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
-                    <p className="mt-2">Loading serial numbers…</p>
+                    <p className="mt-2 text-xs">Loading serial numbers…</p>
                   </td>
                 </tr>
               ) : filteredSerials.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={9} className="px-6 py-14 text-center text-slate-400">
                     <Barcode size={32} className="mx-auto mb-2 text-slate-300" />
                     <p className="font-semibold text-slate-600">No serial numbers found.</p>
                     <p className="text-xs text-slate-400 mt-1">
-                      Click "Add Serial Number" or "Bulk Import" to register authorized product units.
+                      Click "Add Single" or "Bulk Import" to generate serial numbers.
                     </p>
                   </td>
                 </tr>
               ) : (
-                filteredSerials.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-500">{index + 1}</td>
+                filteredSerials.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                    {/* 1. PRODUCT */}
+                    <td className="px-5 py-3.5 font-bold text-slate-900">
+                      {item.productName || "—"}
+                    </td>
 
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md text-xs border border-slate-200">
+                    {/* 2. MODEL */}
+                    <td className="px-5 py-3.5 font-mono font-bold text-slate-800">
+                      {item.modelNumber || "—"}
+                    </td>
+
+                    {/* 3. CAPACITY */}
+                    <td className="px-5 py-3.5 font-medium text-slate-700">
+                      {item.capacity || "—"}
+                    </td>
+
+                    {/* 4. MRP */}
+                    <td className="px-5 py-3.5 font-semibold text-slate-900">
+                      {formatMrp(item.mrp)}
+                    </td>
+
+                    {/* 5. WARRANTY */}
+                    <td className="px-5 py-3.5 text-slate-700 font-medium">
+                      {formatWarranty(item.warrantyMonths)}
+                    </td>
+
+                    {/* 6. SERIAL NUMBER */}
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-bold text-slate-900">
                           {item.serialNumber}
                         </span>
                         <button
                           onClick={() => copyToClipboard(item.serialNumber, item.id)}
-                          className="text-slate-400 hover:text-slate-600"
+                          className="text-slate-400 hover:text-slate-600 p-0.5"
                           title="Copy serial number"
                         >
                           {copiedId === item.id ? (
-                            <Check size={14} className="text-emerald-600" />
+                            <Check size={13} className="text-emerald-600" />
                           ) : (
-                            <Copy size={14} />
+                            <Copy size={13} />
                           )}
                         </button>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4">
-                      <span className="inline-block rounded-md bg-amber-50 border border-amber-200/80 px-2 py-0.5 font-mono text-xs font-bold text-amber-800">
-                        {item.modelNumber}
-                      </span>
+                    {/* 7. QR URL */}
+                    <td className="px-5 py-3.5 max-w-[220px] truncate text-slate-500">
+                      <a
+                        href={getQrUrl(item)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-600 hover:underline font-mono text-[11px]"
+                        title={getQrUrl(item)}
+                      >
+                        {getQrUrl(item)}
+                      </a>
                     </td>
 
-                    <td className="px-6 py-4 font-semibold text-slate-800">{item.productName}</td>
-
-                    <td className="px-6 py-4 font-medium text-slate-700">{item.batchNumber}</td>
-
-                    <td className="px-6 py-4 text-slate-600 font-mono text-[11px]">{item.productionMonth}</td>
-
-                    <td className="px-6 py-4 text-slate-500 font-mono text-[11px] max-w-[120px] truncate">
-                      {item.qrCode ? (
-                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-600" title={item.qrCode}>
-                          {item.qrCode}
-                        </span>
-                      ) : (
-                        "—"
-                      )}
+                    {/* 8. PRODUCTION MONTH */}
+                    <td className="px-5 py-3.5 text-slate-700 font-medium">
+                      {formatProductionMonth(item.productionMonth)}
                     </td>
 
-                    <td className="px-6 py-4 text-slate-500 text-[11px]">
-                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-IN") : "—"}
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
-                        {item.createdBy}
-                      </span>
+                    {/* 9. BATCH NUMBER */}
+                    <td className="px-5 py-3.5 font-mono text-slate-600 text-[11px]">
+                      {item.batchNumber || "—"}
                     </td>
                   </tr>
                 ))

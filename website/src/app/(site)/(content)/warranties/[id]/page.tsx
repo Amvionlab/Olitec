@@ -8,6 +8,7 @@ import { Alert } from "@/components/ui/Alert";
 import { ButtonLink } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ProductImage } from "@/components/products/ProductImage";
+import { DownloadWarrantyPdfButton } from "@/components/warranties/DownloadWarrantyPdfButton";
 import { getWarrantyById, type WarrantyWithProduct } from "@/services/warranties";
 import { daysBetween, formatDate, formatDateTime, formatWarrantyPeriod } from "@/lib/format";
 
@@ -98,6 +99,27 @@ export default async function WarrantyDetailPage({ params }: WarrantyDetailPageP
         back={{ href: "/warranties", label: "Dashboard" }}
         actions={
           <div className="flex flex-wrap gap-2">
+            <DownloadWarrantyPdfButton
+              data={{
+                warrantyNumber: warranty.warrantyNumber,
+                serialNumber: warranty.serialNumber,
+                customerName: (warranty as any).customerName || "Customer",
+                email: (warranty as any).email,
+                mobile: (warranty as any).mobile,
+                installationAddress: (warranty as any).installationAddress || undefined,
+                productName: warranty.product.name,
+                productModel: warranty.product.model,
+                capacity: (warranty.product as any).capacity || "",
+                mrp: warranty.product.priceInr,
+                warrantyMonths: warranty.product.warrantyMonths,
+                purchaseDate: warranty.purchaseDate,
+                startDate: warranty.startDate || undefined,
+                endDate: warranty.endDate || undefined,
+                dealerName: warranty.dealerName,
+                status: warranty.status,
+              }}
+              variant="primary"
+            />
             <ButtonLink href={`/products/${warranty.product.slug}`} variant="secondary">
               View Product & 3D Model
             </ButtonLink>
