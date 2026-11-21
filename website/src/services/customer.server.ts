@@ -3,8 +3,10 @@ import { cookies } from "next/headers";
 import type { Customer } from "@/lib/types";
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:4000/api";
+  process.env.INTERNAL_API_URL ||
+  (process.env.NEXT_PUBLIC_API_BASE_URL && !process.env.NEXT_PUBLIC_API_BASE_URL.startsWith("/")
+    ? process.env.NEXT_PUBLIC_API_BASE_URL
+    : "http://127.0.0.1:4005/api");
 
 interface CustomerResponse {
   id: number;
