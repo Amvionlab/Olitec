@@ -24,7 +24,6 @@ const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Product Master", href: "/admin/dashboard/products", icon: Package },
   { label: "User Management", href: "/admin/users", icon: Users },
-  { label: "Warranty Desk", href: "/admin/warranties", icon: ShieldCheck },
   { label: "Form Submissions", href: "/admin/inquiries", icon: Inbox },
   { label: "Service Requests", href: "/admin/service-requests", icon: Wrench },
   { label: "SMTP Settings", href: "/admin/smtp", icon: Mail },

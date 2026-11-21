@@ -84,7 +84,7 @@ export const mockWarrantyRepository: WarrantyRepository = {
       serialNumber: input.serialNumber.toUpperCase(),
       startDate: null,
       endDate: null,
-      status: "Pending",
+      status: "Active",
       adminRemark: null,
       submittedAt: now,
       history: [{ at: now, action: "Registration submitted", by: input.customerId }],
@@ -153,7 +153,7 @@ export const mockWarrantyRegistrationRepository: WarrantyRegistrationRepository 
       serialNumber: input.serialNumber.toUpperCase(),
       invoiceFileName: invoice.originalFileName,
       installationDocumentFileName: installationDocument.originalFileName,
-      status: "Pending",
+      status: "Active",
       createdAt: new Date().toISOString(),
     };
   },

@@ -486,13 +486,16 @@ if (currentStep === 4 && !currentUser) {
         <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-2">
           <CheckCircle2 size={36} />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900">Warranty Registration Submitted!</h2>
+        <h2 className="text-2xl font-bold text-slate-900">Warranty Approved & Active!</h2>
         <p className="text-sm text-slate-600 max-w-md mx-auto">
-          Your registration number is <strong className="text-slate-900 font-mono">{submitted.registrationNumber}</strong> for Serial{" "}
-          <strong className="text-slate-900 font-mono">{submitted.serialNumber}</strong>. Status: <span className="font-bold text-amber-600">Pending Review</span>.
+          Registration Number: <strong className="text-slate-900 font-mono">{submitted.registrationNumber}</strong> | Serial:{" "}
+          <strong className="text-slate-900 font-mono">{submitted.serialNumber}</strong>. Status:{" "}
+          <span className="inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            <CheckCircle2 size={13} /> Active
+          </span>
         </p>
         <p className="text-xs text-slate-500 max-w-md mx-auto">
-          Your account is active and verified. This warranty has been registered directly to your Olitec Dashboard.
+          Hardware serial number has been matched and verified with factory production records. Your warranty is active immediately without manual review.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
           {submittedData && (

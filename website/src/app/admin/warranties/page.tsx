@@ -24,6 +24,7 @@ import {
 } from "@/services/admin";
 import { getStoredToken, clearStoredSession } from "@/services/auth";
 import { DownloadWarrantyPdfButton } from "@/components/warranties/DownloadWarrantyPdfButton";
+import ProductManagementTabs from "@/components/admin/ProductManagementTabs";
 
 export default function WarrantyDeskPage() {
   const router = useRouter();
@@ -129,17 +130,23 @@ export default function WarrantyDeskPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header Tabs */}
+      <ProductManagementTabs />
+
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 mb-0.5">
+            WARRANTY AUDIT
+          </div>
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Warranty Review Desk</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Product Registration History</h2>
             <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-700">
               {meta?.total ?? warranties.length} Registrations
             </span>
           </div>
-          <p className="text-xs text-slate-500">
-            Verify customer warranty registrations, invoices, serial numbers, and activate protection.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Audited customer warranty records, verified serial numbers, and official certificates.
           </p>
         </div>
       </div>

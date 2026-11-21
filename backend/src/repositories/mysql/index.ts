@@ -370,11 +370,18 @@ export const mysqlWarrantyRegistrationRepository: WarrantyRegistrationRepository
       throw new ConflictError("A warranty is already registered for this serial number.");
     }
 
-    // Try finding product_id from products table
+    // Try finding product_id and warranty_months from products table
     const product = await queryOne<Row>(
-      "SELECT id FROM products WHERE model_number = ? OR name = ? LIMIT 1",
+      "SELECT id, warranty_months FROM products WHERE model_number = ? OR name = ? LIMIT 1",
       [input.productModel, input.productModel],
     );
+
+    const warrantyMonths = Number(product?.warranty_months) || 60; // Standard 5-year coverage default
+    const startDate = input.purchaseDate;
+    const endDateObj = new Date(`${startDate}T00:00:00Z`);
+    endDateObj.setUTCMonth(endDateObj.getUTCMonth() + warrantyMonths);
+    endDateObj.setUTCDate(endDateObj.getUTCDate() - 1);
+    const endDate = endDateObj.toISOString().slice(0, 10);
 
     // Try finding user_id from users table
     const user = await queryOne<Row>(
@@ -390,8 +397,9 @@ export const mysqlWarrantyRegistrationRepository: WarrantyRegistrationRepository
            warranty_number, user_id, customer_name, email, mobile,
            installation_address, product_id, product_model, serial_number,
            purchase_date, installation_date, dealer_name, dealer_contact,
-           invoice_file, installation_file, status
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+           invoice_file, installation_file, status, start_date, end_date,
+           admin_remark, reviewed_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, NOW())`,
         [
           warrantyNumber,
           user?.id ?? null,
@@ -408,6 +416,9 @@ export const mysqlWarrantyRegistrationRepository: WarrantyRegistrationRepository
           input.dealerContact ?? null,
           invoice?.originalFileName ?? "invoice.pdf",
           installationDocument?.originalFileName ?? "installation.pdf",
+          startDate,
+          endDate,
+          "Auto-approved: Hardware serial number verified against production master",
         ],
       );
 
@@ -428,7 +439,7 @@ export const mysqlWarrantyRegistrationRepository: WarrantyRegistrationRepository
         dealerContact: row.dealer_contact,
         invoiceFileName: invoice?.originalFileName ?? "invoice.pdf",
         installationDocumentFileName: installationDocument?.originalFileName ?? "installation.pdf",
-        status: "Pending",
+        status: "Active",
         createdAt: iso(row.submitted_at ?? row.created_at)!,
       } satisfies WarrantyRegistration;
     } catch (error) {

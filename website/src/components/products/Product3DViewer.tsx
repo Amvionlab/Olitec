@@ -129,13 +129,14 @@ export function Product3DViewer({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 1.0;
-    controls.maxDistance = 5.5;
-    controls.maxPolarAngle = Math.PI / 2 + 0.1; // Do not go under floor
-    controls.autoRotate = simpleGifMode ? true : autoRotate;
+    controls.minDistance = 0.8;
+    controls.maxDistance = 6.0;
+    controls.minPolarAngle = 0;
+    controls.maxPolarAngle = Math.PI; // Full 360° pitch and yaw in all directions
+    controls.autoRotate = autoRotate;
     controls.autoRotateSpeed = simpleGifMode ? 2.2 : 1.6;
-    controls.enableZoom = !simpleGifMode;
-    controls.enablePan = !simpleGifMode;
+    controls.enableZoom = true;
+    controls.enablePan = true;
     controls.enableRotate = true;
     controlsRef.current = controls;
 
@@ -144,11 +145,11 @@ export function Product3DViewer({
       setShowHelper(false);
     });
 
-    // 5. Studio Lighting
-    const ambientLight = new THREE.AmbientLight(0xfff8eb, 1.3);
+    // 5. Studio Lighting (Full 360° coverage from all sides including bottom)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.5);
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.2);
     dirLight1.position.set(3, 4, 3);
     dirLight1.castShadow = true;
     dirLight1.shadow.mapSize.width = 1024;
@@ -157,36 +158,19 @@ export function Product3DViewer({
     dirLight1.shadow.camera.far = 10;
     scene.add(dirLight1);
 
+    // Bottom fill light so rotating underneath is crystal-clear
+    const bottomLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    bottomLight.position.set(0, -4, 0);
+    scene.add(bottomLight);
+
     // Olitec signature brand rim light
     const rimLight = new THREE.DirectionalLight(0xf99f1e, 1.8);
     rimLight.position.set(-3, 2, -3);
     scene.add(rimLight);
 
-    const fillLight = new THREE.DirectionalLight(0xd9ecff, 1.2);
-    fillLight.position.set(0, -2, 3);
+    const fillLight = new THREE.DirectionalLight(0xd9ecff, 1.3);
+    fillLight.position.set(0, 0, 3);
     scene.add(fillLight);
-
-    // Subtle floor shadow
-    const floorGeo = new THREE.PlaneGeometry(6, 6);
-    const floorMat = new THREE.ShadowMaterial({ opacity: 0.15 });
-    const floor = new THREE.Mesh(floorGeo, floorMat);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -0.65;
-    floor.receiveShadow = true;
-    scene.add(floor);
-
-    // Soft circular shadow plate
-    const shadowPlateGeo = new THREE.RingGeometry(0, 1.1, 48);
-    const shadowPlateMat = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      transparent: true,
-      opacity: 0.12,
-      side: THREE.DoubleSide,
-    });
-    const shadowPlate = new THREE.Mesh(shadowPlateGeo, shadowPlateMat);
-    shadowPlate.rotation.x = -Math.PI / 2;
-    shadowPlate.position.y = -0.648;
-    scene.add(shadowPlate);
 
     // 6. Build or Load Model
     const modelGroup = new THREE.Group();

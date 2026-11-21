@@ -11,11 +11,6 @@ const tabs = [
     match: ["/admin/dashboard/products", "/admin/products$"],
   },
   {
-    label: "Serial Number Generator",
-    href: "/admin/dashboard/serial-generator",
-    match: ["/admin/dashboard/serial-generator"],
-  },
-  {
     label: "Product Registration History",
     href: "/admin/dashboard/warranties",
     match: ["/admin/dashboard/warranties", "/admin/warranties"],
