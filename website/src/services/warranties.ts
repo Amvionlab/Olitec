@@ -48,27 +48,42 @@ export async function getWarrantyById(id: string): Promise<WarrantyWithProduct |
 
 export interface WarrantyStatusResult {
   model: string;
+  productName?: string;
+  capacity?: string;
+  mrp?: number;
+  warrantyMonths?: number;
   serialNumber: string;
+  warrantyNumber?: string;
+  customerName?: string;
+  mobile?: string;
+  installationAddress?: string;
+  dealerName?: string;
+  purchaseDate?: string | null;
+  installationDate?: string | null;
   registeredOn: string;
   validUntil: string | null;
   status: WarrantyStatus;
 }
 
-/** Public lookup by serial number and registered mobile number (used by /warranty-status). */
+/** Public lookup by serial number (and optional registered mobile number) (used by /warranty-status). */
 export async function lookupWarrantyStatus(
   serialNumber: string,
-  mobile: string,
+  mobile?: string,
 ): Promise<SubmitResult<WarrantyStatusResult>> {
-  const result = await apiPost<WarrantyStatusResult>("/warranty-registrations/status", {
+  const payload: Record<string, string> = {
     serialNumber: serialNumber.trim(),
-    mobile: mobile.replace(/\D/g, ""),
-  });
+  };
+  if (mobile?.trim()) {
+    payload.mobile = mobile.replace(/\D/g, "");
+  }
+
+  const result = await apiPost<WarrantyStatusResult>("/warranty-registrations/status", payload);
   if (!result.ok) {
     return {
       ok: false,
       message:
         result.status === 404 || result.status === 400
-          ? "We could not find a warranty for this serial number and mobile number. Check both and try again."
+          ? "No warranty found for this serial number. Please check the serial number and try again."
           : result.message,
     };
   }

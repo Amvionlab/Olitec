@@ -69,6 +69,9 @@ export interface AdminSerialNumber {
   capacity?: string;
   mrp?: number;
   warrantyMonths?: number;
+  purchaseDate?: string | null;
+  warrantyStatus?: string | null;
+  warrantyNumber?: string | null;
   batchNumber: string;
   productionMonth: string;
   qrCode: string | null;
@@ -90,6 +93,10 @@ export interface AdminWarranty {
   mobile: string;
   installationAddress: string;
   productModel: string;
+  productName?: string;
+  capacity?: string;
+  mrp?: number;
+  warrantyMonths?: number;
   serialNumber: string;
   purchaseDate: string;
   installationDate: string | null;

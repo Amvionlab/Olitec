@@ -222,7 +222,7 @@ export const adminService = {
     const total = Number(countRow?.total ?? 0);
 
     const rows = await query<Row>(
-      `SELECT w.*, u.name AS reviewer_name, p.name AS matched_product_name, p.warranty_months AS matched_warranty_months
+      `SELECT w.*, u.name AS reviewer_name, p.name AS matched_product_name, p.capacity AS matched_capacity, p.price_inr AS matched_mrp, p.warranty_months AS matched_warranty_months
        FROM warranties w
        LEFT JOIN users u ON u.id = w.reviewed_by
        LEFT JOIN products p ON p.id = w.product_id
@@ -242,6 +242,10 @@ export const adminService = {
         mobile: r.mobile,
         installationAddress: r.installation_address,
         productModel: r.product_model,
+        productName: r.matched_product_name || r.product_model,
+        capacity: r.matched_capacity || "",
+        mrp: Number(r.matched_mrp || 0),
+        warrantyMonths: Number(r.matched_warranty_months || 60),
         serialNumber: r.serial_number,
         purchaseDate: isoDate(r.purchase_date)!,
         installationDate: isoDate(r.installation_date),

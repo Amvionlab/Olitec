@@ -174,6 +174,7 @@ export default function SerialNumbersPage() {
       "MRP",
       "WARRANTY",
       "SERIAL NUMBER",
+      "PURCHASED DATE",
       "QR URL",
       "PRODUCTION MONTH",
       "BATCH NUMBER",
@@ -188,6 +189,7 @@ export default function SerialNumbersPage() {
       formatMrp(item.mrp),
       formatWarranty(item.warrantyMonths),
       item.serialNumber,
+      item.purchaseDate ? item.purchaseDate.slice(0, 10) : "-",
       getQrUrl(item),
       formatProductionMonth(item.productionMonth),
       item.batchNumber,
@@ -608,6 +610,7 @@ export default function SerialNumbersPage() {
                 <th className="px-5 py-3.5">MRP</th>
                 <th className="px-5 py-3.5">WARRANTY</th>
                 <th className="px-5 py-3.5">SERIAL NUMBER</th>
+                <th className="px-5 py-3.5">PURCHASED DATE</th>
                 <th className="px-5 py-3.5">QR URL</th>
                 <th className="px-5 py-3.5">PRODUCTION MONTH</th>
                 <th className="px-5 py-3.5">BATCH NUMBER</th>
@@ -616,14 +619,14 @@ export default function SerialNumbersPage() {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={10} className="px-6 py-12 text-center text-slate-400">
                     <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
                     <p className="mt-2 text-xs">Loading serial numbers…</p>
                   </td>
                 </tr>
               ) : filteredSerials.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-14 text-center text-slate-400">
+                  <td colSpan={10} className="px-6 py-14 text-center text-slate-400">
                     <Barcode size={32} className="mx-auto mb-2 text-slate-300" />
                     <p className="font-semibold text-slate-600">No serial numbers found.</p>
                     <p className="text-xs text-slate-400 mt-1">
@@ -679,7 +682,23 @@ export default function SerialNumbersPage() {
                       </div>
                     </td>
 
-                    {/* 7. QR URL */}
+                    {/* 7. PURCHASED DATE */}
+                    <td className="px-5 py-3.5">
+                      {item.purchaseDate ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-slate-800">
+                            {new Date(item.purchaseDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          </span>
+                          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                            Registered
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 font-medium">—</span>
+                      )}
+                    </td>
+
+                    {/* 8. QR URL */}
                     <td className="px-5 py-3.5 max-w-[220px] truncate text-slate-500">
                       <a
                         href={getQrUrl(item)}
@@ -692,12 +711,12 @@ export default function SerialNumbersPage() {
                       </a>
                     </td>
 
-                    {/* 8. PRODUCTION MONTH */}
+                    {/* 9. PRODUCTION MONTH */}
                     <td className="px-5 py-3.5 text-slate-700 font-medium">
                       {formatProductionMonth(item.productionMonth)}
                     </td>
 
-                    {/* 9. BATCH NUMBER */}
+                    {/* 10. BATCH NUMBER */}
                     <td className="px-5 py-3.5 font-mono text-slate-600 text-[11px]">
                       {item.batchNumber || "—"}
                     </td>

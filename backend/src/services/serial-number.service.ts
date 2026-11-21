@@ -63,6 +63,9 @@ export const serialNumberService = {
         COALESCE(p.capacity, '-') AS capacity,
         COALESCE(p.price_inr, 0) AS mrp,
         COALESCE(p.warranty_months, 12) AS warrantyMonths,
+        w.purchase_date AS purchaseDate,
+        w.warranty_number AS warrantyNumber,
+        COALESCE(w.status, 'unregistered') AS warrantyStatus,
         sb.batch_number AS batchNumber,
         sb.production_month AS productionMonth,
         COALESCE(sn.qr_code, '') AS qrCode,
@@ -73,6 +76,12 @@ export const serialNumberService = {
 
       LEFT JOIN products p
         ON sn.product_id = p.id
+
+      LEFT JOIN (
+        SELECT serial_number, MAX(purchase_date) AS purchase_date, MAX(status) AS status, MAX(warranty_number) AS warranty_number
+        FROM warranties
+        GROUP BY serial_number
+      ) w ON UPPER(w.serial_number) = UPPER(sn.serial_number)
 
       LEFT JOIN serial_number_batches sb
         ON sn.batch_id = sb.id

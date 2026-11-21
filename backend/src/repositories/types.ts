@@ -191,7 +191,18 @@ export interface ServiceRequestRepository {
 /** Public warranty status (/warranty-status): only what the customer needs, never contact details. */
 export interface WarrantyStatusLookup {
   model: string;
+  productName?: string;
+  capacity?: string;
+  mrp?: number;
+  warrantyMonths?: number;
   serialNumber: string;
+  warrantyNumber?: string;
+  customerName?: string;
+  mobile?: string;
+  installationAddress?: string;
+  dealerName?: string;
+  purchaseDate?: string | null;
+  installationDate?: string | null;
   registeredOn: string;
   validUntil: string | null;
   status: WarrantyStatus;
@@ -199,8 +210,8 @@ export interface WarrantyStatusLookup {
 
 export interface WarrantyRegistrationRepository {
   existsBySerial(serialNumber: string): Promise<boolean>;
-  /** Matches website registrations and account warranties by serial number AND registered mobile number. */
-  findStatus(serialNumber: string, mobile: string): Promise<WarrantyStatusLookup | undefined>;
+  /** Matches website registrations and account warranties by serial number (and optionally mobile number). */
+  findStatus(serialNumber: string, mobile?: string): Promise<WarrantyStatusLookup | undefined>;
   /** Saves a Pending registration with its invoice and installation document. */
   create(input: NewWarrantyRegistration): Promise<WarrantyRegistration>;
 }

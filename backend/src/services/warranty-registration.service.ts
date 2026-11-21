@@ -14,7 +14,7 @@ export const DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 export const DOCUMENT_MAX_BYTES = INVOICE_MAX_BYTES;
 
 export const warrantyRegistrationService = {
-  /** Public status check. Needs both serial and mobile, and gives the same 404 for either mismatch. */
+  /** Public status check by serial number (and optionally mobile number). */
   async lookupStatus(input: WarrantyStatusLookupBody): Promise<WarrantyStatusLookup> {
     const found = await repositories.warrantyRegistrations.findStatus(input.serialNumber.trim(), input.mobile);
     if (!found) throw new NotFoundError("Warranty");

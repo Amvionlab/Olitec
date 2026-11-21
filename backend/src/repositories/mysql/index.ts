@@ -337,27 +337,46 @@ export const mysqlWarrantyRegistrationRepository: WarrantyRegistrationRepository
     return Boolean(row);
   },
 
-  async findStatus(serialNumber: string, mobile: string) {
+  async findStatus(serialNumber: string, mobile?: string) {
     const serial = serialNumber.trim().toUpperCase();
-    const cleanMobile = mobile.replace(/\D/g, "");
+    let sql = `
+      SELECT w.*, p.name AS product_name, p.capacity, p.price_inr AS mrp, p.warranty_months
+      FROM warranties w
+      LEFT JOIN products p ON (p.id = w.product_id OR p.model_number = w.product_model)
+      WHERE UPPER(w.serial_number) = ?
+    `;
+    const params: unknown[] = [serial];
 
-    const row = await queryOne<Row>(
-      `SELECT w.product_model AS model, w.serial_number, w.submitted_at AS registered_on, w.end_date AS valid_until, w.status
-       FROM warranties w
-       WHERE UPPER(w.serial_number) = ? AND REPLACE(REPLACE(w.mobile, '-', ''), ' ', '') = ?
-       ORDER BY w.id DESC
-       LIMIT 1`,
-      [serial, cleanMobile],
-    );
+    if (mobile?.trim()) {
+      const cleanMobile = mobile.replace(/\D/g, "");
+      if (cleanMobile) {
+        sql += " AND REPLACE(REPLACE(w.mobile, '-', ''), ' ', '') = ?";
+        params.push(cleanMobile);
+      }
+    }
 
+    sql += " ORDER BY w.id DESC LIMIT 1";
+
+    const row = await queryOne<Row>(sql, params);
     if (!row) return undefined;
 
     return {
-      model: row.model,
+      warrantyNumber: row.warranty_number,
+      model: row.product_model,
+      productName: row.product_name || row.product_model,
+      capacity: row.capacity || "",
+      mrp: Number(row.mrp) || 0,
+      warrantyMonths: Number(row.warranty_months) || 60,
       serialNumber: row.serial_number,
-      registeredOn: iso(row.registered_on)!,
-      validUntil: isoDate(row.valid_until),
-      status: warrantyStatuses[row.status] || "Pending",
+      customerName: row.customer_name,
+      mobile: row.mobile,
+      installationAddress: row.installation_address,
+      dealerName: row.dealer_name,
+      purchaseDate: isoDate(row.purchase_date),
+      installationDate: isoDate(row.installation_date),
+      registeredOn: iso(row.submitted_at ?? row.created_at)!,
+      validUntil: isoDate(row.end_date),
+      status: warrantyStatuses[row.status] || "Active",
     };
   },
 

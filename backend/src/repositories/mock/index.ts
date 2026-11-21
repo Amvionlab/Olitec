@@ -134,12 +134,20 @@ export const mockWarrantyRegistrationRepository: WarrantyRegistrationRepository 
   },
   async findStatus(serialNumber, mobile) {
     const warranty = warranties.find(
-      (w) => w.serialNumber.toUpperCase() === serialNumber.toUpperCase() && customers.find((c) => c.id === w.customerId)?.mobile === mobile,
+      (w) =>
+        w.serialNumber.toUpperCase() === serialNumber.toUpperCase() &&
+        (!mobile || customers.find((c) => c.id === w.customerId)?.mobile === mobile),
     );
     if (!warranty) return undefined;
+    const p = products.find((prod) => prod.id === warranty.productId);
     return {
-      model: products.find((p) => p.id === warranty.productId)?.model ?? "",
+      model: p?.model ?? "",
+      productName: p?.name ?? p?.model ?? "",
+      capacity: "",
+      mrp: p?.priceInr ?? 0,
+      warrantyMonths: p?.warrantyMonths ?? 60,
       serialNumber: warranty.serialNumber,
+      warrantyNumber: `WR-${warranty.id}`,
       registeredOn: warranty.submittedAt,
       validUntil: warranty.endDate,
       status: warranty.status,

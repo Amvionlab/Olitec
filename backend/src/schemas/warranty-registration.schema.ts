@@ -39,11 +39,11 @@ export const createWarrantyRegistrationSchema = {
 export const warrantyStatusLookupSchema = {
   body: {
     type: "object",
-    required: ["serialNumber", "mobile"],
+    required: ["serialNumber"],
     additionalProperties: false,
     properties: {
       serialNumber: { type: "string", pattern: "^[A-Za-z0-9-]{6,30}$" },
-      mobile: mobileSchema,
+      mobile: { type: "string" },
     },
   },
 } as const;
@@ -72,7 +72,7 @@ export interface ValidateSerialNumberBody {
 }
 export interface WarrantyStatusLookupBody {
   serialNumber: string;
-  mobile: string;
+  mobile?: string;
 }
 
 export interface CreateWarrantyRegistrationBody {
