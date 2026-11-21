@@ -121,22 +121,7 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                   </div>
                 </div>
 
-                {/* 2. Center Column: Live 3D Hardware Canvas in 1 View (lg:col-span-4) */}
-                <div className="lg:col-span-4 xl:col-span-4 flex flex-col">
-                  <div className="relative flex-1 min-h-[400px] xl:min-h-[440px] overflow-hidden rounded-[26px] border border-slate-200 bg-white p-2 shadow-[0_8px_30px_rgb(0_0_0/0.03)] transition hover:border-brand-300 hover:shadow-md">
-                    <Product3DViewer
-                      category={category}
-                      name={item.title}
-                      modelNumber={item.models[0]}
-                      height={420}
-                      autoRotateInit={true}
-                      showHotspots={false}
-                      onExpandModal={() => setSelectedSeries(item)}
-                    />
-                  </div>
-                </div>
-
-                {/* 3. Right Column: Verified Specifications in 1 View (lg:col-span-4) */}
+                {/* 2. Center Column: Verified Specifications in 1 View (lg:col-span-4) */}
                 <div className="lg:col-span-4 xl:col-span-4 flex flex-col">
                   <div className="flex-1 flex flex-col justify-between rounded-[26px] border border-slate-200 bg-white p-5 xl:p-6 shadow-[0_8px_30px_rgb(0_0_0/0.03)]">
                     <div>
@@ -163,7 +148,7 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-muted">
-                      <span>Click 3D full-screen to inspect CAD</span>
+                      <span>Click 3D view to inspect CAD</span>
                       <button
                         type="button"
                         onClick={() => setSelectedSeries(item)}
@@ -173,6 +158,25 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                         <Maximize2 className="size-3" />
                       </button>
                     </div>
+                  </div>
+                </div>
+
+                {/* 3. Right Column: 360 Turntable 3D Showcase (lg:col-span-4) */}
+                <div className="lg:col-span-4 xl:col-span-4 flex flex-col">
+                  <div
+                    className="relative flex-1 min-h-[400px] xl:min-h-[440px] overflow-hidden rounded-[26px] border border-slate-200 bg-white p-2 shadow-[0_8px_30px_rgb(0_0_0/0.03)] transition hover:border-brand-300 hover:shadow-md cursor-pointer"
+                    onClick={() => setSelectedSeries(item)}
+                  >
+                    <Product3DViewer
+                      category={category}
+                      name={item.title}
+                      modelNumber={item.models[0]}
+                      height={420}
+                      autoRotateInit={true}
+                      showHotspots={false}
+                      simpleGifMode={true}
+                      onExpandModal={() => setSelectedSeries(item)}
+                    />
                   </div>
                 </div>
               </article>

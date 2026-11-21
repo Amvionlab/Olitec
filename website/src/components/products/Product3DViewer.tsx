@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   RotateCcw,
   ZoomIn,
@@ -27,6 +28,7 @@ export interface Product3DViewerProps {
   height?: string | number;
   autoRotateInit?: boolean;
   showHotspots?: boolean;
+  simpleGifMode?: boolean;
   onExpandModal?: () => void;
 }
 
@@ -45,6 +47,7 @@ export function Product3DViewer({
   height = "460px",
   autoRotateInit = true,
   showHotspots = true,
+  simpleGifMode = false,
   onExpandModal,
 }: Product3DViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -129,8 +132,11 @@ export function Product3DViewer({
     controls.minDistance = 1.0;
     controls.maxDistance = 5.5;
     controls.maxPolarAngle = Math.PI / 2 + 0.1; // Do not go under floor
-    controls.autoRotate = autoRotate;
-    controls.autoRotateSpeed = 1.6;
+    controls.autoRotate = simpleGifMode ? true : autoRotate;
+    controls.autoRotateSpeed = simpleGifMode ? 2.2 : 1.6;
+    controls.enableZoom = !simpleGifMode;
+    controls.enablePan = !simpleGifMode;
+    controls.enableRotate = true;
     controlsRef.current = controls;
 
     // Hide helper banner once user drags
@@ -139,10 +145,10 @@ export function Product3DViewer({
     });
 
     // 5. Studio Lighting
-    const ambientLight = new THREE.AmbientLight(0xfff8eb, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xfff8eb, 1.3);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.4);
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.5);
     dirLight1.position.set(3, 4, 3);
     dirLight1.castShadow = true;
     dirLight1.shadow.mapSize.width = 1024;
@@ -152,11 +158,11 @@ export function Product3DViewer({
     scene.add(dirLight1);
 
     // Olitec signature brand rim light
-    const rimLight = new THREE.DirectionalLight(0xf99f1e, 1.6);
+    const rimLight = new THREE.DirectionalLight(0xf99f1e, 1.8);
     rimLight.position.set(-3, 2, -3);
     scene.add(rimLight);
 
-    const fillLight = new THREE.DirectionalLight(0xd9ecff, 1.0);
+    const fillLight = new THREE.DirectionalLight(0xd9ecff, 1.2);
     fillLight.position.set(0, -2, 3);
     scene.add(fillLight);
 
@@ -234,7 +240,47 @@ export function Product3DViewer({
         }
         buildProceduralBattery(modelGroup);
       } else if (catLower.includes("inverter")) {
-        buildProceduralInverter(modelGroup);
+        try {
+          const loader = new GLTFLoader();
+          const gltf = await loader.loadAsync("/models/inverter.glb");
+          const model = gltf.scene;
+
+          // Compute bounding box and normalize
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const targetScale = 1.6 / (maxDim || 1);
+          model.scale.set(targetScale, targetScale, targetScale);
+
+          model.position.x = -center.x * targetScale;
+          model.position.y = -center.y * targetScale;
+          model.position.z = -center.z * targetScale;
+
+          model.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              if (child.material) {
+                if (Array.isArray(child.material)) {
+                  child.material.forEach((m) => {
+                    m.side = THREE.DoubleSide;
+                  });
+                } else {
+                  child.material.side = THREE.DoubleSide;
+                }
+              }
+            }
+          });
+
+          modelGroup.add(model);
+          if (isMounted) setLoading(false);
+          return;
+        } catch (err) {
+          console.warn("Could not load /models/inverter.glb, fallback to procedural:", err);
+          buildProceduralInverter(modelGroup);
+        }
       } else if (catLower.includes("water") || catLower.includes("purifier")) {
         buildProceduralPurifier(modelGroup);
       } else if (catLower.includes("cooler")) {
@@ -351,34 +397,38 @@ export function Product3DViewer({
       )}
 
       {/* Header Info Pill */}
-      <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2.5">
-        <div className="glass-panel flex items-center gap-2 rounded-full px-3.5 py-1.5 shadow-sm">
-          <span className="relative flex size-2.5">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-black">Interactive 3D View</span>
-          <span className="text-xs text-muted font-medium">· 360° CAD</span>
-        </div>
-        {modelNumber && (
-          <div className="hidden sm:flex glass-panel items-center gap-1.5 rounded-full px-3 py-1.5 shadow-sm">
-            <span className="text-xs font-semibold text-brand-600">{modelNumber}</span>
+      {simpleGifMode ? (
+        <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 flex items-center gap-2">
+          <div className="glass-panel flex items-center gap-1.5 rounded-full px-3 py-1 shadow-xs border border-white/60 bg-white/85 backdrop-blur-md">
+            <RotateCcw className="size-3 text-brand-600 animate-spin [animation-duration:10s]" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-800">360° 3D</span>
           </div>
-        )}
-      </div>
-
-      {/* Drag & Zoom Interaction Helper Prompt */}
-      {/* {showHelper && !loading && (
-        <div className="pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 z-10 animate-fade-in transition-opacity">
-          <div className="glass-panel flex items-center gap-2 rounded-full px-4 py-1.5 shadow-sm text-xs font-medium text-slate-700">
-            <Sparkles className="size-3.5 text-brand-500" />
-            <span>Drag to rotate · Scroll to zoom · Inspect hardware</span>
-          </div>
+          {modelNumber && (
+            <div className="hidden sm:flex glass-panel items-center gap-1 rounded-full px-2.5 py-1 shadow-xs border border-white/60 bg-white/85 backdrop-blur-md">
+              <span className="text-[11px] font-semibold text-brand-600">{modelNumber}</span>
+            </div>
+          )}
         </div>
-      )} */}
+      ) : (
+        <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2.5">
+          <div className="glass-panel flex items-center gap-2 rounded-full px-3.5 py-1.5 shadow-sm">
+            <span className="relative flex size-2.5">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
+            </span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-black">Interactive 3D View</span>
+            <span className="text-xs text-muted font-medium">· 360° CAD</span>
+          </div>
+          {modelNumber && (
+            <div className="hidden sm:flex glass-panel items-center gap-1.5 rounded-full px-3 py-1.5 shadow-sm">
+              <span className="text-xs font-semibold text-brand-600">{modelNumber}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Interactive Hotspot Tooltip */}
-      {activeHotspot && (
+      {!simpleGifMode && activeHotspot && (
         <div className="absolute bottom-16 left-4 right-4 sm:left-6 sm:right-auto sm:max-w-xs z-20 animate-fade-in rounded-[18px] border border-[#e6e6e6] bg-white/95 p-4 shadow-xl backdrop-blur-md">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -397,82 +447,84 @@ export function Product3DViewer({
         </div>
       )}
 
-      {/* Floating Toolbar Controls */}
-      <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 rounded-full border border-white/80 bg-white/90 p-1.5 shadow-[0_8px_24px_rgb(0_0_0/0.08)] backdrop-blur-md">
-        {/* Auto Rotate Toggle */}
-        <button
-          type="button"
-          onClick={() => setAutoRotate((prev) => !prev)}
-          title={autoRotate ? "Pause auto-rotation" : "Start auto-rotation"}
-          className={cn(
-            "flex size-9 items-center justify-center rounded-full transition-colors",
-            autoRotate ? "bg-brand-50 text-brand-600" : "text-slate-700 hover:bg-slate-100",
-          )}
-        >
-          {autoRotate ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5" />}
-        </button>
+      {/* Floating Toolbar Controls - Hidden in simpleGifMode */}
+      {!simpleGifMode && (
+        <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 rounded-full border border-white/80 bg-white/90 p-1.5 shadow-[0_8px_24px_rgb(0_0_0/0.08)] backdrop-blur-md">
+          {/* Auto Rotate Toggle */}
+          <button
+            type="button"
+            onClick={() => setAutoRotate((prev) => !prev)}
+            title={autoRotate ? "Pause auto-rotation" : "Start auto-rotation"}
+            className={cn(
+              "flex size-9 items-center justify-center rounded-full transition-colors",
+              autoRotate ? "bg-brand-50 text-brand-600" : "text-slate-700 hover:bg-slate-100",
+            )}
+          >
+            {autoRotate ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5" />}
+          </button>
 
-        {/* Zoom In */}
-        <button
-          type="button"
-          onClick={zoomIn}
-          title="Zoom In"
-          className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
-        >
-          <ZoomIn className="size-4" />
-        </button>
+          {/* Zoom In */}
+          <button
+            type="button"
+            onClick={zoomIn}
+            title="Zoom In"
+            className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <ZoomIn className="size-4" />
+          </button>
 
-        {/* Zoom Out */}
-        <button
-          type="button"
-          onClick={zoomOut}
-          title="Zoom Out"
-          className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
-        >
-          <ZoomOut className="size-4" />
-        </button>
+          {/* Zoom Out */}
+          <button
+            type="button"
+            onClick={zoomOut}
+            title="Zoom Out"
+            className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <ZoomOut className="size-4" />
+          </button>
 
-        {/* Reset Camera */}
-        <button
-          type="button"
-          onClick={resetCamera}
-          title="Reset camera view"
-          className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
-        >
-          <RotateCcw className="size-4" />
-        </button>
+          {/* Reset Camera */}
+          <button
+            type="button"
+            onClick={resetCamera}
+            title="Reset camera view"
+            className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <RotateCcw className="size-4" />
+          </button>
 
-        {/* Wireframe toggle */}
-        <button
-          type="button"
-          onClick={() => setWireframe((prev) => !prev)}
-          title={wireframe ? "Realistic Shading" : "Wireframe CAD Mode"}
-          className={cn(
-            "flex size-9 items-center justify-center rounded-full transition-colors",
-            wireframe ? "bg-brand-50 text-brand-600" : "text-slate-700 hover:bg-slate-100",
-          )}
-        >
-          <Layers className="size-4" />
-        </button>
+          {/* Wireframe toggle */}
+          <button
+            type="button"
+            onClick={() => setWireframe((prev) => !prev)}
+            title={wireframe ? "Realistic Shading" : "Wireframe CAD Mode"}
+            className={cn(
+              "flex size-9 items-center justify-center rounded-full transition-colors",
+              wireframe ? "bg-brand-50 text-brand-600" : "text-slate-700 hover:bg-slate-100",
+            )}
+          >
+            <Layers className="size-4" />
+          </button>
 
-        <div className="h-4 w-px bg-slate-200" />
+          <div className="h-4 w-px bg-slate-200" />
 
-        {/* Fullscreen / Modal Toggle */}
-        <button
-          type="button"
-          onClick={() => {
-            if (onExpandModal) {
-              onExpandModal();
-            } else {
-              toggleFullscreen();
-            }
-          }}
-          title={onExpandModal ? "Open Full Inspection Modal" : isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
-          className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
-        >
-          {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
-        </button>
-      </div>
+          {/* Fullscreen / Modal Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              if (onExpandModal) {
+                onExpandModal();
+              } else {
+                toggleFullscreen();
+              }
+            }}
+            title={onExpandModal ? "Open Full Inspection Modal" : isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
+            className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+          </button>
+        </div>
+      )}
 
       {/* Top-Right Fullscreen / Modal Trigger Icon */}
       {onExpandModal && !isFullscreen && (
@@ -483,12 +535,12 @@ export function Product3DViewer({
           title="Open full 3D inspection modal"
         >
           <Maximize2 className="size-3.5 text-brand-500 transition-transform group-hover:scale-110" />
-          <span className="hidden sm:inline">Full Screen</span>
+          <span className="hidden sm:inline">Inspect 3D</span>
         </button>
       )}
 
       {/* Hotspots Quick Switcher Buttons */}
-      {showHotspots && (
+      {!simpleGifMode && showHotspots && (
         <div className="absolute top-4 right-4 z-10 hidden sm:flex items-center gap-1.5">
           {hotspots.map((h) => (
             <button
