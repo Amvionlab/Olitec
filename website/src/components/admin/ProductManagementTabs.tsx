@@ -11,13 +11,13 @@ const tabs = [
     label: "Product Master",
     href: "/admin/dashboard/products",
     icon: Package,
-    activeColor: "bg-orange-500",
+    activeColor: "bg-amber-500 text-slate-950",
   },
   {
     label: "Serial Number",
     href: "/admin/dashboard/serial-numbers",
     icon: Barcode,
-    activeColor: "bg-emerald-600",
+    activeColor: "bg-amber-500 text-slate-950",
   },
 ];
 
@@ -46,7 +46,7 @@ export default function ProductManagementTabs() {
                   font-semibold transition-colors duration-300
                   ${
                     active
-                      ? `${tab.activeColor} text-white shadow-sm`
+                      ? `${tab.activeColor} shadow-sm font-bold`
                       : "bg-transparent text-slate-600 hover:bg-slate-100"
                   }
                 `}

@@ -1,5 +1,5 @@
 import { query, execute } from "../db/pool.js";
-import { sendInquiryNotification } from "./mail.service.js";
+import { sendInquiryNotification, sendServiceStatusChangeEmail } from "./mail.service.js";
 
 export type InquiryKind = "service" | "career" | "partner" | "consultation";
 export type InquiryStatus =
@@ -206,6 +206,9 @@ export async function updateInquiry(
   id: number,
   updates: { status?: InquiryStatus; adminNotes?: string }
 ): Promise<InquiryRecord | null> {
+  const current = await getInquiryById(id);
+  if (!current) return null;
+
   const fields: string[] = [];
   const params: any[] = [];
 
@@ -219,11 +222,27 @@ export async function updateInquiry(
     params.push(updates.adminNotes);
   }
 
-  if (fields.length === 0) return getInquiryById(id);
+  if (fields.length === 0) return current;
 
   params.push(id);
   await execute(`UPDATE inquiries SET ${fields.join(", ")} WHERE id = ?`, params);
-  return getInquiryById(id);
+  const updated = await getInquiryById(id);
+
+  // Send status update email to the client
+  if (updated && updates.status && updates.status !== current.status) {
+    sendServiceStatusChangeEmail({
+      inquiry: updated,
+      oldStatus: current.status,
+      newStatus: updates.status,
+      adminNotes: updates.adminNotes ?? updated.admin_notes ?? undefined,
+      engineerName: updated.engineer_name ?? undefined,
+      engineerContact: updated.engineer_contact ?? undefined,
+    }).catch((err) => {
+      console.error("[Service Status Email] Failed to send email on update:", err);
+    });
+  }
+
+  return updated;
 }
 
 export async function deleteInquiry(id: number): Promise<boolean> {
@@ -286,6 +305,9 @@ export async function assignEngineer(
   engineerName: string,
   engineerContact: string
 ): Promise<InquiryRecord | null> {
+  const current = await getInquiryById(id);
+  const cleanContact = engineerContact.replace(/\D/g, "");
+
   await execute(
     `UPDATE inquiries
      SET engineer_name = ?,
@@ -294,10 +316,25 @@ export async function assignEngineer(
      WHERE id = ? AND kind = 'service'`,
     [
       engineerName.trim(),
-      engineerContact.replace(/\D/g, ""),
+      cleanContact,
       id,
     ]
   );
 
-  return getInquiryById(id);
+  const updated = await getInquiryById(id);
+
+  if (updated) {
+    sendServiceStatusChangeEmail({
+      inquiry: updated,
+      oldStatus: current?.status,
+      newStatus: "assigned",
+      adminNotes: updated.admin_notes ?? undefined,
+      engineerName: engineerName.trim(),
+      engineerContact: cleanContact,
+    }).catch((err) => {
+      console.error("[Service Status Email] Failed to send email on engineer assign:", err);
+    });
+  }
+
+  return updated;
 }

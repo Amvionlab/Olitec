@@ -36,4 +36,5 @@ app.delete("/products/:id", adminController.deleteProduct);
   app.get("/serial-numbers", adminController.listSerialNumbers);
   app.get("/serial-numbers/stats", adminController.serialNumberStats);
   app.post("/serial-numbers", adminController.createSerialNumber);
+  app.post("/serial-numbers/bulk", adminController.bulkImportSerialNumbers);
 };

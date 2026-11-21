@@ -222,4 +222,201 @@ export const serialNumberService = {
       };
     });
   },
+
+  async bulkImport(
+    items: Array<{
+      productId?: number;
+      productModel?: string;
+      serialNumber: string;
+      batchNumber: string;
+      productionMonth: string;
+      qrCode?: string;
+    }>,
+    createdBy?: number | null
+  ) {
+    if (!items || items.length === 0) {
+      return { total: 0, importedCount: 0, skippedCount: 0, imported: [], skipped: [] };
+    }
+
+    // 1. Load all products for fast in-memory matching
+    const allProducts = await query<{ id: number; name: string; model_number: string }>(
+      "SELECT id, name, model_number FROM products"
+    );
+    const productById = new Map<number, { id: number; name: string; model_number: string }>();
+    const productByModel = new Map<string, { id: number; name: string; model_number: string }>();
+    for (const p of allProducts) {
+      productById.set(Number(p.id), p);
+      if (p.model_number) {
+        productByModel.set(p.model_number.trim().toLowerCase(), p);
+      }
+    }
+
+    // 2. Fetch existing serial numbers to avoid duplicate collisions
+    const existingRows = await query<{ serial_number: string }>(
+      "SELECT serial_number FROM serial_numbers"
+    );
+    const existingSerials = new Set<string>(
+      existingRows.map((r) => r.serial_number.trim().toLowerCase())
+    );
+
+    const imported: Array<{
+      id: number;
+      serialNumber: string;
+      modelNumber: string;
+      batchNumber: string;
+    }> = [];
+    const skipped: Array<{
+      row: number;
+      serialNumber: string;
+      reason: string;
+    }> = [];
+
+    const seenInBatch = new Set<string>();
+
+    return withTransaction(async (connection) => {
+      // Cache batches by batch_number
+      const existingBatches = await query<{
+        id: number;
+        batch_number: string;
+        product_id: number;
+        production_month: string;
+        quantity: number;
+      }>(
+        "SELECT id, batch_number, product_id, production_month, quantity FROM serial_number_batches FOR UPDATE",
+        [],
+        connection
+      );
+      const batchMap = new Map<
+        string,
+        { id: number; product_id: number; production_month: string; quantity: number }
+      >();
+      for (const b of existingBatches) {
+        batchMap.set(b.batch_number.trim().toLowerCase(), {
+          id: Number(b.id),
+          product_id: Number(b.product_id),
+          production_month: String(b.production_month).slice(0, 7),
+          quantity: Number(b.quantity || 0),
+        });
+      }
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const rowNum = i + 1;
+        const rawSerial = (item.serialNumber || "").trim();
+        const rawBatch = (item.batchNumber || "").trim();
+        const rawMonth = (item.productionMonth || "").trim();
+        const rawQr = (item.qrCode || "").trim();
+
+        if (!rawSerial) {
+          skipped.push({ row: rowNum, serialNumber: "", reason: "Missing serial number" });
+          continue;
+        }
+
+        const serialLower = rawSerial.toLowerCase();
+        if (existingSerials.has(serialLower) || seenInBatch.has(serialLower)) {
+          skipped.push({
+            row: rowNum,
+            serialNumber: rawSerial,
+            reason: "Duplicate serial number already exists",
+          });
+          continue;
+        }
+
+        if (!rawBatch) {
+          skipped.push({ row: rowNum, serialNumber: rawSerial, reason: "Missing batch number" });
+          continue;
+        }
+
+        if (!rawMonth) {
+          skipped.push({
+            row: rowNum,
+            serialNumber: rawSerial,
+            reason: "Missing production month (YYYY-MM)",
+          });
+          continue;
+        }
+
+        // Resolve product
+        let matchedProduct: { id: number; name: string; model_number: string } | undefined;
+        if (item.productId && productById.has(Number(item.productId))) {
+          matchedProduct = productById.get(Number(item.productId));
+        } else if (item.productModel) {
+          const modelKey = item.productModel.trim().toLowerCase();
+          matchedProduct = productByModel.get(modelKey);
+          if (!matchedProduct) {
+            for (const [key, p] of productByModel.entries()) {
+              if (key.includes(modelKey) || modelKey.includes(key)) {
+                matchedProduct = p;
+                break;
+              }
+            }
+          }
+        }
+
+        if (!matchedProduct) {
+          skipped.push({
+            row: rowNum,
+            serialNumber: rawSerial,
+            reason: `Product model "${item.productModel || item.productId || "Unknown"}" not found in Product Master`,
+          });
+          continue;
+        }
+
+        const productId = matchedProduct.id;
+        const batchKey = rawBatch.toLowerCase();
+        let batchId: number;
+
+        if (batchMap.has(batchKey)) {
+          const b = batchMap.get(batchKey)!;
+          batchId = b.id;
+          b.quantity += 1;
+          await execute(
+            "UPDATE serial_number_batches SET quantity = quantity + 1 WHERE id = ?",
+            [batchId],
+            connection
+          );
+        } else {
+          const batchRes = await execute(
+            `INSERT INTO serial_number_batches (batch_number, product_id, production_month, quantity, created_by)
+             VALUES (?, ?, ?, 1, ?)`,
+            [rawBatch, productId, rawMonth, createdBy ?? null],
+            connection
+          );
+          batchId = Number(batchRes.insertId);
+          batchMap.set(batchKey, {
+            id: batchId,
+            product_id: productId,
+            production_month: rawMonth,
+            quantity: 1,
+          });
+        }
+
+        // Insert serial number
+        const insertRes = await execute(
+          `INSERT INTO serial_numbers (batch_id, product_id, serial_number, qr_code, created_by)
+           VALUES (?, ?, ?, ?, ?)`,
+          [batchId, productId, rawSerial, rawQr || null, createdBy ?? null],
+          connection
+        );
+
+        seenInBatch.add(serialLower);
+        existingSerials.add(serialLower);
+
+        imported.push({
+          id: Number(insertRes.insertId),
+          serialNumber: rawSerial,
+          modelNumber: matchedProduct.model_number,
+          batchNumber: rawBatch,
+        });
+      }
+
+      return {
+        total: items.length,
+        importedCount: imported.length,
+        skippedCount: skipped.length,
+        imported,
+        skipped,
+      };
+    });
+  },
 };

@@ -305,3 +305,242 @@ export async function sendOtpEmail(params: {
     };
   }
 }
+
+export async function sendServiceStatusChangeEmail(params: {
+  inquiry: {
+    reference_no: string;
+    name: string;
+    email: string;
+    mobile?: string | null;
+    city?: string | null;
+    kind?: string | null;
+    details?: Record<string, any> | null;
+    engineer_name?: string | null;
+    engineer_contact?: string | null;
+    admin_notes?: string | null;
+  };
+  oldStatus?: string;
+  newStatus: string;
+  adminNotes?: string;
+  engineerName?: string;
+  engineerContact?: string;
+}): Promise<void> {
+  try {
+    if (!params.inquiry.email || !params.inquiry.email.includes("@")) {
+      console.warn("sendServiceStatusChangeEmail skipped: no valid recipient email.", params.inquiry);
+      return;
+    }
+
+    const { transporter, smtp } = await createTransporter();
+    if (!smtp.is_enabled) return;
+
+    const statusMeta: Record<
+      string,
+      { label: string; bg: string; color: string; desc: string }
+    > = {
+      new: {
+        label: "Received",
+        bg: "#fef3c7",
+        color: "#b45309",
+        desc: "Your service request has been successfully registered and logged in our service portal. Our dispatch team is reviewing your details.",
+      },
+      assigned: {
+        label: "Engineer Assigned",
+        bg: "#e0f2fe",
+        color: "#0369a1",
+        desc: "A certified Olitec service technician has been assigned to attend to your service request and will contact you shortly.",
+      },
+      technician_visit: {
+        label: "Technician Visit Scheduled",
+        bg: "#f3e8ff",
+        color: "#7e22ce",
+        desc: "Our technician has scheduled a site visit to inspect and diagnose your equipment. Please ensure someone is available at the premises.",
+      },
+      under_service: {
+        label: "Under Service & Diagnostics",
+        bg: "#cffafe",
+        color: "#0e7490",
+        desc: "Your equipment is actively under inspection, maintenance, or component servicing by our technical team.",
+      },
+      resolved: {
+        label: "Service Completed / Resolved",
+        bg: "#d1fae5",
+        color: "#047857",
+        desc: "The reported issue has been successfully resolved and operationally verified by our service engineer. Your equipment is operating normally.",
+      },
+      closed: {
+        label: "Request Closed",
+        bg: "#f1f5f9",
+        color: "#475569",
+        desc: "This service request has been concluded and marked as closed in our records. Thank you for your continued trust in Olitec Clean Energy.",
+      },
+      contacted: {
+        label: "Customer Contacted",
+        bg: "#e0e7ff",
+        color: "#4338ca",
+        desc: "Our customer service support representative has initiated communication regarding your request.",
+      },
+      in_progress: {
+        label: "In Progress",
+        bg: "#fef9c3",
+        color: "#a16207",
+        desc: "Work on your service inquiry is actively in progress with our technical team.",
+      },
+    };
+
+    const currentStatus = statusMeta[params.newStatus] || {
+      label: params.newStatus.replace(/_/g, " ").toUpperCase(),
+      bg: "#fef3c7",
+      color: "#b45309",
+      desc: "The status of your service request has been updated.",
+    };
+
+    const details = params.inquiry.details || {};
+    const model = details.productModel || details.model || details.product || "Olitec Equipment";
+    const serial = details.serialNumber || details.serial || "";
+    const issue = details.issueDescription || details.message || details.issue || "";
+
+    const html = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 20px; background-color: #ffffff; color: #1e293b; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+        <!-- Brand Header -->
+        <div style="border-bottom: 2px solid #f99f1e; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h2 style="color: #f99f1e; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">OLITEC CLEAN ENERGY</h2>
+            <p style="color: #64748b; font-size: 13px; margin: 4px 0 0 0;">Customer Service & Technical Support</p>
+          </div>
+        </div>
+
+        <!-- Greeting -->
+        <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">
+          Dear <strong>${params.inquiry.name || "Customer"}</strong>,
+        </p>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 20px 0;">
+          This is an official status update regarding your registered Olitec Service Request.
+        </p>
+
+        <!-- Status Card -->
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 22px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Ticket Reference</td>
+              <td style="text-align: right; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Current Status</td>
+            </tr>
+            <tr>
+              <td style="font-size: 18px; font-weight: 800; color: #0f172a; padding-top: 4px;">
+                ${params.inquiry.reference_no}
+              </td>
+              <td style="text-align: right; padding-top: 4px;">
+                <span style="display: inline-block; background-color: ${currentStatus.bg}; color: ${currentStatus.color}; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: capitalize;">
+                  ${currentStatus.label}
+                </span>
+              </td>
+            </tr>
+          </table>
+
+          <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed #cbd5e1; font-size: 13px; color: #334155; line-height: 1.6;">
+            ${currentStatus.desc}
+          </div>
+        </div>
+
+        <!-- Engineer Assigned Box (if applicable) -->
+        ${
+          params.engineerName
+            ? `
+          <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 16px; margin-bottom: 22px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+              <span style="font-size: 12px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px;">Assigned Service Engineer</span>
+            </div>
+            <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 4px 0; font-weight: 600; color: #1e3a8a; width: 35%;">Engineer Name:</td>
+                <td style="padding: 4px 0; color: #0f172a; font-weight: 700;">${params.engineerName}</td>
+              </tr>
+              ${
+                params.engineerContact
+                  ? `
+                <tr>
+                  <td style="padding: 4px 0; font-weight: 600; color: #1e3a8a;">Contact Number:</td>
+                  <td style="padding: 4px 0;">
+                    <a href="tel:${params.engineerContact}" style="color: #2563eb; font-weight: 700; text-decoration: none;">${params.engineerContact}</a>
+                  </td>
+                </tr>
+              `
+                  : ""
+              }
+            </table>
+          </div>
+        `
+            : ""
+        }
+
+        <!-- Admin / Engineer Notes (if provided) -->
+        ${
+          params.adminNotes
+            ? `
+          <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 14px; padding: 16px; margin-bottom: 22px;">
+            <span style="font-size: 12px; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Engineer / Service Remarks</span>
+            <p style="margin: 0; font-size: 13px; color: #78350f; line-height: 1.6; font-style: italic;">
+              "${params.adminNotes}"
+            </p>
+          </div>
+        `
+            : ""
+        }
+
+        <!-- Service Details Summary -->
+        <h4 style="color: #0f172a; margin: 0 0 10px 0; font-size: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px;">Equipment Information</h4>
+        <table style="width: 100%; font-size: 13px; color: #475569; border-collapse: collapse; margin-bottom: 20px;">
+          <tr>
+            <td style="padding: 5px 0; font-weight: 600; width: 35%;">Product / Model:</td>
+            <td style="padding: 5px 0; color: #0f172a; font-weight: 600;">${model}</td>
+          </tr>
+          ${
+            serial
+              ? `<tr>
+            <td style="padding: 5px 0; font-weight: 600;">Serial Number:</td>
+            <td style="padding: 5px 0; color: #0f172a; font-family: monospace; font-weight: 700;">${serial}</td>
+          </tr>`
+              : ""
+          }
+          ${
+            params.inquiry.city
+              ? `<tr>
+            <td style="padding: 5px 0; font-weight: 600;">Registered City:</td>
+            <td style="padding: 5px 0; color: #0f172a;">${params.inquiry.city}</td>
+          </tr>`
+              : ""
+          }
+          ${
+            issue
+              ? `<tr>
+            <td style="padding: 5px 0; font-weight: 600;">Reported Issue:</td>
+            <td style="padding: 5px 0; color: #334155;">${issue}</td>
+          </tr>`
+              : ""
+          }
+        </table>
+
+        <!-- Support Info -->
+        <div style="background-color: #f8fafc; border-radius: 12px; padding: 14px; border: 1px solid #f1f5f9; font-size: 12px; color: #64748b; line-height: 1.5;">
+          Have questions or require immediate assistance? Please contact our customer support helpdesk at <a href="mailto:support@olitec.in" style="color: #f99f1e; text-decoration: none; font-weight: 600;">support@olitec.in</a> or call our toll-free customer care.
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+          © ${new Date().getFullYear()} Olitec Clean Energy. All rights reserved. Automated Service Notification.
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"${smtp.from_name}" <${smtp.from_email}>`,
+      to: params.inquiry.email,
+      subject: `[Olitec Service Update] Ref: ${params.inquiry.reference_no} is now "${currentStatus.label}"`,
+      html,
+    });
+
+    console.log(`[Service Mail] Status update email sent to ${params.inquiry.email} for ticket ${params.inquiry.reference_no} (${currentStatus.label}).`);
+  } catch (err: any) {
+    console.error("[Service Mail] Failed to send service status email:", err);
+  }
+}

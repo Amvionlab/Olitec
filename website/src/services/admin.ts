@@ -446,3 +446,43 @@ export async function createAdminSerialNumber(input: {
 
   return data.data;
 }
+
+export interface BulkImportSerialResult {
+  total: number;
+  importedCount: number;
+  skippedCount: number;
+  imported: Array<{
+    id: number;
+    serialNumber: string;
+    modelNumber: string;
+    batchNumber: string;
+  }>;
+  skipped: Array<{
+    row: number;
+    serialNumber: string;
+    reason: string;
+  }>;
+}
+
+export async function bulkImportAdminSerialNumbers(items: Array<{
+  productId?: number;
+  productModel?: string;
+  serialNumber: string;
+  batchNumber: string;
+  productionMonth: string;
+  qrCode?: string;
+}>): Promise<BulkImportSerialResult> {
+  const res = await fetch(`${API_BASE_URL}/admin/serial-numbers/bulk`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ items }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.error?.message || "Failed to bulk import serial numbers.");
+  }
+
+  return data.data;
+}

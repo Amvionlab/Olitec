@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import ProductManagementTabs from "@/components/admin/ProductManagementTabs";
 import {
   Search,
@@ -11,6 +10,12 @@ import {
   FileSpreadsheet,
   Plus,
   X,
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  Copy,
+  Check,
 } from "lucide-react";
 
 import {
@@ -18,105 +23,102 @@ import {
   getAdminSerialNumbers,
   getSerialNumberStats,
   createAdminSerialNumber,
+  bulkImportAdminSerialNumbers,
   type AdminProduct,
   type AdminSerialNumber,
   type SerialNumberStats,
+  type BulkImportSerialResult,
 } from "@/services/admin";
-interface SerialNumber {
-  id: number;
+import readXlsxFile from "read-excel-file/universal";
+
+interface ParsedBulkRow {
+  rowNum: number;
   serialNumber: string;
-  productName: string;
-  modelNumber: string;
+  productModel: string;
   batchNumber: string;
   productionMonth: string;
-  qrCode: string;
-  createdAt: string;
-  createdBy: string;
+  qrCode?: string;
+  matchedProductId?: number;
+  matchedProductName?: string;
+  isValid: boolean;
+  error?: string;
 }
 
 export default function SerialNumbersPage() {
   const [search, setSearch] = useState("");
   const [selectedModel, setSelectedModel] = useState("all");
   const [selectedMonth, setSelectedMonth] = useState("all");
+
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [serialNumbers, setSerialNumbers] = useState<AdminSerialNumber[]>([]);
+  const [stats, setStats] = useState<SerialNumberStats>({
+    totalSerialNumbers: 0,
+    totalProducts: 0,
+    generatedBatches: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Single Serial Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    productId: "",
+    serialNumber: "",
+    batchNumber: "",
+    productionMonth: new Date().toISOString().slice(0, 7),
+    qrCode: "",
+  });
 
-const [products, setProducts] = useState<AdminProduct[]>([]);
-const [saving, setSaving] = useState(false);
-const [error, setError] = useState("");
+  // Bulk Import Modal
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [bulkRows, setBulkRows] = useState<ParsedBulkRow[]>([]);
+  const [bulkParsing, setBulkParsing] = useState(false);
+  const [bulkImporting, setBulkImporting] = useState(false);
+  const [bulkResult, setBulkResult] = useState<BulkImportSerialResult | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-const [form, setForm] = useState({
-  productId: "",
-  serialNumber: "",
-  batchNumber: "",
-  productionMonth: "",
-  qrCode: "",
-}); 
-useEffect(() => {
-  const loadProducts = async () => {
+  // Copy state
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const loadData = async () => {
+    setLoading(true);
     try {
-      const result = await getAdminProducts();
-      setProducts(result);
-    } catch (err) {
-      console.error("Failed to load products:", err);
-      setError("Unable to load products.");
+      const [prodRes, serialRes, statsRes] = await Promise.all([
+        getAdminProducts().catch(() => []),
+        getAdminSerialNumbers().catch(() => []),
+        getSerialNumberStats().catch(() => ({ totalSerialNumbers: 0, totalProducts: 0, generatedBatches: 0 })),
+      ]);
+
+      setProducts(prodRes);
+      setSerialNumbers(serialRes);
+      setStats(statsRes);
+    } catch (err: any) {
+      setMessage({ type: "error", text: err?.message || "Failed to load serial number data." });
+    } finally {
+      setLoading(false);
     }
   };
 
-  loadProducts();
-}, []); 
-const loadSerialData = async () => {
-  try {
-    setLoading(true);
+  useEffect(() => {
+    loadData();
+  }, []);
 
-    const [serialResult, statsResult] = await Promise.all([
-      getAdminSerialNumbers(),
-      getSerialNumberStats(),
-    ]);
+  const models = useMemo(() => {
+    return [...new Set(serialNumbers.map((item) => item.modelNumber).filter(Boolean))];
+  }, [serialNumbers]);
 
-    setSerialNumbers(serialResult);
-    setStats(statsResult);
-
-  } catch (err) {
-    console.error("Serial Number API Error:", err);
-    setError(
-      err instanceof Error
-        ? err.message
-        : "Failed to load serial number data."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
-
-useEffect(() => {
-  loadSerialData();
-}, []);
-  // Connect the backend API here in the next step.
-  // No dummy records are displayed.
-const [serialNumbers, setSerialNumbers] = useState<AdminSerialNumber[]>([]);
-
-const [stats, setStats] = useState<SerialNumberStats>({
-  totalSerialNumbers: 0,
-  totalProducts: 0,
-  generatedBatches: 0,
-});
-
-const [loading, setLoading] = useState(true);
-  const models = useMemo(
-    () => [...new Set(serialNumbers.map((item) => item.modelNumber))],
-    [serialNumbers]
-  );
-
-  const months = useMemo(
-    () => [...new Set(serialNumbers.map((item) => item.productionMonth))],
-    [serialNumbers]
-  );
+  const months = useMemo(() => {
+    return [...new Set(serialNumbers.map((item) => item.productionMonth).filter(Boolean))];
+  }, [serialNumbers]);
 
   const filteredSerials = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
     return serialNumbers.filter((item) => {
-      const keyword = search.toLowerCase();
-
       const matchesSearch =
+        !keyword ||
         item.serialNumber.toLowerCase().includes(keyword) ||
         item.productName.toLowerCase().includes(keyword) ||
         item.modelNumber.toLowerCase().includes(keyword) ||
@@ -124,26 +126,22 @@ const [loading, setLoading] = useState(true);
         (item.qrCode ?? "").toLowerCase().includes(keyword) ||
         item.createdBy.toLowerCase().includes(keyword);
 
-      const matchesModel =
-        selectedModel === "all" ||
-        item.modelNumber === selectedModel;
-
-      const matchesMonth =
-        selectedMonth === "all" ||
-        item.productionMonth === selectedMonth;
+      const matchesModel = selectedModel === "all" || item.modelNumber === selectedModel;
+      const matchesMonth = selectedMonth === "all" || item.productionMonth === selectedMonth;
 
       return matchesSearch && matchesModel && matchesMonth;
     });
   }, [serialNumbers, search, selectedModel, selectedMonth]);
 
+  // Export CSV
   const exportCSV = () => {
     if (!filteredSerials.length) return;
 
     const headers = [
       "Serial Number",
-      "Product",
-      "Model",
-      "Batch",
+      "Model Number",
+      "Product Name",
+      "Batch Number",
       "Production Month",
       "QR Code",
       "Created At",
@@ -152,144 +150,382 @@ const [loading, setLoading] = useState(true);
 
     const rows = filteredSerials.map((item) => [
       item.serialNumber,
-      item.productName,
       item.modelNumber,
+      item.productName,
       item.batchNumber,
       item.productionMonth,
-      item.qrCode,
+      item.qrCode || "",
       item.createdAt,
       item.createdBy,
     ]);
 
-    const csv = [
-      headers,
-      ...rows,
-    ].map((row) =>
-      row.map((value) =>
-        `"${String(value).replace(/"/g, '""')}"`
-      ).join(",")
-    ).join("\n");
+    const csv = [headers, ...rows]
+      .map((row) => row.map((val) => `"${String(val ?? "").replace(/"/g, '""')}"`).join(","))
+      .join("\n");
 
-    const blob = new Blob(["\uFEFF" + csv], {
-      type: "text/csv;charset=utf-8;",
-    });
-
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-
     link.href = url;
-    link.download = "serial-number-report.csv";
+    link.download = `serial-numbers-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
-
     URL.revokeObjectURL(url);
   };
 
-  const clearFilters = () => {
-    setSearch("");
-    setSelectedModel("all");
-    setSelectedMonth("all");
+  // Download Sample Template CSV
+  const downloadSampleTemplate = () => {
+    const sampleModel = products[0]?.model || "OLI-1H3L";
+    const sampleModel2 = products[1]?.model || "OLB-5.12W";
+    const currentMonth = new Date().toISOString().slice(0, 7);
+
+    const headers = ["serialNumber", "productModel", "batchNumber", "productionMonth", "qrCode"];
+    const sampleRows = [
+      [`OLI-${Date.now().toString().slice(-6)}-001`, sampleModel, "BATCH-2026-A", currentMonth, "QR_PAYLOAD_001"],
+      [`OLI-${Date.now().toString().slice(-6)}-002`, sampleModel, "BATCH-2026-A", currentMonth, "QR_PAYLOAD_002"],
+      [`OLB-${Date.now().toString().slice(-6)}-001`, sampleModel2, "BATCH-2026-B", currentMonth, "QR_PAYLOAD_003"],
+    ];
+
+    const csv = [headers, ...sampleRows].map((row) => row.join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "olitec-serial-numbers-template.csv";
+    link.click();
+    URL.revokeObjectURL(url);
   };
+
+  // Handle single serial create
+  const handleSingleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.productId || !form.serialNumber.trim() || !form.batchNumber.trim() || !form.productionMonth) {
+      setMessage({ type: "error", text: "Please fill in all required fields (Product, Serial, Batch, Month)." });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await createAdminSerialNumber({
+        productId: Number(form.productId),
+        serialNumber: form.serialNumber.trim(),
+        batchNumber: form.batchNumber.trim(),
+        productionMonth: form.productionMonth,
+        qrCode: form.qrCode.trim() || undefined,
+      });
+
+      setMessage({ type: "success", text: `Serial number "${form.serialNumber.trim()}" registered successfully!` });
+      setIsModalOpen(false);
+      setForm({
+        productId: "",
+        serialNumber: "",
+        batchNumber: "",
+        productionMonth: new Date().toISOString().slice(0, 7),
+        qrCode: "",
+      });
+      loadData();
+    } catch (err: any) {
+      setMessage({ type: "error", text: err?.message || "Failed to create serial number." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Parse CSV text
+  const parseCSVText = (text: string): string[][] => {
+    const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0);
+    return lines.map((line) => {
+      const row: string[] = [];
+      let inQuotes = false;
+      let current = "";
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"' || char === "'") {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          row.push(current.trim());
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+      row.push(current.trim());
+      return row;
+    });
+  };
+
+  // Process uploaded file (CSV or Excel)
+  const handleFileUpload = async (file: File) => {
+    setBulkFile(file);
+    setBulkParsing(true);
+    setBulkResult(null);
+
+    try {
+      let rawRows: any[][] = [];
+      const extension = file.name.split(".").pop()?.toLowerCase();
+
+      if (extension === "xlsx" || extension === "xls") {
+        rawRows = (await readXlsxFile(file)) as unknown as any[][];
+      } else {
+        const text = await file.text();
+        rawRows = parseCSVText(text);
+      }
+
+      if (!rawRows || rawRows.length < 2) {
+        setMessage({ type: "error", text: "The selected file is empty or missing data rows." });
+        setBulkRows([]);
+        setBulkParsing(false);
+        return;
+      }
+
+      // Detect header columns
+      const headerRow = rawRows[0].map((h) => String(h || "").toLowerCase().replace(/[^a-z0-9]/g, ""));
+      const serialIdx = headerRow.findIndex((h) => h.includes("serial") || h === "sn" || h === "sno");
+      const modelIdx = headerRow.findIndex((h) => h.includes("model") || h.includes("product"));
+      const batchIdx = headerRow.findIndex((h) => h.includes("batch"));
+      const monthIdx = headerRow.findIndex((h) => h.includes("month") || h.includes("date") || h.includes("mfg"));
+      const qrIdx = headerRow.findIndex((h) => h.includes("qr") || h.includes("code"));
+
+      const existingSerialsSet = new Set(serialNumbers.map((s) => s.serialNumber.toLowerCase()));
+      const seenSerials = new Set<string>();
+
+      const parsed: ParsedBulkRow[] = [];
+
+      for (let i = 1; i < rawRows.length; i++) {
+        const row = rawRows[i];
+        if (!row || row.every((c) => !c || String(c).trim() === "")) continue;
+
+        const serialNumber = String(row[serialIdx !== -1 ? serialIdx : 0] || "").trim();
+        const productModel = String(row[modelIdx !== -1 ? modelIdx : 1] || "").trim();
+        const batchNumber = String(row[batchIdx !== -1 ? batchIdx : 2] || "").trim();
+        let productionMonth = String(row[monthIdx !== -1 ? monthIdx : 3] || "").trim();
+        const qrCode = qrIdx !== -1 ? String(row[qrIdx] || "").trim() : undefined;
+
+        // Clean up production month (format: YYYY-MM)
+        if (productionMonth) {
+          const match = productionMonth.match(/(\d{4})[-/.](\d{1,2})/);
+          if (match) {
+            productionMonth = `${match[1]}-${match[2].padStart(2, "0")}`;
+          }
+        } else {
+          productionMonth = new Date().toISOString().slice(0, 7);
+        }
+
+        // Validate
+        let error: string | undefined;
+        let matchedProduct: AdminProduct | undefined;
+
+        if (!serialNumber) {
+          error = "Missing serial number";
+        } else if (existingSerialsSet.has(serialNumber.toLowerCase())) {
+          error = "Serial already exists in database";
+        } else if (seenSerials.has(serialNumber.toLowerCase())) {
+          error = "Duplicate serial number within file";
+        } else if (!productModel) {
+          error = "Missing product model";
+        } else {
+          // Match with products
+          const modelKey = productModel.toLowerCase();
+          matchedProduct = products.find(
+            (p) => p.model.toLowerCase() === modelKey || p.name.toLowerCase().includes(modelKey)
+          );
+
+          if (!matchedProduct) {
+            error = `Unknown model "${productModel}"`;
+          } else if (!batchNumber) {
+            error = "Missing batch number";
+          }
+        }
+
+        if (serialNumber) {
+          seenSerials.add(serialNumber.toLowerCase());
+        }
+
+        parsed.push({
+          rowNum: i + 1,
+          serialNumber,
+          productModel,
+          batchNumber: batchNumber || "DEFAULT-BATCH",
+          productionMonth: productionMonth || new Date().toISOString().slice(0, 7),
+          qrCode,
+          matchedProductId: matchedProduct?.numericId,
+          matchedProductName: matchedProduct?.name,
+          isValid: !error,
+          error,
+        });
+      }
+
+      setBulkRows(parsed);
+    } catch (err: any) {
+      console.error("Failed to parse file:", err);
+      setMessage({ type: "error", text: "Failed to parse file. Make sure it is a valid CSV or Excel (.xlsx) file." });
+    } finally {
+      setBulkParsing(false);
+    }
+  };
+
+  // Submit bulk import
+  const handleBulkSubmit = async () => {
+    const validItems = bulkRows.filter((r) => r.isValid);
+    if (validItems.length === 0) {
+      alert("No valid rows found to import.");
+      return;
+    }
+
+    setBulkImporting(true);
+    try {
+      const payload = validItems.map((r) => ({
+        productId: r.matchedProductId,
+        productModel: r.productModel,
+        serialNumber: r.serialNumber,
+        batchNumber: r.batchNumber,
+        productionMonth: r.productionMonth,
+        qrCode: r.qrCode,
+      }));
+
+      const res = await bulkImportAdminSerialNumbers(payload);
+      setBulkResult(res);
+
+      setMessage({
+        type: "success",
+        text: `Bulk Import Complete: ${res.importedCount} serial numbers added! ${res.skippedCount > 0 ? `(${res.skippedCount} skipped)` : ""}`,
+      });
+
+      // Reload serial numbers list
+      await loadData();
+    } catch (err: any) {
+      alert("Bulk import error: " + (err?.message || "Failed to process import"));
+    } finally {
+      setBulkImporting(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, id: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const validCount = bulkRows.filter((r) => r.isValid).length;
+  const invalidCount = bulkRows.filter((r) => !r.isValid).length;
 
   return (
     <div className="space-y-6">
-      <div className="flex w-full flex-wrap items-center justify-between gap-4">
-        <ProductManagementTabs />
+      {/* Header Tabs */}
+      <ProductManagementTabs />
 
+      {/* Header Bar — Matching Product Master */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Serial Numbers</h2>
+            <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-700">
+              {serialNumbers.length} Serials
+            </span>
+          </div>
+          <p className="text-xs text-slate-500">
+            Authorized unit serial numbers for genuine verification, batch warranty tracking, and customer registrations.
+          </p>
+        </div>
 
-{/* Heading - Always next line */}
-<div className="mt-8 w-full">
-  <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Action Buttons Group */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => {
+              setBulkFile(null);
+              setBulkRows([]);
+              setBulkResult(null);
+              setIsBulkOpen(true);
+            }}
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
+            title="Import serial numbers from CSV or Excel"
+          >
+            <Upload size={15} className="text-amber-600" />
+            <span>Bulk Import (CSV / Excel)</span>
+          </button>
 
-    {/* Left */}
-    <div>
-      <div className="flex items-center gap-3">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          Serial Number
-        </h1>
+          <button
+            onClick={exportCSV}
+            disabled={filteredSerials.length === 0}
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
+            title="Export filtered records to CSV"
+          >
+            <Download size={15} className="text-slate-500" />
+            <span>Export CSV</span>
+          </button>
 
-        <span className="rounded-full bg-slate-200 px-3 py-1 text-sm font-semibold text-slate-700">
-          {serialNumbers.length} Serials
-        </span>
+          <button
+            onClick={() => {
+              setForm({
+                productId: products[0]?.numericId ? String(products[0].numericId) : "",
+                serialNumber: "",
+                batchNumber: `BATCH-${new Date().toISOString().slice(0, 7)}`,
+                productionMonth: new Date().toISOString().slice(0, 7),
+                qrCode: "",
+              });
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-semibold text-slate-950 shadow-sm transition hover:bg-amber-400"
+          >
+            <Plus size={16} />
+            <span>Add Serial Number</span>
+          </button>
+        </div>
       </div>
 
-      <p className="mt-1 text-sm text-slate-500">
-        Manage authorized product serial numbers and track production batches.
-      </p>
-    </div>
-
-    {/* Right */}
-    <div className="flex items-center gap-3">
-      <button
-        onClick={() => {
-          setError("");
-          setForm({
-            productId: "",
-            serialNumber: "",
-            batchNumber: "",
-            productionMonth: "",
-            qrCode: "",
-          });
-          setIsModalOpen(true);
-        }}
-        className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white"
-      >
-        <Plus size={18} />
-        Add Serial Number
-      </button>
-
-      <button
-        onClick={exportCSV}
-        disabled={filteredSerials.length === 0}
-        className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
-      >
-        <Download size={18} />
-        Export CSV
-      </button>
-    </div>
-
-  </div>
-</div></div>
-
-
-      {/* Search and Filters */}
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_220px_240px_auto]">
-
-          <div className="relative">
-            <Search
-              size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
-            <input
-              type="text"
-              placeholder="Search product, model, serial, QR, batch or created by..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-            />
+      {/* Notifications */}
+      {message && (
+        <div
+          className={`flex items-center justify-between rounded-xl p-4 text-xs font-medium ${
+            message.type === "success"
+              ? "border border-emerald-200 bg-emerald-50 text-emerald-800"
+              : "border border-red-200 bg-red-50 text-red-800"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {message.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+            <span>{message.text}</span>
           </div>
+          <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
+      {/* Filter / Search Bar — Matching Product Master */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-3 text-slate-400" size={16} />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by serial number, model, product, batch, or created by..."
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-xs text-slate-900 placeholder-slate-400 transition focus:border-amber-500 focus:bg-white focus:outline-none"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Model Filter */}
           <select
             value={selectedModel}
             onChange={(e) => setSelectedModel(e.target.value)}
-            className="h-11 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-emerald-500"
+            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 focus:border-amber-500 focus:bg-white focus:outline-none"
           >
-            <option value="all">All Models</option>
-            {models.map((model) => (
-              <option key={model} value={model}>
-                {model}
+            <option value="all">All Models ({models.length})</option>
+            {models.map((m) => (
+              <option key={m} value={m}>
+                {m}
               </option>
             ))}
           </select>
 
+          {/* Month Filter */}
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="h-11 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-emerald-500"
+            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 focus:border-amber-500 focus:bg-white focus:outline-none"
           >
-            <option value="all">All Production Months</option>
+            <option value="all">All Months</option>
             {months.map((month) => (
               <option key={month} value={month}>
                 {month}
@@ -298,288 +534,404 @@ const [loading, setLoading] = useState(true);
           </select>
 
           <button
-            onClick={clearFilters}
-            className="h-11 rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
+            onClick={loadData}
+            className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100"
+            title="Reload records"
           >
-            Clear
+            <RefreshCw size={15} />
           </button>
-
         </div>
       </div>
 
-      {/* Serial Number Table */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-          <h2 className="font-semibold text-slate-800">
-            Serial Number Records
-          </h2>
-
-          <span className="text-xs text-slate-500">
-            {filteredSerials.length} of {serialNumbers.length} serials
-          </span>
-        </div>
-
+      {/* Serial Numbers Table — Matching Product Master */}
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1000px] text-left">
-
-            <thead className="bg-slate-50">
+          <table className="w-full text-left text-xs">
+            <thead className="border-b border-slate-100 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
               <tr>
-                {[
-                  "SERIAL NUMBER",
-                  "PRODUCT",
-                  "MODEL",
-                  "BATCH NUMBER",
-                  "PRODUCTION MONTH",
-                  "QR CODE",
-                  "CREATED AT",
-                  "CREATED BY",
-                ].map((heading) => (
-                  <th
-                    key={heading}
-                    className="px-5 py-4 text-xs font-bold tracking-wide text-slate-500"
-                  >
-                    {heading}
-                  </th>
-                ))}
+                <th className="px-6 py-4">S.NO</th>
+                <th className="px-6 py-4">Serial Number</th>
+                <th className="px-6 py-4">Model Number</th>
+                <th className="px-6 py-4">Product Name</th>
+                <th className="px-6 py-4">Batch Number</th>
+                <th className="px-6 py-4">Mfg Month</th>
+                <th className="px-6 py-4">QR / Tag</th>
+                <th className="px-6 py-4">Created At</th>
+                <th className="px-6 py-4">Created By</th>
               </tr>
             </thead>
-
             <tbody className="divide-y divide-slate-100">
-
-              {filteredSerials.map((item) => (
-                <tr
-                  key={item.id}
-                  className="transition hover:bg-slate-50"
-                >
-                  <td className="px-5 py-4 text-sm font-semibold text-slate-800">
-                    {item.serialNumber}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-slate-700">
-                    {item.productName}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-slate-700">
-                    {item.modelNumber}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-slate-700">
-                    {item.batchNumber}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-slate-700">
-                    {item.productionMonth}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-slate-700">
-                    {item.qrCode || "-"}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-slate-700">
-                    {item.createdAt}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-slate-700">
-                    {item.createdBy}
-                  </td>
-                </tr>
-              ))}
-
-              {filteredSerials.length === 0 && (
+              {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-16 text-center">
-
-                    <div className="flex flex-col items-center">
-                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
-                        <Barcode size={27} className="text-emerald-600" />
-                      </div>
-
-                      <h3 className="font-semibold text-slate-800">
-                        No serial numbers found
-                      </h3>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        Generated serial number records will appear here.
-                      </p>
-                    </div>
-
+                  <td colSpan={9} className="px-6 py-10 text-center text-slate-400">
+                    <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                    <p className="mt-2">Loading serial numbers…</p>
                   </td>
                 </tr>
-              )}
+              ) : filteredSerials.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
+                    <Barcode size={32} className="mx-auto mb-2 text-slate-300" />
+                    <p className="font-semibold text-slate-600">No serial numbers found.</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Click "Add Serial Number" or "Bulk Import" to register authorized product units.
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                filteredSerials.map((item, index) => (
+                  <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="px-6 py-4 text-sm font-semibold text-slate-500">{index + 1}</td>
 
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md text-xs border border-slate-200">
+                          {item.serialNumber}
+                        </span>
+                        <button
+                          onClick={() => copyToClipboard(item.serialNumber, item.id)}
+                          className="text-slate-400 hover:text-slate-600"
+                          title="Copy serial number"
+                        >
+                          {copiedId === item.id ? (
+                            <Check size={14} className="text-emerald-600" />
+                          ) : (
+                            <Copy size={14} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <span className="inline-block rounded-md bg-amber-50 border border-amber-200/80 px-2 py-0.5 font-mono text-xs font-bold text-amber-800">
+                        {item.modelNumber}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4 font-semibold text-slate-800">{item.productName}</td>
+
+                    <td className="px-6 py-4 font-medium text-slate-700">{item.batchNumber}</td>
+
+                    <td className="px-6 py-4 text-slate-600 font-mono text-[11px]">{item.productionMonth}</td>
+
+                    <td className="px-6 py-4 text-slate-500 font-mono text-[11px] max-w-[120px] truncate">
+                      {item.qrCode ? (
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-600" title={item.qrCode}>
+                          {item.qrCode}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+
+                    <td className="px-6 py-4 text-slate-500 text-[11px]">
+                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-IN") : "—"}
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                        {item.createdBy}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-
       </div>
-{isModalOpen && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-    <div className="w-full max-w-lg rounded-xl bg-white shadow-xl">
 
-      <div className="flex items-center justify-between border-b p-5">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900">
-            Add Serial Number
-          </h2>
-          <p className="text-sm text-slate-500">
-            Enter product serial details
-          </p>
+      {/* MODAL 1: Add Single Serial Number */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs" onClick={() => setIsModalOpen(false)} />
+          <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-2">
+                <Barcode className="text-amber-500" size={20} />
+                <h3 className="font-bold text-slate-900">Add New Serial Number</h3>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="rounded-lg p-1 text-slate-400 hover:text-slate-600">
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSingleSave} className="mt-4 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700">Select Product Model *</label>
+                <select
+                  value={form.productId}
+                  onChange={(e) => setForm({ ...form, productId: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-900 focus:border-amber-500 focus:bg-white focus:outline-none"
+                  required
+                >
+                  <option value="">-- Choose Product --</option>
+                  {products.map((p) => (
+                    <option key={p.numericId} value={p.numericId}>
+                      {p.model} — {p.name} ({p.category})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700">Serial Number *</label>
+                <input
+                  type="text"
+                  value={form.serialNumber}
+                  onChange={(e) => setForm({ ...form, serialNumber: e.target.value })}
+                  placeholder="e.g. OLI-2026-987654"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 font-mono text-xs text-slate-900 focus:border-amber-500 focus:bg-white focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700">Batch Number *</label>
+                  <input
+                    type="text"
+                    value={form.batchNumber}
+                    onChange={(e) => setForm({ ...form, batchNumber: e.target.value })}
+                    placeholder="e.g. BATCH-2026-07"
+                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-900 focus:border-amber-500 focus:bg-white focus:outline-none"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700">Production Month *</label>
+                  <input
+                    type="month"
+                    value={form.productionMonth}
+                    onChange={(e) => setForm({ ...form, productionMonth: e.target.value })}
+                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-900 focus:border-amber-500 focus:bg-white focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700">QR Code Payload / Tag (Optional)</label>
+                <input
+                  type="text"
+                  value={form.qrCode}
+                  onChange={(e) => setForm({ ...form, qrCode: e.target.value })}
+                  placeholder="Optional QR string or hardware barcode tag"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-900 focus:border-amber-500 focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-amber-400 disabled:opacity-50"
+                >
+                  {saving ? "Saving…" : "Save Serial Number"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      )}
 
-        <button
-          onClick={() => setIsModalOpen(false)}
-          className="rounded-lg p-2 hover:bg-slate-100"
-        >
-          <X size={20} />
-        </button>
-      </div>
-
-      <form
-        className="space-y-4 p-5"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setError("");
-
-          if (!form.productId || !form.serialNumber.trim() ||
-              !form.batchNumber.trim() || !form.productionMonth) {
-            setError("Please fill all required fields.");
-            return;
-          }
-
-          setSaving(true);
-
-          try {
-            await createAdminSerialNumber({
-              productId: Number(form.productId),
-              serialNumber: form.serialNumber.trim(),
-              batchNumber: form.batchNumber.trim(),
-              productionMonth: form.productionMonth,
-              qrCode: form.qrCode.trim() || undefined,
-            });
-
-            setIsModalOpen(false);
-            window.location.reload();
-          } catch (err) {
-            setError(
-              err instanceof Error
-                ? err.message
-                : "Failed to save serial number."
-            );
-          } finally {
-            setSaving(false);
-          }
-        }}
-      >
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            Product *
-          </label>
-
-          <select
-            required
-            value={form.productId}
-            onChange={(e) =>
-              setForm({ ...form, productId: e.target.value })
-            }
-            className="w-full rounded-lg border border-slate-300 p-3 text-sm"
-          >
-            <option value="">Select Product</option>
-
-            {products.map((product) => (
-              <option
-                key={product.numericId}
-                value={product.numericId}
+      {/* MODAL 2: Bulk Import (CSV / Excel) */}
+      {isBulkOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs" onClick={() => !bulkImporting && setIsBulkOpen(false)} />
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="text-amber-500" size={22} />
+                <div>
+                  <h3 className="font-bold text-slate-900">Bulk Import Serial Numbers</h3>
+                  <p className="text-xs text-slate-500">Upload a CSV or Excel (.xlsx) file containing serial inventory</p>
+                </div>
+              </div>
+              <button
+                onClick={() => !bulkImporting && setIsBulkOpen(false)}
+                className="rounded-lg p-1 text-slate-400 hover:text-slate-600"
               >
-                {product.name} ({product.model})
-              </option>
-            ))}
-          </select>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto flex-1 py-4 space-y-4">
+              {/* Instructions and Download Template Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl bg-amber-50/70 border border-amber-200/80 p-3.5 text-xs text-amber-900">
+                <div>
+                  <p className="font-semibold">Required Columns:</p>
+                  <p className="font-mono text-[11px] text-amber-800 mt-0.5">
+                    serialNumber, productModel, batchNumber, productionMonth, qrCode
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={downloadSampleTemplate}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 border border-amber-300 shadow-2xs hover:bg-amber-100/50 shrink-0"
+                >
+                  <Download size={13} />
+                  <span>Download Sample (.csv)</span>
+                </button>
+              </div>
+
+              {/* Upload Dropzone */}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="group cursor-pointer rounded-2xl border-2 border-dashed border-slate-200 hover:border-amber-500 bg-slate-50/60 hover:bg-amber-50/20 p-6 text-center transition-all"
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv, .xlsx, .xls, text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleFileUpload(f);
+                  }}
+                />
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm border border-slate-200 group-hover:scale-105 transition-transform">
+                  <Upload size={22} className="text-amber-500" />
+                </div>
+                <p className="mt-3 text-xs font-bold text-slate-800">
+                  {bulkFile ? bulkFile.name : "Click or drag & drop CSV or Excel spreadsheet"}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-1">Supports .csv, .xlsx, and .xls formats</p>
+              </div>
+
+              {/* Parsing State */}
+              {bulkParsing && (
+                <div className="py-6 text-center text-xs text-slate-500">
+                  <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                  <p className="mt-2">Reading and validating spreadsheet data…</p>
+                </div>
+              )}
+
+              {/* Parsed Rows Preview */}
+              {bulkRows.length > 0 && !bulkParsing && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-800">
+                      Preview: {bulkRows.length} rows parsed
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-bold">
+                        {validCount} ready
+                      </span>
+                      {invalidCount > 0 && (
+                        <span className="rounded-full bg-red-100 text-red-800 px-2 py-0.5 text-[10px] font-bold">
+                          {invalidCount} invalid
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="max-h-56 overflow-x-auto overflow-y-auto rounded-xl border border-slate-200">
+                    <table className="w-full text-left text-[11px]">
+                      <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 font-semibold sticky top-0">
+                        <tr>
+                          <th className="px-3 py-2">Row</th>
+                          <th className="px-3 py-2">Serial</th>
+                          <th className="px-3 py-2">Model</th>
+                          <th className="px-3 py-2">Batch</th>
+                          <th className="px-3 py-2">Month</th>
+                          <th className="px-3 py-2">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {bulkRows.slice(0, 50).map((r) => (
+                          <tr key={r.rowNum} className={r.isValid ? "hover:bg-slate-50/50" : "bg-red-50/40"}>
+                            <td className="px-3 py-1.5 text-slate-400 font-mono">{r.rowNum}</td>
+                            <td className="px-3 py-1.5 font-mono font-semibold text-slate-900">{r.serialNumber || "—"}</td>
+                            <td className="px-3 py-1.5 font-mono text-slate-700">{r.productModel || "—"}</td>
+                            <td className="px-3 py-1.5 text-slate-600">{r.batchNumber}</td>
+                            <td className="px-3 py-1.5 text-slate-500 font-mono">{r.productionMonth}</td>
+                            <td className="px-3 py-1.5">
+                              {r.isValid ? (
+                                <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
+                                  <CheckCircle2 size={12} /> Valid
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-red-600 font-semibold" title={r.error}>
+                                  <AlertCircle size={12} /> {r.error}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {bulkRows.length > 50 && (
+                    <p className="text-[11px] text-slate-400 text-center">
+                      Showing first 50 rows of {bulkRows.length} total rows.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Bulk Result Banner */}
+              {bulkResult && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-900 space-y-2">
+                  <div className="flex items-center gap-2 font-bold text-emerald-800">
+                    <CheckCircle2 size={18} />
+                    <span>Import Completed Successfully!</span>
+                  </div>
+                  <p>
+                    <strong>{bulkResult.importedCount}</strong> new serial numbers were registered in the database.
+                    {bulkResult.skippedCount > 0 && ` ${bulkResult.skippedCount} were skipped.`}
+                  </p>
+                  {bulkResult.skipped.length > 0 && (
+                    <div className="mt-2 text-[11px] bg-white/80 p-2 rounded border border-emerald-200 text-slate-700 max-h-24 overflow-y-auto">
+                      {bulkResult.skipped.map((s, idx) => (
+                        <p key={idx}>
+                          Row {s.row}: {s.serialNumber || "Row"} — {s.reason}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="border-t border-slate-100 pt-4 flex justify-between items-center">
+              <span className="text-xs text-slate-400">
+                {validCount > 0 ? `${validCount} records ready for registration` : ""}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsBulkOpen(false)}
+                  disabled={bulkImporting}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                >
+                  {bulkResult ? "Done" : "Cancel"}
+                </button>
+                {validCount > 0 && !bulkResult && (
+                  <button
+                    type="button"
+                    onClick={handleBulkSubmit}
+                    disabled={bulkImporting || validCount === 0}
+                    className="rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-amber-400 disabled:opacity-50"
+                  >
+                    {bulkImporting ? "Importing…" : `Import ${validCount} Serial Numbers`}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            Serial Number *
-          </label>
-
-          <input
-            required
-            value={form.serialNumber}
-            onChange={(e) =>
-              setForm({ ...form, serialNumber: e.target.value })
-            }
-            placeholder="Enter serial number"
-            className="w-full rounded-lg border border-slate-300 p-3 text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            Batch Number *
-          </label>
-
-          <input
-            required
-            value={form.batchNumber}
-            onChange={(e) =>
-              setForm({ ...form, batchNumber: e.target.value })
-            }
-            placeholder="Enter batch number"
-            className="w-full rounded-lg border border-slate-300 p-3 text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            Production Month *
-          </label>
-
-          <input
-            type="month"
-            required
-            value={form.productionMonth}
-            onChange={(e) =>
-              setForm({ ...form, productionMonth: e.target.value })
-            }
-            className="w-full rounded-lg border border-slate-300 p-3 text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            QR Code (Optional)
-          </label>
-
-          <input
-            value={form.qrCode}
-            onChange={(e) =>
-              setForm({ ...form, qrCode: e.target.value })
-            }
-            placeholder="Enter QR code data"
-            className="w-full rounded-lg border border-slate-300 p-3 text-sm"
-          />
-        </div>
-
-        {error && (
-          <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-            {error}
-          </p>
-        )}
-
-        <div className="flex justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(false)}
-            className="rounded-lg border px-5 py-2.5 text-sm font-semibold"
-          >
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save Serial Number"}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 }

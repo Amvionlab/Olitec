@@ -1,9 +1,9 @@
-import type { FastifyRequest } from "fastify";
+import type { FastifyRequest, FastifyReply } from "fastify";
 import type { IdParams } from "../schemas/common.schema.js";
 import type { ListCustomersQuery, ListWarrantiesQuery, RemarkBody, UpdateWarrantyStatusBody } from "../schemas/admin.schema.js";
 import { adminService } from "../services/admin.service.js";
 import { productService, type CreateProductInput, type UpdateProductInput } from "../services/product.service.js";
-import { ok } from "../utils/api-response.js";
+import { ok, fail } from "../utils/api-response.js";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
@@ -96,6 +96,33 @@ async createSerialNumber(
       ? Number(request.principal.id)
       : null,
   });
+
+  return ok(result);
+},
+async bulkImportSerialNumbers(
+  request: FastifyRequest<{
+    Body: {
+      items: Array<{
+        productId?: number;
+        productModel?: string;
+        serialNumber: string;
+        batchNumber: string;
+        productionMonth: string;
+        qrCode?: string;
+      }>;
+    };
+  }>,
+  reply: FastifyReply
+) {
+  const items = request.body?.items;
+  if (!Array.isArray(items) || items.length === 0) {
+    return reply.status(400).send(fail("INVALID_INPUT", "Please provide a valid array of items to import."));
+  }
+
+  const result = await serialNumberService.bulkImport(
+    items,
+    request.principal?.id ? Number(request.principal.id) : null
+  );
 
   return ok(result);
 },
