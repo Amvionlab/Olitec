@@ -1,13 +1,13 @@
--- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
+-- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
 --
--- Host: localhost    Database: warranty_db_fresh
+-- Host: localhost    Database: warranty_db
 -- ------------------------------------------------------
--- Server version	8.0.46
+-- Server version	10.4.32-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,18 +21,18 @@
 
 DROP TABLE IF EXISTS `email_otps`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `email_otps` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `otp` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `purpose` enum('verify_email','reset_password') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `email` varchar(191) NOT NULL,
+  `otp` varchar(10) NOT NULL,
+  `purpose` enum('verify_email','reset_password') NOT NULL,
   `expires_at` datetime NOT NULL,
-  `is_used` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_used` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `idx_email_purpose` (`email`,`purpose`,`is_used`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,7 +41,6 @@ CREATE TABLE `email_otps` (
 
 LOCK TABLES `email_otps` WRITE;
 /*!40000 ALTER TABLE `email_otps` DISABLE KEYS */;
-INSERT INTO `email_otps` VALUES (1,'venkatvarsha681@gmail.com','383897','verify_email','2026-11-17 09:43:12',1,'2026-11-17 09:33:12'),(2,'venkatvarsha681@gmail.com','205974','verify_email','2026-11-17 09:46:13',0,'2026-11-17 09:36:13'),(3,'training2@amvionlabs.com','688393','verify_email','2026-11-17 09:48:58',1,'2026-11-17 09:38:58'),(4,'training2@amvionlabs.com','737627','verify_email','2026-11-17 09:51:50',1,'2026-11-17 09:41:50'),(5,'navin16062000@gmail.com','767655','verify_email','2026-11-19 11:18:29',0,'2026-11-19 11:08:29'),(6,'varshalakshmi0421@gmail.com','437433','verify_email','2026-11-19 11:18:51',1,'2026-11-19 11:08:51'),(7,'varshalakshmi0421@gmail.com','152589','verify_email','2026-11-19 11:19:46',0,'2026-11-19 11:09:46'),(8,'training2@amvionlabs.com','133125','verify_email','2026-11-19 11:23:01',1,'2026-11-19 11:13:01'),(9,'training2@amvionlabs.com','755595','verify_email','2026-11-20 10:43:55',1,'2026-11-20 10:33:55');
 /*!40000 ALTER TABLE `email_otps` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -51,29 +50,29 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `inquiries`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `inquiries` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `kind` enum('service','career','partner','consultation') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `reference_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mobile` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `city` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status` enum('new','contacted','in_progress','assigned','technician_visit','under_service','resolved','closed') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'new',
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `kind` enum('service','career','partner','consultation') NOT NULL,
+  `reference_no` varchar(50) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `email` varchar(191) NOT NULL,
+  `mobile` varchar(20) NOT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `status` enum('new','contacted','in_progress','assigned','technician_visit','under_service','resolved','closed') NOT NULL DEFAULT 'new',
   `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `file_url` varchar(512) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `admin_notes` text COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `engineer_name` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `engineer_contact` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `file_url` varchar(512) DEFAULT NULL,
+  `admin_notes` text DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `engineer_name` varchar(150) DEFAULT NULL,
+  `engineer_contact` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_inquiries_ref` (`reference_no`),
   KEY `idx_inquiries_kind_status` (`kind`,`status`),
   KEY `idx_inquiries_created` (`created_at`),
   CONSTRAINT `inquiries_chk_1` CHECK (json_valid(`details`))
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -82,7 +81,6 @@ CREATE TABLE `inquiries` (
 
 LOCK TABLES `inquiries` WRITE;
 /*!40000 ALTER TABLE `inquiries` DISABLE KEYS */;
-INSERT INTO `inquiries` VALUES (1,'service','SRV-2026-5555','Olitec Administrator','admin@olitec.in','9840644034','600097','assigned','{\"name\":\"Olitec Administrator\",\"mobile\":\"9840644034\",\"email\":\"admin@olitec.in\",\"model\":\"OLI-3H25H\",\"serial\":\"pvmodule001\",\"issue\":\"Error or fault code on display\",\"description\":\"qswdefrtyj\",\"visitDate\":\"2026-11-21\",\"pincode\":\"600097\",\"photos\":\"ChatGPT Image Nov 18, 2026, 05_48_08 PM.png\"}','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','','2026-11-20 05:01:22','2026-11-20 07:31:08','varsha','9788167898'),(2,'service','SRV-2026-7423','Olitec Administrator','admin@olitec.in','9840644034','600098','contacted','{\"name\":\"Olitec Administrator\",\"mobile\":\"9840644034\",\"email\":\"admin@olitec.in\",\"model\":\"P 30 Series\",\"serial\":\"qwwdddddds\",\"issue\":\"Low solar generation\",\"description\":\"sfdgfhhjkljkhgfdszdfgh;l\'llikujyhtgrfesdfghjlk;lkjhgfdfghjk\",\"visitDate\":\"2026-11-21\",\"pincode\":\"600098\",\"photos\":\"2.jpg\"}','2.jpg','kjhgfdfgh','2026-11-20 10:22:20','2026-11-20 10:31:55','varsha','9879879876'),(3,'service','SRV-2026-4920','Varsha Venkat','training2@amvionlabs.com','9629923289','600097','assigned','{\"name\":\"Varsha Venkat\",\"mobile\":\"9629923289\",\"email\":\"training2@amvionlabs.com\",\"model\":\"P 30 Series\",\"serial\":\"pvmodule001\",\"issue\":\"Low solar generation\",\"description\":\"qwertyuio;p;lkj\",\"visitDate\":\"2026-11-28\",\"pincode\":\"600097\",\"photos\":\"ChatGPT Image Nov 18, 2026, 05_48_08 PM.png\"}','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png',NULL,'2026-11-20 10:45:23','2026-11-20 10:46:19','Arish','9629978987');
 /*!40000 ALTER TABLE `inquiries` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -92,21 +90,21 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `products`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `products` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `slug` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `model_number` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `category` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `short_description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `warranty_months` smallint unsigned NOT NULL DEFAULT '12',
-  `price_inr` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `image_url` varchar(512) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT '1',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `slug` varchar(150) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `model_number` varchar(100) NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `short_description` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `warranty_months` smallint(5) unsigned NOT NULL DEFAULT 12,
+  `price_inr` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `image_url` varchar(512) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_products_slug` (`slug`),
   UNIQUE KEY `uq_products_model` (`model_number`),
@@ -130,15 +128,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `serial_number_batches`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `serial_number_batches` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `batch_number` varchar(100) NOT NULL,
-  `product_id` bigint unsigned NOT NULL,
+  `product_id` bigint(20) unsigned NOT NULL,
   `production_month` char(7) NOT NULL,
-  `quantity` int NOT NULL,
-  `created_by` bigint unsigned DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `quantity` int(11) NOT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `batch_number` (`batch_number`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -160,15 +158,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `serial_numbers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `serial_numbers` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `batch_id` bigint unsigned NOT NULL,
-  `product_id` bigint unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `batch_id` bigint(20) unsigned NOT NULL,
+  `product_id` bigint(20) unsigned NOT NULL,
   `serial_number` varchar(150) NOT NULL,
-  `qr_code` text,
-  `created_by` bigint unsigned DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `qr_code` text DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `serial_number` (`serial_number`),
   KEY `fk_serial_batch` (`batch_id`),
@@ -192,19 +190,19 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `smtp_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `smtp_settings` (
-  `id` int unsigned NOT NULL DEFAULT '1',
-  `host` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'smtp.gmail.com',
-  `port` int unsigned NOT NULL DEFAULT '587',
-  `secure` tinyint(1) NOT NULL DEFAULT '0',
-  `username` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'arish@amvionlabs.com',
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `from_email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'arish@amvionlabs.com',
-  `from_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Olitec Clean Energy',
-  `admin_email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'arish@amvionlabs.com',
-  `is_enabled` tinyint(1) NOT NULL DEFAULT '1',
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` int(10) unsigned NOT NULL DEFAULT 1,
+  `host` varchar(191) NOT NULL DEFAULT 'smtp.gmail.com',
+  `port` int(10) unsigned NOT NULL DEFAULT 587,
+  `secure` tinyint(1) NOT NULL DEFAULT 0,
+  `username` varchar(191) NOT NULL DEFAULT 'arish@amvionlabs.com',
+  `password` varchar(255) DEFAULT NULL,
+  `from_email` varchar(191) NOT NULL DEFAULT 'arish@amvionlabs.com',
+  `from_name` varchar(191) NOT NULL DEFAULT 'Olitec Clean Energy',
+  `admin_email` varchar(191) NOT NULL DEFAULT 'arish@amvionlabs.com',
+  `is_enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -225,20 +223,20 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `support_requests`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `support_requests` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `ticket_number` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` int unsigned DEFAULT NULL,
-  `category` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `subject` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `contact_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `contact_email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `contact_mobile` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` enum('open','in_progress','resolved','closed') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'open',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_number` varchar(50) NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `category` varchar(50) NOT NULL,
+  `subject` varchar(150) NOT NULL,
+  `message` text NOT NULL,
+  `contact_name` varchar(150) NOT NULL,
+  `contact_email` varchar(191) NOT NULL,
+  `contact_mobile` varchar(20) NOT NULL,
+  `status` enum('open','in_progress','resolved','closed') NOT NULL DEFAULT 'open',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_support_ticket` (`ticket_number`),
   KEY `idx_support_user` (`user_id`),
@@ -261,28 +259,28 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mobile` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` enum('customer','admin') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'customer',
-  `status` enum('active','inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
-  `is_email_verified` tinyint(1) NOT NULL DEFAULT '0',
-  `address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `city` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `state` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `pincode` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `email` varchar(191) NOT NULL,
+  `mobile` varchar(20) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `role` enum('customer','admin') NOT NULL DEFAULT 'customer',
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `is_email_verified` tinyint(1) NOT NULL DEFAULT 0,
+  `address` varchar(255) DEFAULT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `pincode` varchar(10) DEFAULT NULL,
   `last_login_at` datetime DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_users_email` (`email`),
   UNIQUE KEY `uq_users_mobile` (`mobile`),
   KEY `idx_users_role_status` (`role`,`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -291,7 +289,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Olitec Administrator','admin@olitec.in','9840644034','scrypt$16384$8$1$D3jIsA67iW6bqQYjOcTxwQ==$ui3zSfWtGjtXbiQvX7KWf5gfmXaxRtcGpc7405YOg2Lm/vtlGi1bzupcvHz5mZXhvgaRSmsg6wj5bpqJpUkFYA==','admin','active',0,NULL,'Chennai','Tamil Nadu',NULL,'2026-11-20 10:45:48','2026-11-17 11:52:01','2026-11-20 10:45:48'),(2,'Varsha Venkat','training2@amvionlabs.com','9629923289','scrypt$16384$8$1$Gmk8eCBMM+L0/y31LZ0ONw==$frudmrrzeVC8wBay+mPhSHm+FRZSDLWDGHk9/zP3XqT24vdC1BmzH9IprcykMlo52DOA3SFlZK4TYUojMt0kGA==','customer','active',1,NULL,NULL,NULL,NULL,'2026-11-20 10:49:44','2026-11-20 10:34:28','2026-11-20 10:49:44');
+INSERT INTO `users` VALUES (1,'Olitec Administrator','admin@olitec.in','9840644034','scrypt$16384$8$1$D3jIsA67iW6bqQYjOcTxwQ==$ui3zSfWtGjtXbiQvX7KWf5gfmXaxRtcGpc7405YOg2Lm/vtlGi1bzupcvHz5mZXhvgaRSmsg6wj5bpqJpUkFYA==','admin','active',0,NULL,'Chennai','Tamil Nadu',NULL,'2026-11-21 05:03:30','2026-11-17 11:52:01','2026-11-21 05:03:30');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -301,33 +299,33 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `warranties`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `warranties` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `warranty_number` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` int unsigned DEFAULT NULL,
-  `customer_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mobile` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `installation_address` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `product_id` int unsigned DEFAULT NULL,
-  `product_model` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `serial_number` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `warranty_number` varchar(50) NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `customer_name` varchar(150) NOT NULL,
+  `email` varchar(191) NOT NULL,
+  `mobile` varchar(20) NOT NULL,
+  `installation_address` text NOT NULL,
+  `product_id` int(10) unsigned DEFAULT NULL,
+  `product_model` varchar(100) NOT NULL,
+  `serial_number` varchar(100) NOT NULL,
   `purchase_date` date NOT NULL,
   `installation_date` date DEFAULT NULL,
-  `dealer_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `dealer_contact` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `invoice_file` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `installation_file` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status` enum('pending','active','expired','rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `dealer_name` varchar(150) NOT NULL,
+  `dealer_contact` varchar(50) DEFAULT NULL,
+  `invoice_file` varchar(500) DEFAULT NULL,
+  `installation_file` varchar(500) DEFAULT NULL,
+  `status` enum('pending','active','expired','rejected') NOT NULL DEFAULT 'pending',
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
-  `admin_remark` text COLLATE utf8mb4_unicode_ci,
-  `reviewed_by` int unsigned DEFAULT NULL,
+  `admin_remark` text DEFAULT NULL,
+  `reviewed_by` int(10) unsigned DEFAULT NULL,
   `reviewed_at` datetime DEFAULT NULL,
-  `submitted_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `submitted_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_warranties_number` (`warranty_number`),
   KEY `idx_warranties_user` (`user_id`),
@@ -338,7 +336,7 @@ CREATE TABLE `warranties` (
   CONSTRAINT `fk_warranties_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_warranties_reviewer` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_warranties_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -347,7 +345,6 @@ CREATE TABLE `warranties` (
 
 LOCK TABLES `warranties` WRITE;
 /*!40000 ALTER TABLE `warranties` DISABLE KEYS */;
-INSERT INTO `warranties` VALUES (2,'WR-550240',NULL,'Varsha Venkat','venkatvarsha681@gmail.com','9876543226','sdfgthjkl;/ljkhjhgtreasXZ',14,'P 18 Series','IN09OKIL','2026-11-08','2026-11-16','jhgfcxz','8768768768','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','2.jpg','pending',NULL,NULL,NULL,NULL,NULL,'2026-11-19 17:12:09','2026-11-19 17:12:09','2026-11-19 17:12:09'),(3,'WR-240189',1,'Olitec Administrator','admin@olitec.in','9840644034','Tambaram chwnnai 6000987',14,'P 18 Series','OLITEC-005','2026-11-01','2026-11-02','AMV','9879879870','2.jpg','1.jpg','pending',NULL,NULL,NULL,NULL,NULL,'2026-11-19 18:30:04','2026-11-19 18:30:04','2026-11-19 18:30:04'),(4,'WR-478842',1,'CUST','venkatvarsha681@gmail.com','9840644034','TAMBARAM CHENNAI 600019',15,'P 30 Series','OLITEC-002','2026-11-01','2026-11-08','OLITECER','8768768768','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','pending',NULL,NULL,NULL,NULL,NULL,'2026-11-20 04:49:53','2026-11-20 04:49:53','2026-11-20 04:49:53'),(5,'WR-751797',1,'Olitec Administrator','admin@olitec.in','9840644034','Chennaisdefrgthyjmk,l.;',16,'P 35 Series','VARSH09VKKKK','2026-11-04','2026-11-14','jhgfcxz','9879879870','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','pending',NULL,NULL,NULL,NULL,NULL,'2026-11-20 04:54:41','2026-11-20 04:54:41','2026-11-20 04:54:41'),(6,'WR-229462',1,'Olitec Administrator','admin@olitec.in','9840644034','Chennaiwertyuiop-[=[opoyituryetrew',14,'P 18 Series','OLITEC-001','2026-11-01','2026-11-11','jhgfcxz','8768768768','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','pending',NULL,NULL,NULL,NULL,NULL,'2026-11-20 04:57:22','2026-11-20 04:57:22','2026-11-20 04:57:22'),(7,'WR-108137',1,'Olitec Administrator','admin@olitec.in','9840644034','ChennaiASDFERGTHJK',16,'P 35 Series','PVMODULE001','2026-11-03','2026-11-03','jhgfcxz','9879879870','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','ChatGPT Image Nov 18, 2026, 05_48_08 PM.png','pending',NULL,NULL,NULL,NULL,NULL,'2026-11-20 04:59:53','2026-11-20 04:59:53','2026-11-20 04:59:53');
 /*!40000 ALTER TABLE `warranties` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -360,4 +357,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-21 10:22:16
+-- Dump completed on 2026-11-21 10:41:50

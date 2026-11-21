@@ -368,14 +368,14 @@ export function Product3DViewer({
       </div>
 
       {/* Drag & Zoom Interaction Helper Prompt */}
-      {showHelper && !loading && (
+      {/* {showHelper && !loading && (
         <div className="pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 z-10 animate-fade-in transition-opacity">
           <div className="glass-panel flex items-center gap-2 rounded-full px-4 py-1.5 shadow-sm text-xs font-medium text-slate-700">
             <Sparkles className="size-3.5 text-brand-500" />
             <span>Drag to rotate · Scroll to zoom · Inspect hardware</span>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Interactive Hotspot Tooltip */}
       {activeHotspot && (

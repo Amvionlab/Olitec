@@ -142,7 +142,6 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                     <div>
                       <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
                         <div className="flex items-center gap-2">
-                          <Sparkles className="size-4 text-brand-500" />
                           <h3 className={cn(headingFont, "text-base xl:text-lg font-bold text-slate-900")}>
                             Key figures
                           </h3>
