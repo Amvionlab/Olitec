@@ -1,63 +1,63 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Package, Barcode, ShieldCheck } from "lucide-react";
 
 const tabs = [
   {
     label: "Product Master",
     href: "/admin/dashboard/products",
-    icon: Package,
-    activeColor: "bg-amber-500 text-slate-950",
+    match: ["/admin/dashboard/products", "/admin/products$"],
   },
   {
-    label: "Serial Number Report",
-    href: "/admin/dashboard/serial-numbers",
-    icon: Barcode,
-    activeColor: "bg-amber-500 text-slate-950",
+    label: "Serial Number Generator",
+    href: "/admin/dashboard/serial-generator",
+    match: ["/admin/dashboard/serial-generator"],
   },
   {
     label: "Product Registration History",
     href: "/admin/dashboard/warranties",
-    icon: ShieldCheck,
-    activeColor: "bg-amber-500 text-slate-950",
+    match: ["/admin/dashboard/warranties", "/admin/warranties"],
+  },
+  {
+    label: "Serial Number Report",
+    href: "/admin/dashboard/serial-numbers",
+    match: ["/admin/dashboard/serial-numbers", "/admin/products/serial-report"],
   },
 ];
 
 export default function ProductManagementTabs() {
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
 
   return (
-    <div className="flex justify-center sm:justify-start">
-      <div className="inline-grid grid-cols-1 sm:grid-cols-3 gap-1 rounded-xl
-        border border-slate-200 bg-white p-1 shadow-sm">
-
+    <div className="w-full flex items-center justify-start overflow-x-auto py-1">
+      <div className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xs">
         {tabs.map((tab) => {
-          const active = pathname === tab.href;
-          const Icon = tab.icon;
+          const active =
+            pathname === tab.href ||
+            tab.match.some((m) => {
+              if (m.endsWith("$")) return pathname === m.slice(0, -1);
+              return pathname.startsWith(m);
+            });
 
           return (
-            <Link key={tab.href} href={tab.href}>
+            <Link key={tab.label} href={tab.href}>
               <motion.div
                 whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ duration: 0.2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15 }}
                 className={`
-                  flex min-w-[145px] sm:min-w-[175px]
-                  h-10 items-center justify-center gap-2
-                  rounded-lg px-3 text-xs sm:text-sm
-                  font-semibold transition-colors duration-300
+                  flex items-center justify-center
+                  rounded-xl px-5 py-2.5 text-xs sm:text-sm font-semibold
+                  whitespace-nowrap transition-all duration-200 cursor-pointer
                   ${
                     active
-                      ? `${tab.activeColor} shadow-sm font-bold`
-                      : "bg-transparent text-slate-600 hover:bg-slate-100"
+                      ? "bg-[#111c2e] text-white shadow-sm font-bold"
+                      : "bg-transparent text-slate-700 hover:text-slate-950 hover:bg-slate-100/70"
                   }
                 `}
               >
-                <Icon size={17} strokeWidth={2} />
                 {tab.label}
               </motion.div>
             </Link>

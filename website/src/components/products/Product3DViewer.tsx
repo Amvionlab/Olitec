@@ -56,7 +56,7 @@ export function Product3DViewer({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const modelGroupRef = useRef<THREE.Group | null>(null);
   const animFrameRef = useRef<number | null>(null);
-  const initialCamPos = useRef<[number, number, number]>([0, 1.2, 2.8]);
+  const initialCamPos = useRef<[number, number, number]>([0, 0.35, 2.3]);
 
   const [loading, setLoading] = useState(true);
   const [autoRotate, setAutoRotate] = useState(autoRotateInit);
@@ -244,6 +244,24 @@ export function Product3DViewer({
           const loader = new GLTFLoader();
           const gltf = await loader.loadAsync("/models/inverter.glb");
           const model = gltf.scene;
+
+          // Remove any background cycloramas or studio backdrops if present
+          const objectsToRemove: THREE.Object3D[] = [];
+          model.traverse((child) => {
+            const lowerName = child.name.toLowerCase();
+            if (
+              lowerName.includes("plane") ||
+              lowerName.includes("backdrop") ||
+              lowerName.includes("studio") ||
+              lowerName.includes("camera") ||
+              lowerName.includes("light")
+            ) {
+              objectsToRemove.push(child);
+            }
+          });
+          objectsToRemove.forEach((obj) => {
+            if (obj.parent) obj.parent.remove(obj);
+          });
 
           // Compute bounding box and normalize
           const box = new THREE.Box3().setFromObject(model);
