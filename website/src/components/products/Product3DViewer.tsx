@@ -56,7 +56,7 @@ export function Product3DViewer({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const modelGroupRef = useRef<THREE.Group | null>(null);
   const animFrameRef = useRef<number | null>(null);
-  const initialCamPos = useRef<[number, number, number]>([0, 0.18, simpleGifMode ? 3.0 : 2.7]);
+  const initialCamPos = useRef<[number, number, number]>([0, 0.05, simpleGifMode ? 3.0 : 2.7]);
 
   const [loading, setLoading] = useState(true);
   const [autoRotate, setAutoRotate] = useState(autoRotateInit);
@@ -213,7 +213,20 @@ export function Product3DViewer({
 
               // Add realistic details onto the CAD battery model
               addBatteryDetails(cadGroup);
-              cadGroup.position.y = -0.2;
+
+              // Compute bounding box and normalize scale & position (exact same as inverter)
+              const box = new THREE.Box3().setFromObject(cadGroup);
+              const center = box.getCenter(new THREE.Vector3());
+              const size = box.getSize(new THREE.Vector3());
+
+              const maxDim = Math.max(size.x, size.y, size.z);
+              const targetScale = 1.05 / (maxDim || 1);
+              cadGroup.scale.set(targetScale, targetScale, targetScale);
+
+              cadGroup.position.x = -center.x * targetScale;
+              cadGroup.position.y = -center.y * targetScale;
+              cadGroup.position.z = -center.z * targetScale;
+
               modelGroup.add(cadGroup);
               if (isMounted) setLoading(false);
               return;
@@ -311,7 +324,8 @@ export function Product3DViewer({
     const handleResize = () => {
       if (!container || !renderer || !camera) return;
       const nw = container.clientWidth;
-      const nh = typeof height === "number" ? height : container.clientHeight || 460;
+      const nh = container.clientHeight || (typeof height === "number" ? height : 420);
+      if (nw === 0 || nh === 0) return;
       camera.aspect = nw / nh;
       camera.updateProjectionMatrix();
       renderer.setSize(nw, nh);
@@ -319,10 +333,16 @@ export function Product3DViewer({
 
     window.addEventListener("resize", handleResize);
 
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    resizeObserver.observe(container);
+
     return () => {
       isMounted = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       renderer.dispose();
       controls.dispose();
     };
@@ -382,11 +402,14 @@ export function Product3DViewer({
     <div
       ref={containerRef}
       className={cn(
-        "group relative overflow-hidden rounded-[25.528px] border border-[#e6e6e6] bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7] select-none",
+        "group relative overflow-hidden select-none",
+        simpleGifMode
+          ? "h-full w-full bg-transparent"
+          : "rounded-[25.528px] border border-[#e6e6e6] bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7]",
         isFullscreen && "fixed inset-0 z-50 rounded-none border-none",
         className,
       )}
-      style={{ height: isFullscreen ? "100vh" : height }}
+      style={{ height: isFullscreen ? "100vh" : typeof height === "number" ? `${height}px` : height }}
     >
       {/* 3D Canvas */}
       <canvas ref={canvasRef} className="block size-full cursor-grab active:cursor-grabbing outline-none" />
@@ -656,7 +679,7 @@ function buildProceduralBattery(group: THREE.Group) {
     batteryGroup.add(handle);
   });
 
-  batteryGroup.scale.set(0.9, 0.9, 0.9);
+  batteryGroup.scale.set(0.65, 0.65, 0.65);
   group.add(batteryGroup);
 }
 

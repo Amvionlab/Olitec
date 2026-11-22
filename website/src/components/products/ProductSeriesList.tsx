@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Download, Maximize2, Sparkles } from "lucide-react";
+import { Download, Sparkles } from "lucide-react";
 import { IconTile, BulletList, headingFont } from "@/components/legacy/ui";
 import { Product3DViewer } from "./Product3DViewer";
 import { Product3DModal } from "./Product3DModal";
@@ -108,15 +108,6 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                         <Download className="size-3.5" />
                         <span>Download datasheet</span>
                       </a>
-
-                      <button
-                        type="button"
-                        onClick={() => setSelectedSeries(item)}
-                        className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-800 shadow-2xs transition hover:border-black hover:bg-slate-50 active:scale-95"
-                      >
-                        <Eye className="size-3.5 text-brand-600" />
-                        <span>Inspect 3D</span>
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -148,34 +139,24 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-muted">
-                      <span>Click 3D view to inspect CAD</span>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedSeries(item)}
-                        className="font-bold text-brand-600 hover:underline inline-flex items-center gap-1"
-                      >
-                        <span>Full Screen</span>
-                        <Maximize2 className="size-3" />
-                      </button>
+                      <span>Interactive 360° View · Drag to rotate</span>
+                      <span className="font-semibold text-brand-600">360° Hardware CAD</span>
                     </div>
                   </div>
                 </div>
 
                 {/* 3. Right Column: 360 Turntable 3D Showcase (lg:col-span-4) */}
                 <div className="lg:col-span-4 xl:col-span-4 flex flex-col">
-                  <div
-                    className="relative flex-1 min-h-[400px] xl:min-h-[440px] overflow-hidden rounded-[26px] border border-slate-200 bg-white p-2 shadow-[0_8px_30px_rgb(0_0_0/0.03)] transition hover:border-brand-300 hover:shadow-md cursor-pointer"
-                    onClick={() => setSelectedSeries(item)}
-                  >
+                  <div className="relative flex-1 h-full min-h-[380px] w-full overflow-hidden rounded-[26px] border border-slate-200 bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7] shadow-[0_8px_30px_rgb(0_0_0/0.03)] transition">
                     <Product3DViewer
                       category={category}
                       name={item.title}
                       modelNumber={item.models[0]}
-                      height={420}
+                      height="100%"
+                      className="h-full w-full"
                       autoRotateInit={true}
                       showHotspots={false}
                       simpleGifMode={true}
-                      onExpandModal={() => setSelectedSeries(item)}
                     />
                   </div>
                 </div>
