@@ -116,18 +116,42 @@ export async function generateWarrantyCertificatePdf(data: WarrantyCertificateDa
 
   const statusText = (data.status || "Active").toUpperCase();
   const isApproved = statusText === "ACTIVE" || statusText === "APPROVED";
+  const statusLabel = isApproved ? "COVERAGE ACTIVE" : statusText;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
+  const textWidth = doc.getTextWidth(statusLabel);
+  const badgePadX = 4;
+  const dotRadius = 1.0;
+  const dotGap = 2.5;
+  const badgeW = textWidth + badgePadX * 2 + dotRadius * 2 + dotGap;
+  const badgeH = 6.4;
+  const badgeX = pillX + pillW - badgeW - 3;
+  const badgeY = y + 2.3;
+
   if (isApproved) {
     doc.setFillColor(236, 253, 245);
+    doc.setDrawColor(167, 243, 208);
+    doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 1.5, 1.5, "FD");
+
+    // Clean vector green status dot
+    doc.setFillColor(5, 150, 105);
+    doc.circle(badgeX + badgePadX + dotRadius, badgeY + badgeH / 2, dotRadius, "F");
+
+    // Perfectly aligned text inside the badge
     doc.setTextColor(5, 150, 105);
-    doc.roundedRect(pillX + pillW - 38, y + 2.5, 32, 6, 1.5, 1.5, "F");
-    doc.text("● COVERAGE ACTIVE", pillX + pillW - 22, y + 6.8, { align: "center" });
+    doc.text(statusLabel, badgeX + badgePadX + dotRadius * 2 + dotGap, badgeY + 4.5);
   } else {
     doc.setFillColor(254, 243, 199);
+    doc.setDrawColor(253, 230, 138);
+    doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 1.5, 1.5, "FD");
+
+    // Clean vector amber status dot
+    doc.setFillColor(180, 83, 9);
+    doc.circle(badgeX + badgePadX + dotRadius, badgeY + badgeH / 2, dotRadius, "F");
+
+    // Perfectly aligned text inside the badge
     doc.setTextColor(180, 83, 9);
-    doc.roundedRect(pillX + pillW - 42, y + 2.5, 36, 6, 1.5, 1.5, "F");
-    doc.text("● " + statusText, pillX + pillW - 24, y + 6.8, { align: "center" });
+    doc.text(statusLabel, badgeX + badgePadX + dotRadius * 2 + dotGap, badgeY + 4.5);
   }
 
   y += 18;
@@ -204,8 +228,8 @@ export async function generateWarrantyCertificatePdf(data: WarrantyCertificateDa
 
   curY += 11;
   const capacityStr = data.capacity ? `${data.capacity}` : "Standard";
-  const mrpStr = data.mrp ? `₹${Number(data.mrp).toLocaleString("en-IN")}` : "As per Invoice";
-  addField("Capacity / Rating", `${capacityStr}  ·  MRP: ${mrpStr}`, col2X + 5, curY);
+  const mrpStr = data.mrp ? `INR ${Number(data.mrp).toLocaleString("en-IN")}` : "As per Invoice";
+  addField("Capacity / Rating", `${capacityStr}   |   MRP: ${mrpStr}`, col2X + 5, curY);
 
   y += boxH + 7;
 
@@ -297,10 +321,10 @@ export async function generateWarrantyCertificatePdf(data: WarrantyCertificateDa
   doc.setFontSize(6.8);
   doc.setTextColor(100, 116, 139);
   const terms = [
-    "• This certificate warrants the product against manufacturing defects under standard operating parameters.",
-    "• Warranty covers replacement or repair of certified internal electronics and components.",
-    "• Physical damage, unauthorized tampering, liquid ingress, or external surge voids terms.",
-    "• Please retain this certificate along with your original purchase invoice for claims.",
+    "- This certificate warrants the product against manufacturing defects under standard operating parameters.",
+    "- Warranty covers replacement or repair of certified internal electronics and components.",
+    "- Physical damage, unauthorized tampering, liquid ingress, or external surge voids terms.",
+    "- Please retain this certificate along with your original purchase invoice for claims.",
   ];
   let termY = y + 13;
   terms.forEach((t) => {

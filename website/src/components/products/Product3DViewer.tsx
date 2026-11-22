@@ -56,7 +56,7 @@ export function Product3DViewer({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const modelGroupRef = useRef<THREE.Group | null>(null);
   const animFrameRef = useRef<number | null>(null);
-  const initialCamPos = useRef<[number, number, number]>([0, 0.35, 2.3]);
+  const initialCamPos = useRef<[number, number, number]>([0, 0.18, simpleGifMode ? 3.0 : 2.7]);
 
   const [loading, setLoading] = useState(true);
   const [autoRotate, setAutoRotate] = useState(autoRotateInit);
@@ -107,7 +107,7 @@ export function Product3DViewer({
     const scene = new THREE.Scene();
 
     // 2. Camera
-    const camera = new THREE.PerspectiveCamera(40, width / h, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(38, width / h, 0.1, 100);
     camera.position.set(...initialCamPos.current);
     cameraRef.current = camera;
 
@@ -253,7 +253,8 @@ export function Product3DViewer({
           const size = box.getSize(new THREE.Vector3());
 
           const maxDim = Math.max(size.x, size.y, size.z);
-          const targetScale = 1.6 / (maxDim || 1);
+          // Scale model to comfortably fit within 3D frame with proper margin on all sides
+          const targetScale = 1.05 / (maxDim || 1);
           model.scale.set(targetScale, targetScale, targetScale);
 
           model.position.x = -center.x * targetScale;
@@ -398,20 +399,8 @@ export function Product3DViewer({
         </div>
       )}
 
-      {/* Header Info Pill */}
-      {simpleGifMode ? (
-        <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 flex items-center gap-2">
-          <div className="glass-panel flex items-center gap-1.5 rounded-full px-3 py-1 shadow-xs border border-white/60 bg-white/85 backdrop-blur-md">
-            <RotateCcw className="size-3 text-brand-600 animate-spin [animation-duration:10s]" />
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-800">360° 3D</span>
-          </div>
-          {modelNumber && (
-            <div className="hidden sm:flex glass-panel items-center gap-1 rounded-full px-2.5 py-1 shadow-xs border border-white/60 bg-white/85 backdrop-blur-md">
-              <span className="text-[11px] font-semibold text-brand-600">{modelNumber}</span>
-            </div>
-          )}
-        </div>
-      ) : (
+      {/* Header Info Pill - Hidden in simpleGifMode */}
+      {simpleGifMode ? null : (
         <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2.5">
           <div className="glass-panel flex items-center gap-2 rounded-full px-3.5 py-1.5 shadow-sm">
             <span className="relative flex size-2.5">
@@ -528,8 +517,8 @@ export function Product3DViewer({
         </div>
       )}
 
-      {/* Top-Right Fullscreen / Modal Trigger Icon */}
-      {onExpandModal && !isFullscreen && (
+      {/* Top-Right Fullscreen / Modal Trigger Icon - Hidden in simpleGifMode */}
+      {onExpandModal && !isFullscreen && !simpleGifMode && (
         <button
           type="button"
           onClick={onExpandModal}
@@ -747,7 +736,7 @@ function buildProceduralInverter(group: THREE.Group) {
   knob.position.set(-0.25, -0.68, 0.14);
   invGroup.add(knob);
 
-  invGroup.scale.set(0.9, 0.9, 0.9);
+  invGroup.scale.set(0.72, 0.72, 0.72);
   group.add(invGroup);
 }
 
