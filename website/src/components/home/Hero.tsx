@@ -30,12 +30,6 @@ export function Hero() {
           className="object-cover object-[65%_center] sm:object-center pointer-events-none select-none"
         />
 
-        {/* Ambient subtle soft wash on left on smaller screens to ensure flawless contrast */}
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#FFF7EA]/95 via-[#FFF7EA]/80 to-transparent sm:via-[#FFF7EA]/50 sm:to-transparent lg:opacity-0"
-          aria-hidden
-        />
-
         {/* Text and CTA Overlay Content */}
         <div className="relative z-10 flex h-full flex-col justify-center px-6 py-10 sm:px-10 md:px-14 lg:px-16 xl:px-20 max-w-[560px] lg:max-w-[620px]">
           <h1
