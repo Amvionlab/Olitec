@@ -7,14 +7,9 @@ import {
   CheckCircle2,
   ArrowUpRight,
   Sun,
-  Moon,
   Zap,
-  Cpu,
-  BatteryCharging,
   Fuel,
   Info,
-  ExternalLink,
-  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -466,79 +461,75 @@ export function InteractiveApplicationExplorer() {
                 </div>
 
                 {/* 4 Mode Buttons */}
-                <div className="flex items-center gap-1.5 rounded-xl bg-slate-100/90 p-1">
+                <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1">
                   <button
                     type="button"
                     onClick={() => setMode("day")}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition",
+                      "rounded-lg px-3 py-1.5 text-xs font-bold transition",
                       mode === "day"
-                        ? "bg-amber-500 text-white shadow-xs"
+                        ? "bg-[#121C28] text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900 hover:bg-white/60",
                     )}
                     title="Solar generating and charging storage"
                   >
-                    <Sun className="size-3.5" />
-                    <span>Day</span>
+                    Day
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setMode("night")}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition",
+                      "rounded-lg px-3 py-1.5 text-xs font-bold transition",
                       mode === "night"
-                        ? "bg-indigo-600 text-white shadow-xs"
+                        ? "bg-[#121C28] text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900 hover:bg-white/60",
                     )}
                     title="Battery supplying evening load"
                   >
-                    <Moon className="size-3.5" />
-                    <span>Night</span>
+                    Night
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setMode("outage")}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition",
+                      "rounded-lg px-3 py-1.5 text-xs font-bold transition",
                       mode === "outage"
-                        ? "bg-rose-600 text-white shadow-xs"
+                        ? "bg-[#121C28] text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900 hover:bg-white/60",
                     )}
                     title="Zero grid, instant battery UPS"
                   >
-                    <Zap className="size-3.5" />
-                    <span>Power Cut</span>
+                    {activeAppId === "mobile" ? "Unplugged" : "Power Cut"}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setMode("generator")}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition",
+                      "rounded-lg px-3 py-1.5 text-xs font-bold transition",
                       mode === "generator"
-                        ? "bg-amber-700 text-white shadow-xs"
+                        ? "bg-[#121C28] text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900 hover:bg-white/60",
                     )}
                     title="Generator supplement on high demand"
                   >
-                    <Fuel className="size-3.5" />
-                    <span>Genset</span>
+                    Genset
                   </button>
                 </div>
               </div>
 
               {/* Mode Description Banner */}
-              <div className="mt-3 rounded-xl bg-slate-50 px-3.5 py-2 border border-slate-200/60 text-[12px] flex items-center justify-between gap-2">
+              <div className="mt-3 rounded-xl bg-slate-50 px-3.5 py-2.5 border border-slate-200/80 text-[12px] flex items-center justify-between gap-2">
                 <span className="font-semibold text-slate-800">
-                  {mode === "day" && "☀️ Day Mode: High solar output feeds connected loads and stores surplus in the LFP battery."}
-                  {mode === "night" && "🌙 Night Mode: Stored energy from the Olitec battery powers evening critical loads silently."}
-                  {mode === "outage" && "⚡ Power Cut / Off-Grid: Sub-10ms UPS switchover guarantees zero flicker or reset for critical electronics."}
-                  {mode === "generator" && "⚙️ Genset Hybrid: Generator supplements peak demand; inverter optimizes fuel efficiency."}
+                  {mode === "day" && "Day Mode: Solar PV generation powers active loads and stores surplus into the LFP battery bank."}
+                  {mode === "night" && "Night Mode: Stored energy from the Olitec battery bank powers evening loads silently."}
+                  {mode === "outage" && "Power Cut / Backup: Sub-10ms UPS switchover guarantees zero flicker or reset for connected loads."}
+                  {mode === "generator" && "Genset Hybrid: Backup generator supplements peak demand; inverter optimizes fuel efficiency."}
                 </span>
-                <span className="shrink-0 text-[11px] font-bold text-brand-600 uppercase">
-                  Active Sync
+                <span className="shrink-0 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                  Active
                 </span>
               </div>
 
@@ -634,15 +625,15 @@ export function InteractiveApplicationExplorer() {
                     className={cn(
                       "flex flex-col items-center rounded-xl p-2.5 transition text-center border",
                       selectedBox === "solar"
-                        ? "border-amber-400 bg-amber-50 shadow-sm"
-                        : "border-slate-200/90 bg-white hover:border-amber-300",
+                        ? "border-[#121C28] bg-slate-50 shadow-sm ring-1 ring-[#121C28]/20"
+                        : "border-slate-200/90 bg-white hover:border-slate-400",
                     )}
                   >
-                    <div className="flex size-9 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
                       <Sun className="size-5" />
                     </div>
                     <span className="mt-1 text-xs font-bold text-slate-900">Solar PV Array</span>
-                    <span className="text-[10px] text-amber-600 font-semibold mt-0.5">
+                    <span className="text-[10px] text-slate-600 font-medium mt-0.5">
                       {mode === "day" ? "Generating (Active)" : "Idle (Zero Lux)"}
                     </span>
                   </button>
@@ -654,15 +645,15 @@ export function InteractiveApplicationExplorer() {
                     className={cn(
                       "flex flex-col items-center rounded-xl p-2.5 transition text-center border",
                       selectedBox === "generator"
-                        ? "border-amber-500 bg-amber-50 shadow-sm"
-                        : "border-slate-200/90 bg-white hover:border-slate-300",
+                        ? "border-[#121C28] bg-slate-50 shadow-sm ring-1 ring-[#121C28]/20"
+                        : "border-slate-200/90 bg-white hover:border-slate-400",
                     )}
                   >
                     <div className="flex size-9 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
                       <Fuel className="size-5" />
                     </div>
                     <span className="mt-1 text-xs font-bold text-slate-900">Backup Genset</span>
-                    <span className="text-[10px] text-slate-500 font-medium mt-0.5">
+                    <span className="text-[10px] text-slate-600 font-medium mt-0.5">
                       {mode === "generator" ? "Running · Sync" : "Standby"}
                     </span>
                   </button>
@@ -674,15 +665,15 @@ export function InteractiveApplicationExplorer() {
                     className={cn(
                       "flex flex-col items-center rounded-xl p-2.5 transition text-center border",
                       selectedBox === "grid"
-                        ? "border-sky-400 bg-sky-50 shadow-sm"
-                        : "border-slate-200/90 bg-white hover:border-sky-300",
+                        ? "border-[#121C28] bg-slate-50 shadow-sm ring-1 ring-[#121C28]/20"
+                        : "border-slate-200/90 bg-white hover:border-slate-400",
                     )}
                   >
-                    <div className="flex size-9 items-center justify-center rounded-lg bg-sky-100 text-sky-700">
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
                       <Zap className="size-5" />
                     </div>
                     <span className="mt-1 text-xs font-bold text-slate-900">{app.gridType}</span>
-                    <span className="text-[10px] text-sky-600 font-medium mt-0.5">
+                    <span className="text-[10px] text-slate-600 font-medium mt-0.5">
                       {mode === "outage" ? "Disconnected (0V)" : "Connected"}
                     </span>
                   </button>
@@ -695,8 +686,8 @@ export function InteractiveApplicationExplorer() {
                     className={cn(
                       "cursor-pointer group flex flex-col items-center rounded-2xl border p-4 bg-white transition shadow-sm max-w-[240px] w-full text-center",
                       selectedBox === "inverter"
-                        ? "border-brand-500 ring-2 ring-brand-200 shadow-md"
-                        : "border-slate-300 hover:border-brand-400",
+                        ? "border-[#121C28] ring-2 ring-slate-200 shadow-md"
+                        : "border-slate-300 hover:border-slate-500",
                     )}
                   >
                     <div className="relative size-20 sm:size-24 mb-1">
@@ -707,7 +698,7 @@ export function InteractiveApplicationExplorer() {
                         className="object-contain transition-transform group-hover:scale-105"
                       />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       Core Converter
                     </span>
                     <h4 className="text-xs sm:text-[13px] font-bold text-slate-900">
@@ -734,8 +725,8 @@ export function InteractiveApplicationExplorer() {
                     className={cn(
                       "cursor-pointer group flex flex-col items-center rounded-2xl border p-3.5 bg-white transition shadow-sm text-center",
                       selectedBox === "battery"
-                        ? "border-emerald-500 ring-2 ring-emerald-200 shadow-md"
-                        : "border-slate-300 hover:border-emerald-400",
+                        ? "border-[#121C28] ring-2 ring-slate-200 shadow-md"
+                        : "border-slate-300 hover:border-slate-500",
                     )}
                   >
                     <div className="relative size-16 sm:size-18 mb-1">
@@ -746,13 +737,13 @@ export function InteractiveApplicationExplorer() {
                         className="object-contain transition-transform group-hover:scale-105"
                       />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       LFP Storage
                     </span>
                     <h4 className="text-xs font-bold text-slate-900">
                       {app.batteryModel.split("(")[0]}
                     </h4>
-                    <span className="text-[10px] text-emerald-700 font-semibold">
+                    <span className="text-[10px] text-slate-600 font-medium">
                       {mode === "day" ? "Charging (+1.8 kW)" : mode === "night" ? "Discharging (92% SOC)" : "UPS Active"}
                     </span>
                     <Link
@@ -771,21 +762,21 @@ export function InteractiveApplicationExplorer() {
                     className={cn(
                       "flex flex-col items-center rounded-2xl border p-3.5 transition text-center",
                       selectedBox === "loads"
-                        ? "border-rose-400 bg-rose-50 shadow-sm"
-                        : "border-slate-200/90 bg-white hover:border-rose-300",
+                        ? "border-[#121C28] bg-slate-50 shadow-sm ring-1 ring-[#121C28]/20"
+                        : "border-slate-200/90 bg-white hover:border-slate-400",
                     )}
                   >
-                    <div className="flex size-14 items-center justify-center rounded-xl bg-rose-100 text-rose-700 mb-1">
+                    <div className="flex size-14 items-center justify-center rounded-xl bg-slate-100 text-slate-800 mb-1">
                       <ApplicationSvgIcon id={app.id} className="size-8" />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       Application Loads
                     </span>
                     <h4 className="text-xs font-bold text-slate-900">{app.loadLabel}</h4>
                     <span className="text-[10px] text-slate-500 line-clamp-1">
                       {app.loadDetail}
                     </span>
-                    <span className="mt-1 text-[10px] font-bold text-emerald-700">
+                    <span className="mt-1 text-[10px] font-bold text-slate-700">
                       230V / 415V Powered 24/7
                     </span>
                   </button>

@@ -122,16 +122,11 @@ export function ChannelPartnersExplorer() {
         <div className="lg:col-span-7 space-y-10">
           {/* 1. Who We Partner With - Interactive Selection Cards */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#D45C0A]">Partner Category</p>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#161E2C] mt-1">
-                  Who we partner with
-                </h2>
-              </div>
-              <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200/80 px-3 py-1 text-xs font-semibold text-amber-900">
-                <Sparkles className="size-3.5 text-amber-600" /> Click a card to select
-              </span>
+            <div className="mb-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-[#D45C0A]">Partner Category</p>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#161E2C] mt-1">
+                Who we partner with
+              </h2>
             </div>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
               We focus strictly on qualified trade partners and project integrators who share our commitment to dependable clean-energy infrastructure.
@@ -176,7 +171,6 @@ export function ChannelPartnersExplorer() {
                 </div>
                 <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-semibold">
                   <span className={partnerType === "Distributors" ? "text-amber-300" : "text-[#D45C0A]"}>Wholesale Supply</span>
-                  <span className={partnerType === "Distributors" ? "text-slate-300" : "text-slate-500"}>Pre-fills form &rarr;</span>
                 </div>
               </button>
 
@@ -218,7 +212,6 @@ export function ChannelPartnersExplorer() {
                 </div>
                 <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-semibold">
                   <span className={partnerType === "EPC and system integrators" ? "text-amber-300" : "text-[#D45C0A]"}>Turnkey Projects</span>
-                  <span className={partnerType === "EPC and system integrators" ? "text-slate-300" : "text-slate-500"}>Pre-fills form &rarr;</span>
                 </div>
               </button>
             </div>

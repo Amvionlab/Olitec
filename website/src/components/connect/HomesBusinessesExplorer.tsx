@@ -172,16 +172,11 @@ export function HomesBusinessesExplorer() {
         <div className="lg:col-span-7 space-y-10">
           {/* 1. I Need Power For - Clickable Selection Cards */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#D45C0A]">Applications & Sites</p>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#161E2C] mt-1">
-                  I need power for
-                </h2>
-              </div>
-              <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200/80 px-3 py-1 text-xs font-semibold text-amber-900">
-                <Sparkles className="size-3.5 text-amber-600" /> Click to auto-fill form
-              </span>
+            <div className="mb-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-[#D45C0A]">Applications & Sites</p>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#161E2C] mt-1">
+                I need power for
+              </h2>
             </div>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
               Choose your site type below to see tailored hardware configurations and synchronize your consultation request.
@@ -232,7 +227,6 @@ export function HomesBusinessesExplorer() {
                     </div>
                     <div className="mt-4 pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px] font-semibold">
                       <span className={isSelected ? "text-amber-300" : "text-[#D45C0A]"}>{item.tag} Solution</span>
-                      <span className={isSelected ? "text-slate-300" : "text-slate-400"}>Pre-fills form &rarr;</span>
                     </div>
                   </button>
                 );
