@@ -25,7 +25,10 @@ export interface RegisterInput {
   otp: string;
 }
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "");
+const API_BASE_URL =
+  typeof window !== "undefined"
+    ? (process.env.NEXT_PUBLIC_API_BASE_URL || "/api").replace(/\/$/, "")
+    : (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "");
 
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;

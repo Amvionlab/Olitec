@@ -1,7 +1,10 @@
 /**
  * Client for the backend API (NEXT_PUBLIC_API_BASE_URL). Unwraps the { success, data | error } envelope.
  */
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000/api").replace(/\/$/, "");
+const API_BASE_URL =
+  typeof window !== "undefined"
+    ? (process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api").replace(/\/$/, "")
+    : (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000/api").replace(/\/$/, "");
 
 export type ApiResult<T> =
   /** persisted is false when the backend runs on mock data and only simulated the write. */

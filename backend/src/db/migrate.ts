@@ -22,7 +22,7 @@ async function main() {
   const statusOnly = process.argv.includes("--status");
 
   const admin = await mysql.createConnection({ ...databaseConfig, database: undefined });
-  await admin.query(`CREATE DATABASE IF NOT EXISTS \`${databaseConfig.database.replace(/`/g, "")}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`);
+  await admin.query(`CREATE DATABASE IF NOT EXISTS \`${databaseConfig.database.replace(/`/g, "")}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
   await admin.end();
 
   const connection = await mysql.createConnection({ ...databaseConfig, multipleStatements: true, timezone: "Z" });

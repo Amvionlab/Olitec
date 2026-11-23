@@ -55,7 +55,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   registerErrorHandling(app);
 
   await app.register(cors, {
-    origin: env.corsOrigins,
+    origin: (origin, cb) => cb(null, true),
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
