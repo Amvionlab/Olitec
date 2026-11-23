@@ -1,10 +1,9 @@
-/** Applications — from the Olitec HTML design (Olitec-Website/applications.html). */
+/** Applications — from the Olitec HTML design (Olitec-Website/applications.html) & Item M11. */
 import type { Metadata } from "next";
 import { applicationsPage } from "@/content/pages";
-import { CtaPanel, IconTile, LegacyPage, Section } from "@/components/legacy/ui";
+import { CtaPanel, LegacyPage, Section } from "@/components/legacy/ui";
 import { SlimPageBanner } from "@/components/layout/SlimPageBanner";
-import { ApplicationScrollRow } from "@/components/applications/ApplicationScrollRow";
-import { cn } from "@/lib/cn";
+import { InteractiveApplicationExplorer } from "@/components/applications/InteractiveApplicationExplorer";
 
 export const metadata: Metadata = {
   title: "Applications",
@@ -13,45 +12,29 @@ export const metadata: Metadata = {
 };
 
 export default function ApplicationsPage() {
-  const { items, cta } = applicationsPage;
+  const { cta } = applicationsPage;
   return (
     <LegacyPage>
+      {/* 1. Slim Page Banner with burnt orange accent */}
       <SlimPageBanner
         title="Built for the places India needs power most"
         accentWords="needs power most"
         lead="Choose an application to see how solar, storage and backup work together."
       />
 
-      <Section innerClassName="pb-6 pt-12">
-        <nav aria-label="Applications" className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item, idx) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              className={cn(
-                "group reveal-on-scroll flex items-start gap-4 rounded-[25.528px] border border-[#e6e6e6] bg-white p-[22px] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-brand-500 hover:shadow-lg hover:shadow-brand-500/10",
-                `reveal-delay-${(idx % 3) + 1}`,
-              )}
-            >
-              <IconTile icon={item.icon} size={52} />
-              <span className="min-w-0">
-                <span className="mb-1 block text-[19px] font-semibold text-black transition-colors duration-300 group-hover:text-brand-600">{item.title}</span>
-                <span className="block text-[15px] text-muted">{item.tagline}</span>
-              </span>
-            </a>
-          ))}
-        </nav>
+      {/* 2. Unified Master Details Panel with 6-pill selector & live animated power flow */}
+      <Section innerClassName="pt-8 pb-16">
+        <InteractiveApplicationExplorer />
       </Section>
 
-      {/* Sequential scroll-pinned applications (one by one box arrival, row completes, moves to next) */}
-      <div className="relative">
-        {items.map((item, index) => (
-          <ApplicationScrollRow key={item.id} item={item} index={index} />
-        ))}
-      </div>
-
+      {/* 3. Bottom CTA Section */}
       <div className="reveal-on-scroll">
-        <CtaPanel title={cta.title} body={cta.body} primary={cta.action} secondary={{ href: "/channel-partners", label: "Become a partner" }} />
+        <CtaPanel
+          title={cta.title}
+          body={cta.body}
+          primary={cta.action}
+          secondary={{ href: "/channel-partners", label: "Become a partner" }}
+        />
       </div>
     </LegacyPage>
   );

@@ -198,6 +198,8 @@ to{transform:translateX(90px)}
 }
 .ol-flow{stroke-dasharray:3 9;animation:olDash 1.2s linear infinite}
 .ol-flow-fast{stroke-dasharray:14 34;animation:olDash .9s linear infinite}
+@keyframes flowDash { to { stroke-dashoffset: -24px; } }
+.animate-flow { animation: flowDash 1s linear infinite; }
 .ol-move{animation:olMove 2s linear infinite}
 .ol-pulse{animation:olPulse 4s ease-in-out infinite}
 .ol-shimmer{animation:olShimmer 5s ease-in-out infinite}
