@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="batt-shadow" x="-15%" y="-15%" width="130%" height="140%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#000000" flood-opacity="0.12" />
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.06" />
+    </filter>
+  </defs>
+
+  <!-- Battery Main Chassis -->
+  <rect x="20" y="24" width="210" height="114" rx="16" fill="#F8FAFC" filter="url(#batt-shadow)" />
+
+  <!-- Brand Text on Top Left -->
+  <text x="36" y="47" font-family="system-ui, -apple-system, sans-serif" font-size="8.5" font-weight="800" fill="#E8962C" letter-spacing="0.08em">OLITEC</text>
+
+  <!-- 5 Status LED indicator pills on Top Right -->
+  <rect x="160" y="40" width="7" height="7" rx="2" fill="#22C55E" />
+  <rect x="171" y="40" width="7" height="7" rx="2" fill="#22C55E" />
+  <rect x="182" y="40" width="7" height="7" rx="2" fill="#22C55E" />
+  <rect x="193" y="40" width="7" height="7" rx="2" fill="#22C55E" />
+  <rect x="204" y="40" width="7" height="7" rx="2" fill="#CBD5E1" />
+
+  <!-- Recessed Center Panel -->
+  <rect x="36" y="62" width="178" height="42" rx="7" fill="#EFF4F1" />
+
+  <!-- Specs Text inside Recessed Panel -->
+  <text x="125" y="87" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="600" fill="#334155" letter-spacing="0.02em">
+    51.2 V · 100 Ah · LiFePO<tspan dy="2" font-size="7">4</tspan>
+  </text>
+
+  <!-- Rugged Handles / Feet at Bottom Left & Right -->
+  <rect x="42" y="118" width="24" height="7" rx="3.5" fill="#334155" />
+  <rect x="184" y="118" width="24" height="7" rx="3.5" fill="#334155" />
+</svg>

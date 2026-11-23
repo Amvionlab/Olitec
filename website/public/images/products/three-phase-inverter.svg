@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 176 210" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="inv2-shadow" x="-20%" y="-10%" width="140%" height="140%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#000000" flood-opacity="0.14" />
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Inverter Body (Slightly wider for three-phase commercial) -->
+  <rect x="20" y="16" width="136" height="178" rx="18" fill="#F8FAFC" filter="url(#inv2-shadow)" />
+
+  <!-- Brand Text -->
+  <text x="88" y="38" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8.5" font-weight="800" fill="#E8962C" letter-spacing="0.08em">OLITEC</text>
+
+  <!-- Dark Screen -->
+  <rect x="34" y="46" width="108" height="104" rx="12" fill="#161E2C" />
+
+  <!-- Amber Halo Ring in Center of Screen -->
+  <circle cx="88" cy="98" r="21" stroke="#E8962C" stroke-width="4" fill="none" />
+
+  <!-- Bottom 5 Port / Status Dots -->
+  <circle cx="52" cy="170" r="4" fill="#64748B" />
+  <circle cx="70" cy="170" r="4" fill="#64748B" />
+  <circle cx="88" cy="170" r="4" fill="#64748B" />
+  <circle cx="106" cy="170" r="4" fill="#64748B" />
+  <circle cx="124" cy="170" r="4" fill="#64748B" />
+</svg>

@@ -19,15 +19,15 @@ export function Hero() {
       className="mx-auto w-full max-w-[1440px] px-4 sm:px-8 xl:px-12 pt-2 pb-6"
       aria-labelledby="hero-title"
     >
-      <div className="relative w-full overflow-hidden rounded-[28px] sm:rounded-[36px] xl:rounded-[44px] shadow-[0_12px_40px_rgb(0_0_0/0.06)] border border-[#E6E2D8]/80 min-h-[480px] sm:min-h-[520px] md:min-h-[540px] lg:aspect-[1024/536] lg:min-h-0">
-        {/* Full-bleed Panoramic Banner Illustration */}
+      <div className="relative w-full overflow-hidden rounded-[28px] sm:rounded-[36px] xl:rounded-[44px] shadow-[0_12px_40px_rgb(0_0_0/0.06)] border border-[#E6E2D8]/80 min-h-[460px] sm:min-h-[480px] md:min-h-0 md:aspect-[1024/409]">
+        {/* Full-bleed Panoramic Banner Illustration (Exact 1024x409 proportion, no stretch) */}
         <Image
           src="/images/legacy/hero-banner.jpg"
           alt={legacyHero.imageAlt}
           fill
           priority
           sizes="(min-width: 1440px) 1360px, 100vw"
-          className="object-cover object-[65%_center] sm:object-center pointer-events-none select-none"
+          className="object-cover object-[72%_center] md:object-cover md:object-center pointer-events-none select-none"
         />
 
         {/* Text and CTA Overlay Content */}

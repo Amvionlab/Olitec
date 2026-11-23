@@ -2,9 +2,9 @@
  * Home page — Matching all items from Olitec Review (Item 10, M1, M3, M4, M5, M6, M7, M15, 19).
  */
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { Hero } from "@/components/home/Hero";
+import { HomeProductCard } from "@/components/home/HomeProductCard";
 import { HomeContainer, SectionTitle } from "@/components/home/primitives";
 import { BusinessLines } from "@/components/legacy/BusinessLines";
 import { CtaPanel } from "@/components/legacy/ui";
@@ -127,65 +127,9 @@ export default function HomePage() {
           </ScrollReveal>
 
           <ul className="mt-12 grid justify-items-center gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {productsPage.series.map((item, index) => {
-              const isGreen = item.tone === "green";
-              const renderImage = isGreen ? "/images/products/battery-render.png" : "/images/products/inverter-render.png";
-              const headingColor = isGreen ? "#1F7A34" : "#C46E0E";
-              const boxGradient = isGreen
-                ? "bg-gradient-to-b from-[#E7F1E5] to-[#D6E9D4]"
-                : "bg-gradient-to-b from-[#ECA23F] to-[#F3BE48]";
-
-              return (
-                <li key={item.title} className="w-full max-w-[382px]">
-                  <ScrollReveal delay={index * 140}>
-                    <div className="group flex h-full w-full flex-col overflow-hidden rounded-[28px] border border-[#e6e2d8] bg-white p-6 shadow-xs transition-all duration-300 ease-out hover:-translate-y-2 hover:border-[#E8962C] hover:shadow-xl hover:shadow-[#E8962C]/10">
-                      {/* Eyebrow Heading above product box */}
-                      <p
-                        className="mb-3.5 text-center text-xs sm:text-[13px] font-bold uppercase tracking-[0.14em]"
-                        style={{ color: headingColor }}
-                      >
-                        {item.eyebrow}
-                      </p>
-
-                      {/* Product image inside the box */}
-                      <div className={`relative h-56 sm:h-64 w-full rounded-[22px] ${boxGradient} flex items-center justify-center overflow-hidden p-4 shadow-inner`}>
-                        <Image
-                          src={renderImage}
-                          alt={item.eyebrow}
-                          fill
-                          className="object-contain p-4 drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)] transition-transform duration-300 group-hover:scale-105"
-                          sizes="(max-width: 768px) 100vw, 360px"
-                        />
-                      </div>
-
-                      {/* Title & Tagline */}
-                      <h3 className="mt-6 text-center text-[21px] sm:text-[22px] font-extrabold leading-[1.3] text-[#161E2C] transition-colors duration-300 group-hover:text-[#D45C0A]">
-                        {item.title}
-                      </h3>
-                      <p className="mx-auto mt-2 max-w-[280px] flex-1 text-center text-[14px] font-medium leading-[22px] text-slate-600">
-                        {item.tagline}
-                      </p>
-
-                      {/* "Know More" orange gradient button */}
-                      <div className="mb-1 mt-7 flex justify-center">
-                        <Link
-                          href="/products"
-                          className="inline-flex h-[48px] items-center justify-center gap-3.5 rounded-full bg-gradient-to-r from-[#E8962C] to-[#F3BE48] px-7 text-sm sm:text-[15px] font-extrabold text-[#161E2C] shadow-[0_8px_20px_rgb(232_150_44/0.28)] transition hover:brightness-105 active:scale-95"
-                          aria-label={`Know more about the ${item.title}`}
-                        >
-                          <span>Know More</span>
-                          <span className="flex size-7 items-center justify-center rounded-full bg-white text-[#161E2C] shadow-xs">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
-                          </span>
-                        </Link>
-                      </div>
-                    </div>
-                  </ScrollReveal>
-                </li>
-              );
-            })}
+            {productsPage.series.map((item, index) => (
+              <HomeProductCard key={item.title} item={item} index={index} />
+            ))}
           </ul>
         </HomeContainer>
       </section>
