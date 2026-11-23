@@ -58,7 +58,7 @@ export function Product3DViewer({
   const catLowerInit = category.toLowerCase();
   const initialCamPos = useRef<[number, number, number]>(
     catLowerInit.includes("battery")
-      ? [0, 0.28, 2.8]
+      ? [0, 0.35, 3.2]
       : [0, 0, 2.7]
   );
 
@@ -225,7 +225,7 @@ export function Product3DViewer({
 
               const maxDim = Math.max(size.x, size.y, size.z);
               // Scale battery nicely with balanced margins (zoomed out like inverter)
-              const targetScale = 0.72 / (maxDim || 1);
+              const targetScale = 0.52 / (maxDim || 1);
               cadGroup.scale.set(targetScale, targetScale, targetScale);
 
               cadGroup.position.x = -center.x * targetScale;
@@ -407,9 +407,9 @@ export function Product3DViewer({
     <div
       ref={containerRef}
       className={cn(
-        "group relative overflow-hidden select-none",
+        "group relative overflow-hidden select-none flex flex-col",
         simpleGifMode
-          ? "h-full w-full bg-transparent"
+          ? "h-full w-full flex-1 bg-transparent"
           : "rounded-[25.528px] border border-[#e6e6e6] bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7]",
         isFullscreen && "fixed inset-0 z-50 rounded-none border-none",
         className,
@@ -417,7 +417,7 @@ export function Product3DViewer({
       style={{ height: isFullscreen ? "100vh" : typeof height === "number" ? `${height}px` : height }}
     >
       {/* 3D Canvas */}
-      <canvas ref={canvasRef} className="block size-full cursor-grab active:cursor-grabbing outline-none" />
+      <canvas ref={canvasRef} className="block size-full flex-1 cursor-grab active:cursor-grabbing outline-none" />
 
       {/* Loading overlay */}
       {loading && (
@@ -665,7 +665,7 @@ function buildProceduralBattery(group: THREE.Group) {
     batteryGroup.add(handle);
   });
 
-  batteryGroup.scale.set(0.48, 0.48, 0.48);
+  batteryGroup.scale.set(0.36, 0.36, 0.36);
   group.add(batteryGroup);
 }
 

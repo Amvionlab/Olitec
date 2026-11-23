@@ -144,13 +144,13 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
 
                 {/* 3. Right Column: 360 Turntable 3D Showcase (lg:col-span-4) */}
                 <div className="lg:col-span-4 xl:col-span-4 flex flex-col">
-                  <div className="relative flex-1 h-full min-h-[380px] w-full overflow-hidden rounded-[26px] border border-slate-200 bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7] shadow-[0_8px_30px_rgb(0_0_0/0.03)] transition">
+                  <div className="relative flex-1 h-full min-h-[380px] w-full flex flex-col overflow-hidden rounded-[26px] border border-slate-200 bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7] shadow-[0_8px_30px_rgb(0_0_0/0.03)] transition">
                     <Product3DViewer
                       category={category}
                       name={item.title}
                       modelNumber={item.models[0]}
                       height="100%"
-                      className="h-full w-full"
+                      className="h-full w-full flex-1"
                       autoRotateInit={true}
                       showHotspots={false}
                       simpleGifMode={true}
