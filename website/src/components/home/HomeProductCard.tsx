@@ -25,10 +25,10 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
 
   const imageSrc =
     index === 0
-      ? "/images/products/single-phase-inverter.svg"
+      ? "/images/products/inverter-single.png"
       : index === 1
-      ? "/images/products/three-phase-inverter.svg"
-      : "/images/products/lfp-battery.svg";
+      ? "/images/products/inverter-three.png"
+      : "/images/products/battery-render.png";
 
   return (
     <li className="w-full max-w-[382px]">
@@ -42,18 +42,20 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
             {item.eyebrow}
           </p>
 
-          {/* Product image inside the coloured box */}
+          {/* Authentic 3D Render from Product Page inside the coloured box */}
           <div
-            className={`relative h-60 sm:h-64 w-full rounded-[22px] ${boxGradient} flex items-center justify-center overflow-hidden p-5 shadow-inner`}
+            className={`relative h-60 sm:h-64 w-full rounded-[22px] ${boxGradient} flex items-center justify-center overflow-hidden p-4 sm:p-5 shadow-inner`}
           >
-            <Image
-              src={imageSrc}
-              alt={item.eyebrow}
-              fill
-              className="object-contain p-2 drop-shadow-[0_16px_28px_rgba(0,0,0,0.14)] transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 360px"
-              priority={index === 0}
-            />
+            <div className="relative size-full transition-transform duration-300 group-hover:scale-105">
+              <Image
+                src={imageSrc}
+                alt={item.eyebrow}
+                fill
+                className="object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)]"
+                sizes="(max-width: 768px) 100vw, 360px"
+                priority={index === 0}
+              />
+            </div>
           </div>
 
           {/* Title & Tagline */}
