@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: { default: `${siteConfig.name} — Clean energy for India`, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-32x32.png",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: { siteName: siteConfig.name, type: "website", locale: "en_IN" },
 };
 

@@ -68,6 +68,7 @@ export function Product3DViewer({
   const [wireframe, setWireframe] = useState(false);
   const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
   const [showHelper, setShowHelper] = useState(true);
+  const [webGlError, setWebGlError] = useState(false);
 
   // Generate category-specific hotspots
   const hotspots: Hotspot[] = (() => {
@@ -115,13 +116,30 @@ export function Product3DViewer({
     camera.position.set(...initialCamPos.current);
     cameraRef.current = camera;
 
-    // 3. Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: true,
-      powerPreference: "high-performance",
-    });
+    // 3. Renderer (Protected against WebGL context exhaustion)
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: "default",
+      });
+    } catch (e) {
+      console.warn("Could not create WebGL context:", e);
+      setWebGlError(true);
+      setLoading(false);
+      return;
+    }
+
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      console.warn("WebGL context lost.");
+      setWebGlError(true);
+      setLoading(false);
+    };
+    canvas.addEventListener("webglcontextlost", handleContextLost, false);
+
     renderer.setSize(width, h, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -347,9 +365,10 @@ export function Product3DViewer({
       isMounted = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       window.removeEventListener("resize", handleResize);
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
       resizeObserver.disconnect();
-      renderer.dispose();
-      controls.dispose();
+      if (renderer) renderer.dispose();
+      if (controls) controls.dispose();
     };
   }, [category, height]);
 
@@ -418,6 +437,22 @@ export function Product3DViewer({
     >
       {/* 3D Canvas */}
       <canvas ref={canvasRef} className="block size-full flex-1 cursor-grab active:cursor-grabbing outline-none" />
+
+      {/* Fallback image if WebGL context is lost or blocked */}
+      {webGlError && (
+        <div className="absolute inset-0 flex items-center justify-center p-6 bg-slate-50/50">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={
+              category.toLowerCase().includes("battery")
+                ? "/images/products/lfp-battery.svg"
+                : "/images/products/single-phase-inverter.svg"
+            }
+            alt={name}
+            className="max-h-[85%] max-w-[85%] object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.14)]"
+          />
+        </div>
+      )}
 
       {/* Loading overlay */}
       {loading && (
