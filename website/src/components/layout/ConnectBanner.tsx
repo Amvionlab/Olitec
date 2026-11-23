@@ -12,7 +12,7 @@ export function ConnectBanner({ current }: { current: "/channel-partners" | "/ho
   return (
     <SlimPageBanner
       title="Connect with Olitec"
-      accentWords="Olitec"
+      accentWords="with Olitec"
       lead="Partner with us, plan a system for your site, or build your career."
     >
       <nav aria-label="Connect tabs" className="inline-flex items-center gap-1 rounded-full bg-white/70 p-1 border border-black/10 shadow-xs backdrop-blur-md">

@@ -1,10 +1,8 @@
-/** Careers — from the Olitec HTML design (Olitec-Website/careers.html). */
 import type { Metadata } from "next";
 import { careersPage } from "@/content/pages";
-import { EnquiryForm } from "@/components/legacy/EnquiryForm";
-import { BulletList, FeatureCard, LegacyPage, Section, SectionHeading } from "@/components/legacy/ui";
+import { LegacyPage } from "@/components/legacy/ui";
 import { ConnectBanner } from "@/components/layout/ConnectBanner";
-import { cn } from "@/lib/cn";
+import { CareersExplorer } from "@/components/connect/CareersExplorer";
 
 export const metadata: Metadata = {
   title: "Careers",
@@ -16,33 +14,7 @@ export default function CareersPage() {
   return (
     <LegacyPage>
       <ConnectBanner current="/careers" />
-
-      <Section>
-        <div className="reveal-on-scroll">
-          <SectionHeading>{careersPage.areasTitle}</SectionHeading>
-          <p className="mb-9 max-w-[720px] text-[19px]">{careersPage.areasLead}</p>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {careersPage.areas.map((item, idx) => (
-            <div key={item.title} className={cn("reveal-on-scroll", `reveal-delay-${(idx % 3) + 1}`)}>
-              <FeatureCard {...item} />
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section muted>
-        <div className="reveal-on-scroll flex flex-wrap items-start gap-12">
-          <div className="min-w-0 flex-[1_1_300px]">
-            <SectionHeading>Why join Olitec</SectionHeading>
-            <BulletList items={careersPage.why} />
-            <p className="mt-6 text-base">{careersPage.openings}</p>
-          </div>
-          <div className="min-w-0 flex-[1.6_1_520px]">
-            <EnquiryForm kind="career" />
-          </div>
-        </div>
-      </Section>
+      <CareersExplorer />
     </LegacyPage>
   );
 }
