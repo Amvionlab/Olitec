@@ -1,10 +1,10 @@
+import Image from "next/image";
 import { Battery, ChefHat, Droplets, Fan, Snowflake, Zap, type LucideIcon } from "lucide-react";
 import type { ProductCategory } from "@/lib/types";
 import { cn } from "@/lib/cn";
 
 /**
  * Category illustration used until real product photography is supplied.
- * Phase 2: replace with next/image once product images are available from the API or CMS.
  */
 const categoryArt: Record<ProductCategory, { icon: LucideIcon; tint: string }> = {
   "Water Purifier": { icon: Droplets, tint: "from-sky-100 to-sky-50 text-sky-600" },
@@ -29,7 +29,33 @@ const sizes = {
 };
 
 export function ProductImage({ category, name, size = "md", className }: ProductImageProps) {
-  const { icon: Icon, tint } = categoryArt[category];
+  const catLower = category ? category.toLowerCase() : "";
+  const nameLower = name ? name.toLowerCase() : "";
+
+  const isGreen = catLower.includes("battery") || nameLower.includes("battery") || nameLower.includes("olb");
+  const isThreePhase = nameLower.includes("three") || nameLower.includes("3h");
+
+  if (catLower.includes("inverter") || catLower.includes("battery")) {
+    const src = isGreen
+      ? "/images/products/battery-lfp-3d.png"
+      : isThreePhase
+        ? "/images/products/inverter-three-3d.png"
+        : "/images/products/inverter-single-3d.png";
+
+    return (
+      <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden", sizes[size].box, className)}>
+        <Image
+          src={src}
+          alt={name}
+          fill
+          sizes="(max-width: 768px) 100vw, 360px"
+          className="object-contain p-2 drop-shadow-[0_12px_24px_rgba(0,0,0,0.14)]"
+        />
+      </div>
+    );
+  }
+
+  const { icon: Icon, tint } = categoryArt[category] || categoryArt.Inverter;
   return (
     <div
       role="img"
