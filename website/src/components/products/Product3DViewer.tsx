@@ -367,7 +367,14 @@ export function Product3DViewer({
       window.removeEventListener("resize", handleResize);
       canvas.removeEventListener("webglcontextlost", handleContextLost);
       resizeObserver.disconnect();
-      if (renderer) renderer.dispose();
+      if (renderer) {
+        try {
+          renderer.forceContextLoss();
+          renderer.dispose();
+        } catch {
+          // ignore
+        }
+      }
       if (controls) controls.dispose();
     };
   }, [category, height]);

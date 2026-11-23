@@ -1,8 +1,20 @@
 "use client";
 
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+
+const Product3DViewer = dynamic(
+  () => import("@/components/products/Product3DViewer").then((mod) => mod.Product3DViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex size-full items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+      </div>
+    ),
+  },
+);
 
 interface HomeProductCardProps {
   item: {
@@ -18,17 +30,11 @@ interface HomeProductCardProps {
 
 export function HomeProductCard({ item, index }: HomeProductCardProps) {
   const isGreen = item.tone === "green";
+  const category = isGreen ? "Battery" : "Hybrid Inverter";
   const headingColor = isGreen ? "#1F7A34" : "#C46E0E";
   const boxGradient = isGreen
     ? "bg-gradient-to-b from-[#E7F1E5] to-[#D6E9D4]"
     : "bg-gradient-to-b from-[#ECA23F] to-[#F3BE48]";
-
-  const imageSrc =
-    index === 0
-      ? "/images/products/inverter-single.png"
-      : index === 1
-      ? "/images/products/inverter-three.png"
-      : "/images/products/battery-render.png";
 
   return (
     <li className="w-full max-w-[382px]">
@@ -44,18 +50,18 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
 
           {/* Authentic 3D Render from Product Page inside the coloured box */}
           <div
-            className={`relative h-60 sm:h-64 w-full rounded-[22px] ${boxGradient} flex items-center justify-center overflow-hidden p-4 sm:p-5 shadow-inner`}
+            className={`relative h-60 sm:h-64 w-full rounded-[22px] ${boxGradient} overflow-hidden shadow-inner flex items-center justify-center`}
           >
-            <div className="relative size-full transition-transform duration-300 group-hover:scale-105">
-              <Image
-                src={imageSrc}
-                alt={item.eyebrow}
-                fill
-                className="object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)]"
-                sizes="(max-width: 768px) 100vw, 360px"
-                priority={index === 0}
-              />
-            </div>
+            <Product3DViewer
+              category={category}
+              name={item.title}
+              modelNumber={item.models[0]}
+              height="100%"
+              className="size-full bg-transparent"
+              autoRotateInit={true}
+              showHotspots={false}
+              simpleGifMode={true}
+            />
           </div>
 
           {/* Title & Tagline */}
