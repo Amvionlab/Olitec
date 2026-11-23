@@ -1,20 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-
-const Product3DViewer = dynamic(
-  () => import("@/components/products/Product3DViewer").then((mod) => mod.Product3DViewer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex size-full items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-      </div>
-    ),
-  },
-);
 
 interface HomeProductCardProps {
   item: {
@@ -30,7 +18,6 @@ interface HomeProductCardProps {
 
 export function HomeProductCard({ item, index }: HomeProductCardProps) {
   const isGreen = item.tone === "green";
-  const category = isGreen ? "Battery" : "Hybrid Inverter";
   const headingColor = isGreen ? "#1F7A34" : "#C46E0E";
   const boxGradient = isGreen
     ? "bg-gradient-to-b from-[#E7F1E5] to-[#D6E9D4]"
@@ -40,6 +27,18 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
   const headingText = isGreen
     ? "LFP BATTERY"
     : item.eyebrow.toUpperCase();
+
+  const isThreePhase =
+    item.title.toLowerCase().includes("three") ||
+    item.title.toLowerCase().includes("3h") ||
+    item.eyebrow.toLowerCase().includes("three");
+
+  // Authentic rendered 3D images directly taken from the original 3D CAD models
+  const imageSrc = isGreen
+    ? "/images/products/battery-lfp-3d.png"
+    : isThreePhase
+      ? "/images/products/inverter-three-3d.png"
+      : "/images/products/inverter-single-3d.png";
 
   return (
     <li className="w-full max-w-[382px]">
@@ -53,19 +52,17 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
             {headingText}
           </p>
 
-          {/* Authentic 3D Render from Product Page inside the coloured box */}
+          {/* Authentic 3D Render from original CAD model inside the coloured box */}
           <div
-            className={`relative h-60 sm:h-64 w-full rounded-[22px] ${boxGradient} overflow-hidden shadow-inner flex items-center justify-center`}
+            className={`relative h-60 sm:h-64 w-full rounded-[22px] ${boxGradient} overflow-hidden shadow-inner flex items-center justify-center p-4`}
           >
-            <Product3DViewer
-              category={category}
-              name={item.title}
-              modelNumber={item.models[0]}
-              height="100%"
-              className="size-full bg-transparent"
-              autoRotateInit={false}
-              showHotspots={false}
-              simpleGifMode={true}
+            <Image
+              src={imageSrc}
+              alt={item.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 360px"
+              className="object-contain p-3 drop-shadow-[0_16px_28px_rgba(0,0,0,0.16)] transition-transform duration-300 group-hover:scale-105"
+              priority={index === 0}
             />
           </div>
 
