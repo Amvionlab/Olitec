@@ -19,8 +19,8 @@ export function Hero() {
       className="mx-auto w-full max-w-[1440px] px-4 sm:px-8 xl:px-12 pt-2 pb-6"
       aria-labelledby="hero-title"
     >
-      <div className="relative w-full overflow-hidden rounded-[28px] sm:rounded-[36px] xl:rounded-[44px] shadow-[0_12px_40px_rgb(0_0_0/0.06)] border border-[#E6E2D8]/80 min-h-[460px] sm:min-h-[480px] md:min-h-0 md:aspect-[1024/409]">
-        {/* Full-bleed Panoramic Banner Illustration (Exact 1024x409 proportion, no stretch) */}
+      <div className="relative w-full overflow-hidden rounded-[28px] sm:rounded-[36px] xl:rounded-[44px] shadow-[0_12px_40px_rgb(0_0_0/0.06)] border border-[#E6E2D8]/80 min-h-[460px] sm:min-h-[480px] md:min-h-0 md:aspect-[2576/1030]">
+        {/* Full-bleed Panoramic Banner Illustration (Original 2576x1030 ultra-res, exact 2.5:1 proportion, no stretch) */}
         <Image
           src="/images/legacy/hero-banner.jpg"
           alt={legacyHero.imageAlt}
