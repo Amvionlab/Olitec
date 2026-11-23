@@ -1,8 +1,9 @@
 /** Channel partners — from the Olitec HTML design (Olitec-Website/channel-partners.html). */
 import type { Metadata } from "next";
-import { channelPartnersPage, connectNav } from "@/content/pages";
+import { channelPartnersPage } from "@/content/pages";
 import { EnquiryForm } from "@/components/legacy/EnquiryForm";
-import { BulletList, FeatureCard, IconTile, LegacyPage, PageHero, Section, SectionHeading, headingFont } from "@/components/legacy/ui";
+import { BulletList, FeatureCard, IconTile, LegacyPage, Section, SectionHeading, headingFont } from "@/components/legacy/ui";
+import { ConnectBanner } from "@/components/layout/ConnectBanner";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
@@ -15,13 +16,7 @@ export default function ChannelPartnersPage() {
   const { partnerTypes, benefits, steps } = channelPartnersPage;
   return (
     <LegacyPage>
-      <PageHero art="values"
-        eyebrow={channelPartnersPage.eyebrow}
-        title={channelPartnersPage.title}
-        lead={channelPartnersPage.lead}
-        subnav={connectNav}
-        current="/channel-partners"
-      />
+      <ConnectBanner current="/channel-partners" />
 
       <Section>
         <div className="reveal-on-scroll">

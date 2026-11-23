@@ -29,7 +29,6 @@ export interface Product3DViewerProps {
   autoRotateInit?: boolean;
   showHotspots?: boolean;
   simpleGifMode?: boolean;
-  onExpandModal?: () => void;
 }
 
 interface Hotspot {
@@ -48,7 +47,6 @@ export function Product3DViewer({
   autoRotateInit = true,
   showHotspots = true,
   simpleGifMode = false,
-  onExpandModal,
 }: Product3DViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -56,7 +54,13 @@ export function Product3DViewer({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const modelGroupRef = useRef<THREE.Group | null>(null);
   const animFrameRef = useRef<number | null>(null);
-  const initialCamPos = useRef<[number, number, number]>([0, 0.05, simpleGifMode ? 3.0 : 2.7]);
+
+  const catLowerInit = category.toLowerCase();
+  const initialCamPos = useRef<[number, number, number]>(
+    catLowerInit.includes("battery")
+      ? [0, 0.28, 2.8]
+      : [0, 0, 2.7]
+  );
 
   const [loading, setLoading] = useState(true);
   const [autoRotate, setAutoRotate] = useState(autoRotateInit);
@@ -118,7 +122,7 @@ export function Product3DViewer({
       alpha: true,
       powerPreference: "high-performance",
     });
-    renderer.setSize(width, h);
+    renderer.setSize(width, h, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
@@ -220,7 +224,8 @@ export function Product3DViewer({
               const size = box.getSize(new THREE.Vector3());
 
               const maxDim = Math.max(size.x, size.y, size.z);
-              const targetScale = 1.05 / (maxDim || 1);
+              // Scale battery nicely with balanced margins (zoomed out like inverter)
+              const targetScale = 0.72 / (maxDim || 1);
               cadGroup.scale.set(targetScale, targetScale, targetScale);
 
               cadGroup.position.x = -center.x * targetScale;
@@ -266,8 +271,8 @@ export function Product3DViewer({
           const size = box.getSize(new THREE.Vector3());
 
           const maxDim = Math.max(size.x, size.y, size.z);
-          // Scale model to comfortably fit within 3D frame with proper margin on all sides
-          const targetScale = 1.05 / (maxDim || 1);
+          // Scale inverter model to fit cleanly without excess empty bottom margins
+          const targetScale = 1.15 / (maxDim || 1);
           model.scale.set(targetScale, targetScale, targetScale);
 
           model.position.x = -center.x * targetScale;
@@ -328,7 +333,7 @@ export function Product3DViewer({
       if (nw === 0 || nh === 0) return;
       camera.aspect = nw / nh;
       camera.updateProjectionMatrix();
-      renderer.setSize(nw, nh);
+      renderer.setSize(nw, nh, false);
     };
 
     window.addEventListener("resize", handleResize);
@@ -522,35 +527,16 @@ export function Product3DViewer({
 
           <div className="h-4 w-px bg-slate-200" />
 
-          {/* Fullscreen / Modal Toggle */}
+          {/* Fullscreen Toggle */}
           <button
             type="button"
-            onClick={() => {
-              if (onExpandModal) {
-                onExpandModal();
-              } else {
-                toggleFullscreen();
-              }
-            }}
-            title={onExpandModal ? "Open Full Inspection Modal" : isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
             className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
           >
             {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
           </button>
         </div>
-      )}
-
-      {/* Top-Right Fullscreen / Modal Trigger Icon - Hidden in simpleGifMode */}
-      {onExpandModal && !isFullscreen && !simpleGifMode && (
-        <button
-          type="button"
-          onClick={onExpandModal}
-          className="glass-panel group absolute right-3.5 top-3.5 z-20 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-slate-800 shadow-sm transition-all hover:bg-white hover:text-brand-600 hover:scale-105 active:scale-95"
-          title="Open full 3D inspection modal"
-        >
-          <Maximize2 className="size-3.5 text-brand-500 transition-transform group-hover:scale-110" />
-          <span className="hidden sm:inline">Inspect 3D</span>
-        </button>
       )}
 
       {/* Hotspots Quick Switcher Buttons */}
@@ -679,7 +665,7 @@ function buildProceduralBattery(group: THREE.Group) {
     batteryGroup.add(handle);
   });
 
-  batteryGroup.scale.set(0.65, 0.65, 0.65);
+  batteryGroup.scale.set(0.48, 0.48, 0.48);
   group.add(batteryGroup);
 }
 

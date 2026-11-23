@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Download, Sparkles } from "lucide-react";
+import { Download } from "lucide-react";
 import { IconTile, BulletList, headingFont } from "@/components/legacy/ui";
 import { Product3DViewer } from "./Product3DViewer";
-import { Product3DModal } from "./Product3DModal";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/cn";
 
@@ -22,7 +20,6 @@ interface SeriesItem {
 }
 
 export function ProductSeriesList({ series }: { series: readonly SeriesItem[] }) {
-  const [selectedSeries, setSelectedSeries] = useState<SeriesItem | null>(null);
 
   const getCategory = (title: string) => {
     const t = title.toLowerCase();
@@ -165,21 +162,6 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
           );
         })}
       </div>
-
-      {/* Full 3D Inspection Suite Modal */}
-      {selectedSeries && (
-        <Product3DModal
-          isOpen={!!selectedSeries}
-          onClose={() => setSelectedSeries(null)}
-          category={getCategory(selectedSeries.title)}
-          name={selectedSeries.title}
-          modelNumber={selectedSeries.models[0]}
-          description={selectedSeries.tagline}
-          figures={selectedSeries.figures}
-          datasheet={selectedSeries.datasheet}
-          models={selectedSeries.models}
-        />
-      )}
     </>
   );
 }

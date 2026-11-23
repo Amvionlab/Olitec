@@ -1,7 +1,8 @@
 /** Applications — from the Olitec HTML design (Olitec-Website/applications.html). */
 import type { Metadata } from "next";
 import { applicationsPage } from "@/content/pages";
-import { CtaPanel, IconTile, LegacyPage, PageHero, Section } from "@/components/legacy/ui";
+import { CtaPanel, IconTile, LegacyPage, Section } from "@/components/legacy/ui";
+import { SlimPageBanner } from "@/components/layout/SlimPageBanner";
 import { ApplicationScrollRow } from "@/components/applications/ApplicationScrollRow";
 import { cn } from "@/lib/cn";
 
@@ -15,7 +16,11 @@ export default function ApplicationsPage() {
   const { items, cta } = applicationsPage;
   return (
     <LegacyPage>
-      <PageHero art="groundMount" eyebrow={applicationsPage.eyebrow} title={applicationsPage.title} lead={applicationsPage.lead} />
+      <SlimPageBanner
+        title="Built for the places India needs power most"
+        accentWords="needs power most"
+        lead="Choose an application to see how solar, storage and backup work together."
+      />
 
       <Section innerClassName="pb-6 pt-12">
         <nav aria-label="Applications" className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">

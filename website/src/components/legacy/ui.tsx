@@ -254,7 +254,7 @@ export function HelpCard({ phones, children }: { phones: readonly string[]; chil
   );
 }
 
-/** Call-to-action panel in the style of the Figma "Let's Build Your Solar Future" block: clouds and frosted glass. */
+/** Call-to-action panel matching Review Item M7: Dark navy, sunrise glow, orange & outline CTA buttons. */
 export function CtaPanel({
   title,
   body,
@@ -266,22 +266,72 @@ export function CtaPanel({
   primary: SubNavItem;
   secondary?: SubNavItem;
 }) {
+  let beforeAccent = title;
+  let accent = "";
+  if (title.includes("in mind?")) {
+    const idx = title.indexOf("in mind?");
+    beforeAccent = title.slice(0, idx);
+    accent = "in mind?";
+  }
+
   return (
-    <section className="relative overflow-hidden" aria-label={title}>
-      <Image src="/images/home/cta-clouds.jpg" alt="" fill sizes="100vw" className="object-cover object-bottom" />
-      <div className="relative mx-auto max-w-[1440px] px-4 py-12 sm:px-8 xl:px-[88px] xl:py-[64px]">
-        <div className="glass-panel flex flex-col items-center rounded-[40px] px-6 py-12 text-center [backdrop-filter:blur(23.45px)] xl:rounded-[55px] xl:py-[66px]">
-          <h2 className="max-w-[760px] text-[40px] font-semibold leading-[46px] text-black sm:text-[56px] sm:leading-[62px] xl:text-[64px] xl:leading-[72px]">
-            {title}
+    <section className="relative overflow-hidden bg-[#161E2C] py-16 xl:py-20" aria-label={title}>
+      {/* Sunrise glow in lower right corner */}
+      <div
+        className="pointer-events-none absolute -bottom-24 -right-24 size-[520px] rounded-full opacity-80 blur-3xl"
+        style={{
+          background: "radial-gradient(circle, #FFD04A 0%, #F7961C 50%, transparent 75%)",
+        }}
+        aria-hidden
+      />
+      {/* Faint concentric orbit rings */}
+      <svg
+        className="pointer-events-none absolute -bottom-16 -right-16 size-[600px] opacity-25"
+        viewBox="0 0 600 600"
+        fill="none"
+        aria-hidden
+      >
+        <circle cx="500" cy="500" r="220" stroke="#FFD69C" strokeWidth="1.2" />
+        <circle cx="500" cy="500" r="320" stroke="#FFD69C" strokeWidth="1" strokeDasharray="6 6" />
+        <circle cx="500" cy="500" r="440" stroke="#FFD69C" strokeWidth="0.8" />
+      </svg>
+
+      <div className="relative mx-auto max-w-[1440px] px-6 sm:px-10 xl:px-[88px]">
+        <div className="flex flex-col items-center text-center">
+          <h2 className="max-w-[820px] text-[36px] font-bold leading-[1.14] text-white sm:text-[48px] xl:text-[58px]">
+            {accent ? (
+              <>
+                {beforeAccent}
+                <span className="text-[#FCBC62]">{accent}</span>
+              </>
+            ) : (
+              title
+            )}
           </h2>
-          <p className="mt-4 max-w-[640px] text-[20px] font-normal leading-8 text-black">{body}</p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:gap-[43px]">
+          <p className="mt-5 max-w-[640px] text-base font-normal leading-relaxed text-white/80 sm:text-lg xl:text-[19px]">
+            {body}
+          </p>
+
+          <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
             {secondary && (
-              <Link href={secondary.href} className={cn(legacyButtonSecondary, "w-[270px] bg-transparent hover:bg-white/40")}>
+              <Link
+                href={secondary.href}
+                className="inline-flex h-12 min-w-[220px] items-center justify-center rounded-full border-2 border-white/80 bg-transparent px-7 text-xs font-bold text-white transition hover:bg-white hover:text-[#161E2C] active:scale-95"
+              >
                 {secondary.label}
               </Link>
             )}
-            <ArrowPillLink href={primary.href} label={primary.label} width={270} />
+            <Link
+              href={primary.href}
+              className="inline-flex h-12 min-w-[240px] items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#E8962C] to-[#F3BE48] px-7 text-xs font-bold text-[#161E2C] shadow-lg transition hover:brightness-105 active:scale-95"
+            >
+              <span>{primary.label}</span>
+              <span className="flex size-7 items-center justify-center rounded-full bg-[#161E2C]/10">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </span>
+            </Link>
           </div>
         </div>
       </div>

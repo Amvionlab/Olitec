@@ -1,25 +1,20 @@
 export const siteConfig = {
   name: "OLITEC",
-  // Tagline and description from the Olitec HTML design.
   tagline: "Building a dependable clean-energy model for India.",
   description:
     "Olitec is an Indian clean-energy company built to meet the country's growing need for power that is clean, reliable and of consistent quality.",
+  searchDescription:
+    "Hybrid inverters and energy storage, designed as one system and supported through our partner network.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  supportPhone: "0478 793 1519",
-  /** Customer care numbers from the Olitec HTML design. */
-  carePhones: ["+91 98433 31543", "+91 98406 44034"],
+  /** The only phone number across the whole website: 8501 800 800 (Item 4) */
+  supportPhone: "8501 800 800",
+  carePhones: ["8501 800 800"],
   legalName: "Olitec Solar Private Limited",
   supportEmail: "contact@olitec.in",
-  supportHours: "Mon–Sat, 9:00 AM – 6:00 PM",
-  factoryAddress: "127/2,Vallimalai ring road Perumalkuppam, Taluk, Katpadi, Vellore, Tamil Nadu 632520",
-  corporateAddress: "5/63, Gateway house, House of Hiranandani, Egattur, OMR. Chennai 600130.",
-  /** Add the real profile URLs to show the footer icons as links. Empty values render as plain icons. */
-  social: {
-    facebook: "",
-    instagram: "",
-    linkedin: "",
-    youtube: "",
-  },
+  factoryAddress:
+    "No. 127/2, Vallimalai Ring Road, Perumalkuppam, Katpadi Taluk, Vellore, Tamil Nadu 632 520",
+  corporateAddress:
+    "No. 5/63, Gateway House, House of Hiranandani, Egattur, OMR, Chennai, Tamil Nadu 600 130",
 };
 
 export interface NavChild {
@@ -36,12 +31,14 @@ export interface NavItem {
   children?: readonly NavChild[];
 }
 
-/** Header navigation — the menu of the Olitec HTML design, with its two dropdowns. */
+/** Header navigation — new menu bar order (Item M18 & Item 10) */
 export const mainNav: readonly NavItem[] = [
-  { href: "/", label: "Our Legacy", match: ["/leadership"] },
+  { href: "/", label: "Home" },
+  { href: "/leadership", label: "Our Legacy", match: ["/leadership"] },
   { href: "/products", label: "Products" },
   { href: "/applications", label: "Applications" },
   { href: "/downloads", label: "Downloads" },
+  { href: "/media", label: "Media" },
   {
     href: "/warranties/register",
     label: "Customer Care",
@@ -55,14 +52,14 @@ export const mainNav: readonly NavItem[] = [
     href: "/channel-partners",
     label: "Connect",
     children: [
-      { href: "/channel-partners", label: "For channel partners", description: "Distributors, dealers and installers" },
+      { href: "/channel-partners", label: "For channel partners", description: "Distributors and EPC integrators" },
       { href: "/homes-and-businesses", label: "For homes and businesses", description: "Plan a system and find an installer" },
       { href: "/careers", label: "Careers", description: "Build India's energy infrastructure with us" },
     ],
   },
 ];
 
-/** Footer link groups, as in the Olitec HTML design footer. */
+/** Footer link groups with Home and Media added (Item M8) */
 export const footerColumns = [
   {
     title: "Products",
@@ -85,8 +82,9 @@ export const footerColumns = [
   {
     title: "Company",
     links: [
-      { href: "/", label: "Our Legacy" },
-      { href: "/leadership", label: "Leadership" },
+      { href: "/", label: "Home" },
+      { href: "/leadership", label: "Our Legacy" },
+      { href: "/media", label: "Media" },
       { href: "/channel-partners", label: "Channel partners" },
       { href: "/homes-and-businesses", label: "Homes and businesses" },
       { href: "/careers", label: "Careers" },

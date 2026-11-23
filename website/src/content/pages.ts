@@ -6,7 +6,15 @@ import { siteConfig } from "@/lib/site";
 
 export const companyContact = {
   legalName: siteConfig.legalName,
-  addressLines: ["No. 5/63, Gateway House, House of Hiranandani,", "Egattur, OMR, Chennai 600 130"],
+  addressLines: [
+    "Olitec Solar Private Limited",
+    "No. 5/63, Gateway House, House of Hiranandani,",
+    "Egattur, OMR, Chennai, Tamil Nadu 600 130",
+  ],
+  factoryAddressLines: [
+    "No. 127/2, Vallimalai Ring Road, Perumalkuppam,",
+    "Katpadi Taluk, Vellore, Tamil Nadu 632 520",
+  ],
   phones: siteConfig.carePhones,
 };
 
@@ -304,10 +312,9 @@ export const downloadsPage = {
   ],
   restricted: {
     title: "Installation manuals and certificates",
-    body: "Installation manuals, test certificates and compliance documents are shared with our channel partners and on request for project tenders.",
+    body: "Installation manuals, test certificates and compliance documents are shared on request for projects and installations.",
     actions: [
-      { href: "/channel-partners", label: "Partner access", primary: true },
-      { href: "/homes-and-businesses", label: "Request a document", primary: false },
+      { href: "/homes-and-businesses", label: "Request a document", primary: true },
     ],
   },
 };
@@ -345,12 +352,10 @@ export const serviceRequestPage = {
 export const channelPartnersPage = {
   eyebrow: "Connect",
   title: "Grow with Olitec as a channel partner",
-  lead: "We work with distributors, dealers, installers and EPC companies across India to bring dependable solar and storage to more customers.",
+  lead: "We work with distributors, EPC companies and system integrators across India to bring dependable solar and storage to more customers.",
   partnerTypes: [
-    { icon: "people", title: "Distributors", body: "Regional stock and supply for dealers and installers in your territory." },
-    { icon: "home", title: "Dealers and retailers", body: "Sell Olitec inverters and batteries to homes and businesses." },
-    { icon: "wrench", title: "Installers", body: "Design and install Olitec systems with our technical backing." },
-    { icon: "factory", title: "EPC companies", body: "Specify Olitec products on commercial, industrial and institutional projects." },
+    { icon: "people", title: "Distributors", body: "Regional stock and supply for your designated territory." },
+    { icon: "factory", title: "EPC and system integrators", body: "Specify Olitec products on commercial, industrial and institutional projects." },
   ],
   benefits: [
     { title: "Products built to last", body: "A focused range of hybrid inverters and LFP batteries designed to work together, with fewer service calls." },
@@ -390,7 +395,7 @@ export const careersPage = {
     { icon: "sun", title: "Project engineering", body: "Design, execution and commissioning of large-scale solar plants." },
     { icon: "people", title: "Sales and channel", body: "Building and supporting our distributor, dealer and installer network." },
     { icon: "wrench", title: "Service and support", body: "Field service, remote diagnostics and customer care." },
-    { icon: "graduate", title: "Graduate programme", body: "Structured training for fresh engineers and diploma holders." },
+    { icon: "graduate", title: "Freshers", body: "Structured training and hands-on exposure for fresh engineers and diploma holders." },
   ],
   why: [
     "Work on products and projects that matter for the country",

@@ -1,9 +1,9 @@
 /** Careers — from the Olitec HTML design (Olitec-Website/careers.html). */
 import type { Metadata } from "next";
-import { careersPage, connectNav } from "@/content/pages";
+import { careersPage } from "@/content/pages";
 import { EnquiryForm } from "@/components/legacy/EnquiryForm";
-import { BulletList, FeatureCard, LegacyPage, PageHero, Section, SectionHeading } from "@/components/legacy/ui";
-
+import { BulletList, FeatureCard, LegacyPage, Section, SectionHeading } from "@/components/legacy/ui";
+import { ConnectBanner } from "@/components/layout/ConnectBanner";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function CareersPage() {
   return (
     <LegacyPage>
-      <PageHero art="groundMount" eyebrow={careersPage.eyebrow} title={careersPage.title} lead={careersPage.lead} subnav={connectNav} current="/careers" />
+      <ConnectBanner current="/careers" />
 
       <Section>
         <div className="reveal-on-scroll">

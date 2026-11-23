@@ -5,13 +5,13 @@ import { productsPage } from "@/content/pages";
 import {
   FeatureCard,
   LegacyPage,
-  PageHero,
   Section,
   SectionHeading,
   legacyButton,
   legacyButtonSecondary,
   legacyContainer,
 } from "@/components/legacy/ui";
+import { SlimPageBanner } from "@/components/layout/SlimPageBanner";
 import { cn } from "@/lib/cn";
 import { ProductSeriesList } from "@/components/products/ProductSeriesList";
 
@@ -25,16 +25,18 @@ export default function ProductsPage() {
   const { series, platform } = productsPage;
   return (
     <LegacyPage>
-      <PageHero art="inverters" eyebrow={productsPage.eyebrow} title={productsPage.title} lead={productsPage.lead}>
-        <div className="mt-7 flex flex-wrap gap-3">
-          <Link className={legacyButton} href="/downloads">
-            All downloads
-          </Link>
-          <Link className={legacyButtonSecondary} href="/applications">
-            See applications
-          </Link>
-        </div>
-      </PageHero>
+      <SlimPageBanner
+        title="Inverters and energy storage, engineered to work together"
+        accentWords="engineered to work together"
+        lead="Hybrid inverters and LFP batteries designed as one system."
+      >
+        <Link className={legacyButton} href="/downloads">
+          All downloads
+        </Link>
+        <Link className={legacyButtonSecondary} href="/applications">
+          See applications
+        </Link>
+      </SlimPageBanner>
 
       <section className="bg-white">
         <div className={cn(legacyContainer, "pb-[72px] pt-6")}>

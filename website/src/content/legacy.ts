@@ -94,10 +94,10 @@ export const leaders = [
   },
   {
     initials: "VM",
-    name: "V.M.G. Mayuresan",
+    name: "VMG Mayuresan",
     tone: "orange",
     paragraphs: [
-      "V.M.G. Mayuresan brings more than fifteen years of experience in corporate strategy, investor relations, finance and accounts, and has led renowned organisations including Butterfly Gandhimathi Appliances Ltd.",
+      "VMG Mayuresan brings more than fifteen years of experience in corporate strategy, investor relations, finance and accounts, and has led renowned organisations including Butterfly Gandhimathi Appliances Ltd.",
       "He has secured significant investments, managed investor relations and established robust, debt-free financial systems. He holds a B.Tech and an MBA.",
     ],
   },
@@ -106,7 +106,7 @@ export const leaders = [
     name: "Magesh Vasudevan",
     tone: "green",
     paragraphs: [
-      "Magesh Vasudevan has a decade of experience in the solar industry. He established Olitec's state-of-the-art PV module manufacturing facility and leads the company's innovative projects in distributed energy generation and storage.",
+      "Magesh Vasudevan has a decade of experience in the solar industry. He has worked alongside the leadership team to build Olitec into an integrated clean-energy company, and leads the company's innovative projects in distributed energy generation and storage.",
       "His expertise and drive for sustainable energy solutions have significantly advanced the organisation's capabilities.",
     ],
   },

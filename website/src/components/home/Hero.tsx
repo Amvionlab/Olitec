@@ -1,74 +1,79 @@
 import Image from "next/image";
 import Link from "next/link";
 import { legacyHero, legacyLead } from "@/content/legacy";
-import { AnimatedIllustration } from "@/components/legacy/AnimatedIllustration";
-import { ArrowCircle, ArrowPillLink } from "./primitives";
 
 /**
- * Enterprise Hero matching the Figma design layout with original Olitec copy and assets.
- * Wide and spacious container, original headline, subtitle, and connected lines of business card.
+ * Enterprise Hero matching Olitec Review Items M1, M3, and M15:
+ * Warm apricot radial glow, rich navy copy, deep green "for India" accent,
+ * deep green "Explore our products" button, no dark left tint, no projects glass card.
+ * Responsive: on mobile (<768px), text & button on top, framed illustration below.
  */
 export function Hero() {
   return (
-    <section className="mx-auto w-full max-w-[1600px] 2xl:max-w-[1680px] px-4 sm:px-8 xl:px-12" aria-labelledby="hero-title">
-      <AnimatedIllustration
-        src={legacyHero.image}
-        alt={legacyHero.imageAlt}
-        overlay="hero"
-        sizes="(min-width: 1600px) 1560px, 100vw"
-        className="rounded-[36px] sm:rounded-[48px] xl:rounded-[56px] min-h-[640px] xl:h-[680px] xl:min-h-0 shadow-[0_20px_60px_rgb(0_0_0/0.12)]"
-        priority
+    <section
+      className="mx-auto w-full max-w-[1600px] 2xl:max-w-[1680px] px-4 sm:px-8 xl:px-12 pt-2 pb-6"
+      aria-labelledby="hero-title"
+    >
+      <div
+        className="relative overflow-hidden rounded-[32px] sm:rounded-[48px] xl:rounded-[56px] border border-[#FFDDAA]/50 shadow-[0_20px_60px_rgb(0_0_0/0.06)]"
+        style={{
+          background: `
+            radial-gradient(ellipse 65% 85% at 20% 40%, #FFD69C 0%, #FFEBCE 40%, #FFF4E2 70%, #FFF7EA 100%)
+          `,
+        }}
       >
-        {/* Soft dark gradient on left for crystal-clear text readability */}
-        <div
-          className="absolute inset-0 z-[1] bg-gradient-to-r from-black from-[15%] via-black/45 to-transparent to-[75%]"
-          aria-hidden
-        />
-
-        <div className="relative z-[2] flex h-full flex-col justify-between px-6 pb-12 pt-14 sm:px-12 sm:pt-16 xl:px-[72px] xl:pt-[105px]">
-          <div className="max-w-[780px]">
+        {/* Layout: Split / Overlay */}
+        <div className="relative flex flex-col justify-between md:min-h-[580px] xl:min-h-[640px] md:flex-row md:items-center">
+          {/* Left Text Column */}
+          <div className="relative z-10 flex flex-col justify-center px-6 py-10 sm:px-12 md:max-w-[58%] lg:max-w-[52%] xl:px-16 xl:py-16">
             <h1
               id="hero-title"
-              className="text-[40px] font-semibold leading-[1.08] tracking-tight text-white sm:text-[56px] md:text-[64px] xl:text-[72px]"
+              className="text-[34px] font-bold leading-[1.1] tracking-tight text-[#161E2C] sm:text-[46px] md:text-[52px] xl:text-[62px]"
             >
               {legacyHero.titleLines.map((line) => (
                 <span key={line} className="block">
                   {line}
                 </span>
               ))}
-              <span className="block text-[#f9a21d]">{legacyHero.titleAccent}</span>
+              <span className="block text-[#1F7A34]">{legacyHero.titleAccent}</span>
             </h1>
 
-            <p className="mt-6 max-w-[560px] text-base font-medium leading-relaxed text-white/95 sm:text-lg xl:text-[19px]">
+            <p className="mt-5 max-w-[540px] text-base font-medium leading-relaxed text-[#2A323F] sm:text-lg xl:text-[18px]">
               {legacyLead.statement}
             </p>
 
             <div className="mt-8">
-              <ArrowPillLink href={legacyHero.cta.href} label={legacyHero.cta.label} width={252} />
+              <Link
+                href="/products"
+                className="inline-flex h-[52px] items-center gap-3.5 rounded-full bg-[#1F7A34] pl-7 pr-3 text-sm font-bold text-white shadow-md transition hover:bg-[#186429] active:scale-95"
+              >
+                <span>{legacyHero.cta.label}</span>
+                <span className="flex size-9 items-center justify-center rounded-full bg-white/20 text-white">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </Link>
             </div>
           </div>
-        </div>
 
-        {/* Glass card in the Figma "projects" card position */}
-        <Link
-          href={legacyHero.card.href}
-          className="glass-card group absolute bottom-[40px] right-[40px] z-[2] hidden h-[195px] w-[460px] rounded-[18px] p-3.5 shadow-[0_20px_45px_rgb(0_0_0/0.18)] transition-all duration-300 hover:scale-[1.02] xl:block"
-        >
-          <div className="relative flex h-full items-center gap-4">
-            <div className="relative h-[166px] w-[215px] shrink-0 overflow-hidden rounded-[13px] shadow-sm">
-              <Image src={legacyHero.card.image} alt="" fill sizes="215px" className="object-cover transition-transform duration-500 group-hover:scale-105" />
-            </div>
-            <div className="flex flex-1 flex-col justify-between py-1">
-              <span className="text-[20px] font-semibold leading-[26px] text-black">
-                {legacyHero.card.label}
-              </span>
-              <div className="flex justify-end pt-2">
-                <ArrowCircle className="transition-transform duration-300 group-hover:scale-110" />
+          {/* Right Illustration Column */}
+          <div className="relative h-[280px] w-full sm:h-[360px] md:absolute md:inset-y-0 md:right-0 md:h-full md:w-[48%] lg:w-[50%]">
+            <div className="relative h-full w-full overflow-hidden p-4 md:p-6 lg:p-8">
+              <div className="relative h-full w-full overflow-hidden rounded-[24px] sm:rounded-[36px] shadow-sm">
+                <Image
+                  src={legacyHero.image}
+                  alt={legacyHero.imageAlt}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover object-center"
+                />
               </div>
             </div>
           </div>
-        </Link>
-      </AnimatedIllustration>
+        </div>
+      </div>
     </section>
   );
 }

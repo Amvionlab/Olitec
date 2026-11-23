@@ -1,8 +1,9 @@
 /** Homes and businesses — from the Olitec HTML design (Olitec-Website/homes-and-businesses.html). */
 import type { Metadata } from "next";
-import { companyContact, connectNav, homesPage } from "@/content/pages";
+import { companyContact, homesPage } from "@/content/pages";
 import { EnquiryForm } from "@/components/legacy/EnquiryForm";
-import { FeatureCard, LegacyCard, LegacyPage, PageHero, Section, SectionHeading, headingFont } from "@/components/legacy/ui";
+import { FeatureCard, LegacyCard, LegacyPage, Section, SectionHeading, headingFont } from "@/components/legacy/ui";
+import { ConnectBanner } from "@/components/layout/ConnectBanner";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
@@ -14,13 +15,7 @@ export const metadata: Metadata = {
 export default function HomesAndBusinessesPage() {
   return (
     <LegacyPage>
-      <PageHero art="hero"
-        eyebrow={homesPage.eyebrow}
-        title={homesPage.title}
-        lead={homesPage.lead}
-        subnav={connectNav}
-        current="/homes-and-businesses"
-      />
+      <ConnectBanner current="/homes-and-businesses" />
 
       <Section>
         <div className="reveal-on-scroll">
