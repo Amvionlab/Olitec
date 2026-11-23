@@ -63,7 +63,7 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
               modelNumber={item.models[0]}
               height="100%"
               className="size-full bg-transparent"
-              autoRotateInit={true}
+              autoRotateInit={false}
               showHotspots={false}
               simpleGifMode={true}
             />

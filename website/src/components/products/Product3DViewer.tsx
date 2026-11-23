@@ -44,7 +44,7 @@ export function Product3DViewer({
   modelNumber,
   className,
   height = "460px",
-  autoRotateInit = true,
+  autoRotateInit = false, // Not animated: stationary front-three-quarter view by default
   showHotspots = true,
   simpleGifMode = false,
 }: Product3DViewerProps) {
@@ -55,8 +55,13 @@ export function Product3DViewer({
   const modelGroupRef = useRef<THREE.Group | null>(null);
   const animFrameRef = useRef<number | null>(null);
 
-  // Front three-quarter canonical camera angle matching Gopi M10 specifications
-  const initialCamPos = useRef<[number, number, number]>([0.82, 0.38, 2.38]);
+  const catLower = category.toLowerCase();
+  // Canonical camera angle matching the exact 3D CAD model screenshot confirmed by user
+  const initialCamPos = useRef<[number, number, number]>(
+    catLower.includes("battery")
+      ? [0.85, 0.35, 2.3]
+      : [-1.22, 0.40, 2.15]
+  );
 
   const [loading, setLoading] = useState(true);
   const [autoRotate, setAutoRotate] = useState(autoRotateInit);
@@ -164,7 +169,7 @@ export function Product3DViewer({
     });
 
     // 5. Studio Lighting (Front three-quarter balanced studio coverage)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
 
     const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.2);
@@ -174,13 +179,18 @@ export function Product3DViewer({
     dirLight1.shadow.mapSize.height = 1024;
     scene.add(dirLight1);
 
+    // Front-left key light on the camera side so chassis and front screen are crisp & bright
+    const keyCamLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    keyCamLight.position.set(-2.5, 3.5, 3.5);
+    scene.add(keyCamLight);
+
     // Bottom fill light so rotating underneath is crystal-clear
     const bottomLight = new THREE.DirectionalLight(0xffffff, 1.2);
     bottomLight.position.set(0, -3, 0);
     scene.add(bottomLight);
 
     // Olitec signature brand rim light
-    const rimLight = new THREE.DirectionalLight(0xf99f1e, 1.8);
+    const rimLight = new THREE.DirectionalLight(0xf99f1e, 1.6);
     rimLight.position.set(-2.5, 3, -3);
     scene.add(rimLight);
 
@@ -193,7 +203,7 @@ export function Product3DViewer({
     scene.add(modelGroup);
     modelGroupRef.current = modelGroup;
 
-    function loadOrBuildModel() {
+    async function loadOrBuildModel() {
       const catLower = category.toLowerCase();
       const nameLower = name.toLowerCase();
       const isThreePhase =
@@ -202,9 +212,117 @@ export function Product3DViewer({
         (modelNumber ? modelNumber.toLowerCase().includes("3h") : false);
 
       if (catLower.includes("battery")) {
+        try {
+          const res = await fetch("/models/olitec-battery.json");
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.parts && data.parts.length > 0) {
+              const cadGroup = new THREE.Group();
+              data.parts.forEach((part: any) => {
+                const geom = new THREE.BufferGeometry();
+                const positions: number[] = [];
+                part.triangles.forEach((tri: number[][]) => {
+                  tri.forEach((pt: number[]) => {
+                    positions.push(pt[0], pt[1], pt[2]);
+                  });
+                });
+                geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+                geom.computeVertexNormals();
+
+                const col = new THREE.Color(part.color[0], part.color[1], part.color[2]);
+                const mat = new THREE.MeshStandardMaterial({
+                  color: col,
+                  metalness: part.name.includes("Terminal") ? 0.8 : 0.35,
+                  roughness: part.name.includes("Front") ? 0.25 : 0.45,
+                });
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                cadGroup.add(mesh);
+              });
+
+              addBatteryDetails(cadGroup);
+
+              const box = new THREE.Box3().setFromObject(cadGroup);
+              const center = box.getCenter(new THREE.Vector3());
+              const size = box.getSize(new THREE.Vector3());
+
+              const maxDim = Math.max(size.x, size.y, size.z);
+              const targetScale = 0.65 / (maxDim || 1);
+              cadGroup.scale.set(targetScale, targetScale, targetScale);
+
+              cadGroup.position.x = -center.x * targetScale;
+              cadGroup.position.y = -center.y * targetScale;
+              cadGroup.position.z = -center.z * targetScale;
+
+              modelGroup.add(cadGroup);
+              if (isMounted) setLoading(false);
+              return;
+            }
+          }
+        } catch (err) {
+          console.warn("Could not load /models/olitec-battery.json:", err);
+        }
         buildProceduralBattery(modelGroup);
       } else if (catLower.includes("inverter")) {
-        buildProceduralInverter(modelGroup, isThreePhase);
+        try {
+          const loader = new GLTFLoader();
+          const gltf = await loader.loadAsync("/models/inverter.glb");
+          const model = gltf.scene;
+
+          const objectsToRemove: THREE.Object3D[] = [];
+          model.traverse((child) => {
+            const lowerName = child.name.toLowerCase();
+            if (
+              lowerName.includes("plane") ||
+              lowerName.includes("backdrop") ||
+              lowerName.includes("studio") ||
+              lowerName.includes("camera") ||
+              lowerName.includes("light")
+            ) {
+              objectsToRemove.push(child);
+            }
+          });
+          objectsToRemove.forEach((obj) => {
+            if (obj.parent) obj.parent.remove(obj);
+          });
+
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+
+          const maxDim = Math.max(size.x, size.y, size.z);
+          // Scale inverter model cleanly
+          const targetScale = 1.25 / (maxDim || 1);
+          model.scale.set(targetScale, targetScale, targetScale);
+
+          model.position.x = -center.x * targetScale;
+          model.position.y = -center.y * targetScale;
+          model.position.z = -center.z * targetScale;
+
+          model.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              if (child.material) {
+                if (Array.isArray(child.material)) {
+                  child.material.forEach((m) => {
+                    m.side = THREE.DoubleSide;
+                  });
+                } else {
+                  child.material.side = THREE.DoubleSide;
+                }
+              }
+            }
+          });
+
+          modelGroup.add(model);
+          if (isMounted) setLoading(false);
+          return;
+        } catch (err) {
+          console.warn("Could not load /models/inverter.glb:", err);
+          buildProceduralInverter(modelGroup, isThreePhase);
+        }
       } else if (catLower.includes("water") || catLower.includes("purifier")) {
         buildProceduralPurifier(modelGroup);
       } else if (catLower.includes("cooler")) {
@@ -503,8 +621,28 @@ export function Product3DViewer({
 }
 
 /* ====================================================================
- * Procedural High-Fidelity 3D Hardware Model Builders
+ * Procedural High-Fidelity 3D Hardware Model Builders & Helpers
  * ==================================================================== */
+
+function addBatteryDetails(group: THREE.Group) {
+  // Add illuminated green LED bar
+  const ledGeo = new THREE.BoxGeometry(0.12, 0.015, 0.01);
+  const ledMat = new THREE.MeshBasicMaterial({ color: 0x44ab48 });
+  const led = new THREE.Mesh(ledGeo, ledMat);
+  led.position.set(0, 0.08, 0.46);
+  group.add(led);
+
+  // Olitec front brand plate
+  const plateGeo = new THREE.BoxGeometry(0.2, 0.04, 0.005);
+  const plateMat = new THREE.MeshStandardMaterial({
+    color: 0xf99f1e,
+    metalness: 0.3,
+    roughness: 0.3,
+  });
+  const plate = new THREE.Mesh(plateGeo, plateMat);
+  plate.position.set(-0.25, 0.08, 0.46);
+  group.add(plate);
+}
 
 function createInverterTexture(isThreePhase: boolean): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");

@@ -151,7 +151,7 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                       modelNumber={item.models[0]}
                       height="100%"
                       className="h-full w-full flex-1"
-                      autoRotateInit={true}
+                      autoRotateInit={false}
                       showHotspots={false}
                       simpleGifMode={true}
                     />
