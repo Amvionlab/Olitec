@@ -36,6 +36,11 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
     ? "bg-gradient-to-b from-[#E7F1E5] to-[#D6E9D4]"
     : "bg-gradient-to-b from-[#ECA23F] to-[#F3BE48]";
 
+  // Normalized eyebrow heading per review M5 with Gopi
+  const headingText = isGreen
+    ? "LFP BATTERY"
+    : item.eyebrow.toUpperCase();
+
   return (
     <li className="w-full max-w-[382px]">
       <ScrollReveal delay={index * 140}>
@@ -45,7 +50,7 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
             className="mb-3.5 text-center text-xs sm:text-[13px] font-bold uppercase tracking-[0.14em]"
             style={{ color: headingColor }}
           >
-            {item.eyebrow}
+            {headingText}
           </p>
 
           {/* Authentic 3D Render from Product Page inside the coloured box */}
