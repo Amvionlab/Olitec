@@ -692,18 +692,19 @@ export function InteractiveApplicationExplorer() {
                   </button>
                 </div>
 
-                {/* Middle Center: The Olitec Hybrid Inverter (Item M11: 3D-rendered product image) */}
-                <div className="relative z-10 flex justify-center py-4">
+                {/* Middle Center: The Olitec Hybrid Inverter (Left image, Right content) */}
+                <div className="relative z-10 flex justify-center py-2 sm:py-3">
                   <div
                     onClick={() => setSelectedBox("inverter")}
                     className={cn(
-                      "cursor-pointer group flex flex-col items-center rounded-2xl border p-4 bg-white transition shadow-sm max-w-[240px] w-full text-center",
+                      "cursor-pointer group flex flex-row items-center gap-3.5 rounded-2xl border p-3 sm:p-3.5 bg-white transition shadow-sm max-w-[340px] sm:max-w-[360px] w-full text-left",
                       selectedBox === "inverter"
                         ? "border-[#121C28] ring-2 ring-slate-200 shadow-md"
                         : "border-slate-300 hover:border-slate-500",
                     )}
                   >
-                    <div className="relative size-20 sm:size-24 mb-1 overflow-hidden rounded-xl bg-slate-50/60 flex items-center justify-center">
+                    {/* Left: 3D Inverter Viewer */}
+                    <div className="relative size-18 sm:size-20 shrink-0 overflow-hidden rounded-xl bg-slate-50/80 border border-slate-100 flex items-center justify-center">
                       <Product3DViewer
                         category="Hybrid Inverter"
                         name={app.inverterModel}
@@ -714,38 +715,42 @@ export function InteractiveApplicationExplorer() {
                         simpleGifMode={true}
                       />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      Core Converter
-                    </span>
-                    <h4 className="text-xs sm:text-[13px] font-bold text-slate-900">
-                      {app.inverterModel.split("(")[0]}
-                    </h4>
-                    <span className="text-[10px] text-slate-500">
-                      Pure Sine Wave · Sub-10ms UPS
-                    </span>
-                    <Link
-                      href={`/products`}
-                      className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[#E0761B] hover:text-[#B85E0E] underline"
-                    >
-                      <span>View product</span>
-                      <ArrowUpRight className="size-3" />
-                    </Link>
+                    {/* Right: Content */}
+                    <div className="flex flex-col justify-center min-w-0 flex-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        Core Converter
+                      </span>
+                      <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug truncate">
+                        {app.inverterModel.split("(")[0]}
+                      </h4>
+                      <span className="text-[10px] text-slate-500 leading-tight mt-0.5 truncate">
+                        Pure Sine Wave · Sub-10ms UPS
+                      </span>
+                      <Link
+                        href={`/products`}
+                        className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-[#E0761B] hover:text-[#B85E0E] underline"
+                      >
+                        <span>View product</span>
+                        <ArrowUpRight className="size-3" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
 
-                {/* Bottom Row: Olitec Battery & Targeted Loads */}
-                <div className="relative z-10 grid grid-cols-2 gap-4 items-end">
-                  {/* Olitec Battery Node (Item M11: 3D-rendered product image) */}
+                {/* Bottom Row: Olitec Battery & Targeted Loads (Left image/icon, Right content) */}
+                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 items-stretch">
+                  {/* Olitec Battery Node (Left 3D model, Right content) */}
                   <div
                     onClick={() => setSelectedBox("battery")}
                     className={cn(
-                      "cursor-pointer group flex flex-col items-center rounded-2xl border p-3.5 bg-white transition shadow-sm text-center",
+                      "cursor-pointer group flex flex-row items-center gap-3 rounded-2xl border p-3 sm:p-3.5 bg-white transition shadow-sm text-left",
                       selectedBox === "battery"
                         ? "border-[#121C28] ring-2 ring-slate-200 shadow-md"
                         : "border-slate-300 hover:border-slate-500",
                     )}
                   >
-                    <div className="relative size-16 sm:size-18 mb-1 overflow-hidden rounded-xl bg-slate-50/60 flex items-center justify-center">
+                    {/* Left: 3D Battery Viewer */}
+                    <div className="relative size-16 sm:size-18 shrink-0 overflow-hidden rounded-xl bg-slate-50/80 border border-slate-100 flex items-center justify-center">
                       <Product3DViewer
                         category="Battery"
                         name={app.batteryModel}
@@ -756,48 +761,57 @@ export function InteractiveApplicationExplorer() {
                         simpleGifMode={true}
                       />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      LFP Storage
-                    </span>
-                    <h4 className="text-xs font-bold text-slate-900">
-                      {app.batteryModel.split("(")[0]}
-                    </h4>
-                    <span className="text-[10px] text-slate-600 font-medium">
-                      {mode === "day" ? "Charging (+1.8 kW)" : mode === "night" ? "Discharging (92% SOC)" : "UPS Active"}
-                    </span>
-                    <Link
-                      href={`/products`}
-                      className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-[#E0761B] hover:text-[#B85E0E] underline"
-                    >
-                      <span>View product</span>
-                      <ArrowUpRight className="size-3" />
-                    </Link>
+                    {/* Right: Content */}
+                    <div className="flex flex-col justify-center min-w-0 flex-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        LFP Storage
+                      </span>
+                      <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug truncate">
+                        {app.batteryModel.split("(")[0]}
+                      </h4>
+                      <span className="text-[10px] text-slate-600 font-medium leading-tight mt-0.5 truncate">
+                        {mode === "day" ? "Charging (+1.8 kW)" : mode === "night" ? "Discharging (92% SOC)" : "UPS Active"}
+                      </span>
+                      <Link
+                        href={`/products`}
+                        className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-[#E0761B] hover:text-[#B85E0E] underline"
+                      >
+                        <span>View product</span>
+                        <ArrowUpRight className="size-3" />
+                      </Link>
+                    </div>
                   </div>
 
-                  {/* Application-Specific Load Node */}
+                  {/* Application-Specific Load Node (Left icon, Right content) */}
                   <button
                     type="button"
                     onClick={() => setSelectedBox("loads")}
                     className={cn(
-                      "flex flex-col items-center rounded-2xl border p-3.5 transition text-center",
+                      "flex flex-row items-center gap-3 rounded-2xl border p-3 sm:p-3.5 transition text-left",
                       selectedBox === "loads"
                         ? "border-[#121C28] bg-slate-50 shadow-sm ring-1 ring-[#121C28]/20"
                         : "border-slate-200/90 bg-white hover:border-slate-400",
                     )}
                   >
-                    <div className="flex size-14 items-center justify-center rounded-xl bg-slate-100 text-slate-800 mb-1">
-                      <ApplicationSvgIcon id={app.id} className="size-8" />
+                    {/* Left: Icon */}
+                    <div className="flex size-14 sm:size-16 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-800">
+                      <ApplicationSvgIcon id={app.id} className="size-7 sm:size-8" />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      Application Loads
-                    </span>
-                    <h4 className="text-xs font-bold text-slate-900">{app.loadLabel}</h4>
-                    <span className="text-[10px] text-slate-500 line-clamp-1">
-                      {app.loadDetail}
-                    </span>
-                    <span className="mt-1 text-[10px] font-bold text-slate-700">
-                      230V / 415V Powered 24/7
-                    </span>
+                    {/* Right: Content */}
+                    <div className="flex flex-col justify-center min-w-0 flex-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        Application Loads
+                      </span>
+                      <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug truncate">
+                        {app.loadLabel}
+                      </h4>
+                      <span className="text-[10px] text-slate-500 leading-tight mt-0.5 line-clamp-1">
+                        {app.loadDetail}
+                      </span>
+                      <span className="mt-1 text-[10px] font-bold text-slate-700 leading-tight">
+                        230V / 415V Powered 24/7
+                      </span>
+                    </div>
                   </button>
                 </div>
               </div>

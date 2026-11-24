@@ -59,7 +59,7 @@ export function Product3DViewer({
   // Canonical camera angle matching the exact 3D CAD model screenshot confirmed by user
   const initialCamPos = useRef<[number, number, number]>(
     catLower.includes("battery")
-      ? [0.85, 0.35, 2.3]
+      ? [0.75, 0.30, 1.55]
       : [-1.22, 0.40, 2.15]
   );
 
@@ -251,7 +251,7 @@ export function Product3DViewer({
               const size = box.getSize(new THREE.Vector3());
 
               const maxDim = Math.max(size.x, size.y, size.z);
-              const targetScale = 0.65 / (maxDim || 1);
+              const targetScale = 1.20 / (maxDim || 1);
               cadGroup.scale.set(targetScale, targetScale, targetScale);
 
               cadGroup.position.x = -center.x * targetScale;
