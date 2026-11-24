@@ -25,24 +25,14 @@ import { cn } from "@/lib/cn";
 import { DownloadWarrantyPdfButton } from "@/components/warranties/DownloadWarrantyPdfButton";
 import type { WarrantyCertificateData } from "@/lib/warranty-certificate-pdf";
 
-const SAMPLE_SERIALS = [
-  { label: "PVMODULE001", tag: "35 Series" },
-  { label: "OLITEC-001", tag: "18 Series" },
-  { label: "OLITEC-002", tag: "30 Series" },
-  { label: "OLITEC-005", tag: "18 Series" },
-];
-
 export function WarrantyStatusExplorer() {
   const [serialInput, setSerialInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [found, setFound] = useState<WarrantyStatusResult | null>(null);
 
-  async function handleSearch(serialToSearch?: string) {
-    const serial = (serialToSearch ?? serialInput).trim().toUpperCase();
-    if (serialToSearch) {
-      setSerialInput(serialToSearch);
-    }
+  async function handleSearch() {
+    const serial = serialInput.trim().toUpperCase();
 
     const validationError = validateSerialNumber(serial);
     if (validationError) {
@@ -127,7 +117,7 @@ export function WarrantyStatusExplorer() {
                       setSerialInput(e.target.value);
                       if (error) setError(null);
                     }}
-                    placeholder="e.g. PVMODULE001, OLITEC-001"
+                    placeholder="Enter serial number (e.g. from device barcode)"
                     className={cn(
                       "w-full rounded-2xl border bg-slate-50/50 py-3.5 pl-11 pr-4 font-mono text-base font-bold tracking-wider text-slate-900 placeholder:font-sans placeholder:font-normal placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#D45C0A]/30 transition",
                       error ? "border-red-400 focus:border-red-500" : "border-slate-200 focus:border-[#D45C0A]"
@@ -164,20 +154,10 @@ export function WarrantyStatusExplorer() {
                 </button>
               </div>
 
-              {/* Quick Sample Clickers */}
-              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-                <span className="text-slate-400 font-medium">Quick test serials:</span>
-                {SAMPLE_SERIALS.map((s) => (
-                  <button
-                    key={s.label}
-                    type="button"
-                    onClick={() => handleSearch(s.label)}
-                    className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-mono text-[11px] font-bold text-slate-700 hover:border-[#D45C0A] hover:text-[#D45C0A] transition cursor-pointer"
-                  >
-                    <span>{s.label}</span>
-                    <span className="text-[10px] text-slate-400 font-sans">({s.tag})</span>
-                  </button>
-                ))}
+              {/* Helpful finding hint for production customers */}
+              <div className="flex items-center gap-2 pt-1 text-xs text-slate-500">
+                <HelpCircle className="size-3.5 text-slate-400 shrink-0" />
+                <span>Found on your product rating plate or purchase invoice. Need help? Call 8501 800 800.</span>
               </div>
 
               {error && (

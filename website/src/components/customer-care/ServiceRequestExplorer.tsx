@@ -423,7 +423,7 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
                       setFormData({ ...formData, serial: e.target.value.toUpperCase() });
                       if (errors.serial) setErrors({ ...errors, serial: "" });
                     }}
-                    placeholder="e.g. PVMODULE001, OLITEC-001"
+                    placeholder="Enter registered serial number"
                     className={cn(
                       "w-full rounded-xl border px-3.5 py-2.5 font-mono text-sm font-bold tracking-wider text-slate-900 placeholder:font-sans placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#D45C0A]/30 transition",
                       errors.serial ? "border-red-400" : "border-slate-200 focus:border-[#D45C0A]"
