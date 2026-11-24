@@ -213,7 +213,10 @@ export function Product3DViewer({
 
       if (catLower.includes("battery")) {
         try {
-          const res = await fetch("/models/olitec-battery.json");
+          let res = await fetch("/3d/olitec-battery.json");
+          if (!res.ok) {
+            res = await fetch("/models/olitec-battery.json");
+          }
           if (res.ok) {
             const data = await res.json();
             if (data && data.parts && data.parts.length > 0) {
@@ -267,7 +270,12 @@ export function Product3DViewer({
       } else if (catLower.includes("inverter")) {
         try {
           const loader = new GLTFLoader();
-          const gltf = await loader.loadAsync("/models/inverter.glb");
+          let gltf;
+          try {
+            gltf = await loader.loadAsync("/3d/inverter.glb");
+          } catch {
+            gltf = await loader.loadAsync("/models/inverter.glb");
+          }
           const model = gltf.scene;
 
           const objectsToRemove: THREE.Object3D[] = [];

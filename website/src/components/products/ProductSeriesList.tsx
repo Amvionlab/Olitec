@@ -1,10 +1,22 @@
 "use client";
 
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import { Download } from "lucide-react";
 import { IconTile, BulletList, headingFont } from "@/components/legacy/ui";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/cn";
+
+const Product3DViewer = dynamic(
+  () => import("./Product3DViewer").then((mod) => mod.Product3DViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex size-full items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-2 border-brand-200 border-t-brand-500" />
+      </div>
+    ),
+  },
+);
 
 interface SeriesItem {
   readonly icon: string;
@@ -20,25 +32,18 @@ interface SeriesItem {
 }
 
 export function ProductSeriesList({ series }: { series: readonly SeriesItem[] }) {
+  const getCategory = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes("battery") || t.includes("olb")) return "Battery";
+    if (t.includes("inverter") || t.includes("oli")) return "Hybrid Inverter";
+    return "Solar Appliance";
+  };
+
   return (
     <>
       <div className="space-y-12">
         {series.map((item, index) => {
-          const isGreen =
-            item.tone === "green" ||
-            item.title.toLowerCase().includes("battery") ||
-            item.title.toLowerCase().includes("olb");
-          const isThreePhase =
-            item.title.toLowerCase().includes("three") ||
-            item.title.toLowerCase().includes("3h") ||
-            item.eyebrow.toLowerCase().includes("three");
-
-          // Real 3D CAD rendered images
-          const imageSrc = isGreen
-            ? "/images/products/battery-lfp-3d.png"
-            : isThreePhase
-              ? "/images/products/inverter-three-3d.png"
-              : "/images/products/inverter-single-3d.png";
+          const category = getCategory(item.title);
 
           return (
             <ScrollReveal key={item.title} delay={index * 120}>
@@ -140,31 +145,25 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-muted">
-                      <span>Real 3D Hardware Render</span>
-                      <span className="font-semibold text-brand-600">3D CAD Model</span>
+                      <span>Interactive 360° View · Drag to rotate</span>
+                      <span className="font-semibold text-brand-600">360° Hardware CAD</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 3. Right Column: Real 3D Hardware Model Showcase (lg:col-span-4) */}
+                {/* 3. Right Column: 360 Turntable 3D Showcase (lg:col-span-4) */}
                 <div className="lg:col-span-4 xl:col-span-4 flex flex-col">
-                  <div className="relative flex-1 h-full min-h-[380px] w-full flex flex-col items-center justify-center overflow-hidden rounded-[26px] border border-slate-200 bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7] shadow-[0_8px_30px_rgb(0_0_0/0.03)] p-6 transition">
-                    <div className="absolute left-4 top-4 z-10 flex items-center gap-2">
-                      <span className="glass-panel rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-800 shadow-2xs">
-                        3D Hardware Model
-                      </span>
-                    </div>
-
-                    <div className="relative size-full flex-1 flex items-center justify-center p-4 min-h-[300px]">
-                      <Image
-                        src={imageSrc}
-                        alt={item.title}
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 420px"
-                        className="object-contain p-4 drop-shadow-[0_20px_35px_rgba(0,0,0,0.14)] transition-transform duration-300 group-hover:scale-105"
-                        priority={index === 0}
-                      />
-                    </div>
+                  <div className="relative flex-1 h-full min-h-[380px] w-full flex flex-col overflow-hidden rounded-[26px] border border-slate-200 bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7] shadow-[0_8px_30px_rgb(0_0_0/0.03)] transition">
+                    <Product3DViewer
+                      category={category}
+                      name={item.title}
+                      modelNumber={item.models[0]}
+                      height="100%"
+                      className="h-full w-full flex-1"
+                      autoRotateInit={true}
+                      showHotspots={false}
+                      simpleGifMode={true}
+                    />
                   </div>
                 </div>
               </article>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   CheckCircle2,
   ArrowUpRight,
@@ -12,6 +13,18 @@ import {
   Info,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+
+const Product3DViewer = dynamic(
+  () => import("@/components/products/Product3DViewer").then((mod) => mod.Product3DViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex size-full items-center justify-center">
+        <div className="size-5 animate-spin rounded-full border-2 border-brand-200 border-t-brand-500" />
+      </div>
+    ),
+  },
+);
 
 export interface ApplicationData {
   id: string;
@@ -690,12 +703,15 @@ export function InteractiveApplicationExplorer() {
                         : "border-slate-300 hover:border-slate-500",
                     )}
                   >
-                    <div className="relative size-20 sm:size-24 mb-1">
-                      <Image
-                        src="/images/products/inverter-render.png"
-                        alt="Olitec Hybrid Inverter"
-                        fill
-                        className="object-contain transition-transform group-hover:scale-105"
+                    <div className="relative size-20 sm:size-24 mb-1 overflow-hidden rounded-xl bg-slate-50/60 flex items-center justify-center">
+                      <Product3DViewer
+                        category="Hybrid Inverter"
+                        name={app.inverterModel}
+                        height="100%"
+                        className="size-full"
+                        autoRotateInit={true}
+                        showHotspots={false}
+                        simpleGifMode={true}
                       />
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
@@ -729,12 +745,15 @@ export function InteractiveApplicationExplorer() {
                         : "border-slate-300 hover:border-slate-500",
                     )}
                   >
-                    <div className="relative size-16 sm:size-18 mb-1">
-                      <Image
-                        src="/images/products/battery-render.png"
-                        alt="Olitec LFP Battery"
-                        fill
-                        className="object-contain transition-transform group-hover:scale-105"
+                    <div className="relative size-16 sm:size-18 mb-1 overflow-hidden rounded-xl bg-slate-50/60 flex items-center justify-center">
+                      <Product3DViewer
+                        category="Battery"
+                        name={app.batteryModel}
+                        height="100%"
+                        className="size-full"
+                        autoRotateInit={true}
+                        showHotspots={false}
+                        simpleGifMode={true}
                       />
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
