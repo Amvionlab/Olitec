@@ -23,7 +23,7 @@ export function WarrantyList({ warranties }: { warranties: WarrantyWithProduct[]
     <ul className="divide-y divide-slate-100">
       {warranties.map((warranty) => (
         <li key={warranty.id}>
-          <Link href={`/warranties/${warranty.id}`} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-slate-50">
+          <Link  href={`/warranties/detail?id=${encodeURIComponent(warranty.id)}`} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-slate-50">
             <ProductImage category={warranty.product.category} name={warranty.product.name} size="sm" />
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium text-slate-900">{warranty.product.name}</p>

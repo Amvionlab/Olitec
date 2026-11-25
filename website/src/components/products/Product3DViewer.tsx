@@ -390,19 +390,15 @@ export function Product3DViewer({
           }
         }
       });
-      if (renderer) {
-        try {
-          renderer.dispose();
-          const gl = renderer.getContext();
-          const ext = gl?.getExtension("WEBGL_lose_context");
-          if (ext) ext.loseContext();
-        } catch {
-          // ignore
-        }
-      }
+     if (renderer) {
+  try {
+    renderer.dispose();
+  } catch (error) {
+    console.warn("Renderer cleanup failed:", error);
+  }
+}
     };
-  }, [category, name, modelNumber, height, simpleGifMode, autoRotate]);
-
+}, [category, name, modelNumber, height, simpleGifMode]);
   // Sync controls autoRotate state
   useEffect(() => {
     if (controlsRef.current) {

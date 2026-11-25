@@ -13,11 +13,13 @@ import { formatDateTime } from "@/lib/format";
 import { hasErrors, validateEmail, validateMobile, validateName, type FieldErrors } from "@/lib/validation";
 import { getStoredUser } from "@/services/auth";
 import { UserCheck } from "lucide-react";
-
+import { getCurrentCustomer } from "@/services/customer";
+import { getMySupportRequests } from "@/services/support";
+import { getMyWarranties } from "@/services/warranties";
 interface SupportCenterProps {
   customer?: Customer;
-  initialRequests: SupportRequest[];
-  warrantyNumbers: string[];
+  initialRequests?: SupportRequest[];
+  warrantyNumbers?: string[];
 }
 
 function validate(values: SupportRequestInput): FieldErrors<SupportRequestInput> {
@@ -31,8 +33,12 @@ function validate(values: SupportRequestInput): FieldErrors<SupportRequestInput>
   };
 }
 
-export function SupportCenter({ customer, initialRequests, warrantyNumbers }: SupportCenterProps) {
-  const emptyForm: SupportRequestInput = {
+export function SupportCenter({
+  customer,
+  initialRequests = [],
+  warrantyNumbers: initialWarrantyNumbers = [],
+}: SupportCenterProps) {
+    const emptyForm: SupportRequestInput = {
     name: customer?.name || "",
     email: customer?.email || "",
     mobile: customer?.mobile || "",
@@ -41,25 +47,73 @@ export function SupportCenter({ customer, initialRequests, warrantyNumbers }: Su
     subject: "",
     message: "",
   };
-  const [requests, setRequests] = useState(initialRequests);
-  const [values, setValues] = useState(emptyForm);
+const [requests, setRequests] = useState<SupportRequest[]>(
+  initialRequests ?? []
+);
+
+const [warrantyNumbers, setWarrantyNumbers] = useState<string[]>(
+  initialWarrantyNumbers
+); const [values, setValues] = useState(emptyForm);
   const [isAutofilled, setIsAutofilled] = useState(false);
   const [errors, setErrors] = useState<FieldErrors<SupportRequestInput>>({});
   const [submitting, setSubmitting] = useState(false);
   const [notice, setNotice] = useState<{ tone: "success" | "error"; text: string }>();
 
-  useEffect(() => {
-    const user = getStoredUser();
-    if (user) {
-      setValues((v) => ({
-        ...v,
-        name: v.name || user.name || "",
-        email: v.email || user.email || "",
-        mobile: v.mobile || user.mobile || "",
+useEffect(() => {
+  let isMounted = true;
+
+  async function loadSupportData() {
+    try {
+      const [customerData, requestsData, warrantiesData] =
+        await Promise.all([
+          getCurrentCustomer(),
+          getMySupportRequests(),
+          getMyWarranties(),
+        ]);
+
+      if (!isMounted) return;
+
+      // Load customer details from API
+      const user = getStoredUser();
+
+      const name = customerData?.name || user?.name || "";
+      const email = customerData?.email || user?.email || "";
+      const mobile = customerData?.mobile || user?.mobile || "";
+
+      setValues((previous) => ({
+        ...previous,
+        name: previous.name || name,
+        email: previous.email || email,
+        mobile: previous.mobile || mobile,
       }));
-      setIsAutofilled(true);
+
+      setIsAutofilled(Boolean(name || email || mobile));
+
+      // Load support requests
+      setRequests(requestsData);
+
+      // Load active and pending warranties
+      const activeWarrantyNumbers = warrantiesData
+        .filter(
+          (w) =>
+            w.status === "Active" ||
+            w.status === "Pending"
+        )
+        .map((w) => w.warrantyNumber);
+
+      setWarrantyNumbers(activeWarrantyNumbers);
+
+    } catch (error) {
+      console.error("Failed to load support data:", error);
     }
-  }, []);
+  }
+
+  loadSupportData();
+
+  return () => {
+    isMounted = false;
+  };
+}, []);
 
   const update = <K extends keyof SupportRequestInput>(field: K, value: SupportRequestInput[K]) => {
     setValues((v) => ({ ...v, [field]: value }));
@@ -81,8 +135,7 @@ export function SupportCenter({ customer, initialRequests, warrantyNumbers }: Su
       return;
     }
     setRequests((current) => [result.data, ...current]);
-    setValues(emptyForm);
-    setNotice({ tone: "success", text: `${result.message} Ticket ${result.data.ticketNumber}.` });
+setValues(emptyForm);    setNotice({ tone: "success", text: `${result.message} Ticket ${result.data.ticketNumber}.` });
   }
 
   return (
