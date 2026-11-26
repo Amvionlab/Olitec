@@ -27,9 +27,16 @@ interface ProductMediaViewerProps {
   name: string;
   model: string;
   className?: string;
+  viewerHeight?: number;
 }
 
-export function ProductMediaViewer({ category, name, model, className }: ProductMediaViewerProps) {
+export function ProductMediaViewer({
+  category,
+  name,
+  model,
+  className,
+  viewerHeight = 380,
+}: ProductMediaViewerProps) {
   const [viewMode, setViewMode] = useState<"photo" | "3d">("photo");
 
   return (
@@ -70,18 +77,21 @@ export function ProductMediaViewer({ category, name, model, className }: Product
       </div>
 
       {/* Main Display Area */}
-      <div className="relative min-h-[380px] w-full">
+      <div className="relative w-full" style={{ minHeight: `${viewerHeight}px` }}>
         {viewMode === "3d" ? (
           <Product3DViewer
             category={category}
             name={name}
             modelNumber={model}
-            height={380}
+            height={viewerHeight}
             autoRotateInit={true}
             showHotspots={false}
           />
         ) : (
-          <div className="relative flex h-[380px] w-full flex-col items-center justify-center rounded-[20px] bg-slate-50/70 p-6">
+          <div
+            className="relative flex w-full flex-col items-center justify-center rounded-[20px] bg-gradient-to-b from-[#FAFBFD] to-[#F3F5F8] p-5"
+            style={{ height: `${viewerHeight}px` }}
+          >
             {category.toLowerCase().includes("inverter") ||
             category.toLowerCase().includes("battery") ||
             category.toLowerCase().includes("storage") ? (
