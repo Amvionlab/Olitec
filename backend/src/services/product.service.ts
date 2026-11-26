@@ -46,39 +46,73 @@ function slugify(text: string): string {
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+async function getProductDetails(row: Record<string, any>) {
+  const features = await query<Record<string, any>>(
+    `SELECT feature
+     FROM product_features
+     WHERE product_id = ?
+     ORDER BY sort_order ASC, id ASC`,
+    [row.id],
+  );
 
+  const specs = await query<Record<string, any>>(
+    `SELECT label, value
+     FROM product_specs
+     WHERE product_id = ?
+     ORDER BY sort_order ASC, id ASC`,
+    [row.id],
+  );
+
+  return {
+    id: `prd_${row.id}`,
+    slug: row.slug,
+    name: row.name,
+    model: row.model_number,
+    category: row.category,
+    capacity: row.capacity ?? "",
+    shortDescription: row.short_description ?? "",
+    description: row.description ?? "",
+    warrantyMonths: row.warranty_months,
+    priceInr: Number(row.price_inr ?? 0),
+    imageUrl: row.image_url,
+    isActive: Boolean(row.is_active),
+    createdAt: row.created_at,
+    features: features.map((item) => item.feature),
+    specs: specs.map((item) => ({
+      label: item.label,
+      value: item.value,
+    })),
+  };
+}
 export const productService = {
   async list(queryInput: ListProductsQuery) {
     const products = await repositories.products.findAll({ category: queryInput.category, q: queryInput.q });
     return paginate(products, queryInput);
   },
 
-  async getBySlug(slug: string) {
-    const product = await repositories.products.findBySlug(slug);
-    if (!product) throw new NotFoundError("Product");
-    return product;
-  },
+async getBySlug(slug: string) {
+  const row = await queryOne<Record<string, any>>(
+    "SELECT * FROM products WHERE slug = ? AND is_active = TRUE",
+    [slug],
+  );
 
-  async getById(id: string | number) {
-    const numericId = rowId(id);
-    const row = await queryOne<Record<string, any>>("SELECT * FROM products WHERE id = ?", [numericId]);
-    if (!row) throw new NotFoundError("Product");
-    return {
-      id: `prd_${row.id}`,
-      slug: row.slug,
-      name: row.name,
-      model: row.model_number,
-      category: row.category,
-      capacity: row.capacity ?? "",
-      shortDescription: row.short_description ?? "",
-      description: row.description ?? "",
-      warrantyMonths: row.warranty_months,
-      priceInr: Number(row.price_inr ?? 0),
-      imageUrl: row.image_url,
-      isActive: Boolean(row.is_active),
-      createdAt: row.created_at,
-    };
-  },
+  if (!row) throw new NotFoundError("Product");
+
+  return getProductDetails(row);
+},
+
+async getById(id: string | number) {
+  const numericId = rowId(id);
+
+  const row = await queryOne<Record<string, any>>(
+    "SELECT * FROM products WHERE id = ?",
+    [numericId],
+  );
+
+  if (!row) throw new NotFoundError("Product");
+
+  return getProductDetails(row);
+},
 
   async listAllForAdmin(filter: { q?: string; category?: string }) {
 const conditions: string[] = ["is_active = TRUE"];

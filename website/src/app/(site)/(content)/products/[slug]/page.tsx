@@ -110,8 +110,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <Card className="shadow-[0_8px_30px_rgb(0_0_0/0.03)]">
             <CardHeader title="Key engineering features" description="Designed & tested for continuous performance" />
             <ul className="grid gap-3.5 p-6 sm:grid-cols-2">
-              {product.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2.5 text-sm font-medium text-slate-700">
+{(product.features ?? []).map((feature) => (
+                  <li key={feature} className="flex items-start gap-2.5 text-sm font-medium text-slate-700">
                   <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-brand-500" aria-hidden />
                   {feature}
                 </li>
@@ -123,7 +123,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <Card className="shadow-[0_8px_30px_rgb(0_0_0/0.03)]">
             <CardHeader title="Technical specifications" description="Engineering datasheet benchmarks" />
             <dl className="divide-y divide-slate-100">
-              {[{ label: "Model number", value: product.model }, ...product.specs].map((spec) => (
+              {[{ label: "Model number", value: product.model }, ...(product.specs ?? [])].map((spec) => (
                 <div key={spec.label} className="grid grid-cols-2 gap-4 px-6 py-3.5 text-sm">
                   <dt className="text-slate-500 font-medium">{spec.label}</dt>
                   <dd className="font-semibold text-slate-900">{spec.value}</dd>

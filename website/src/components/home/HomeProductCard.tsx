@@ -24,6 +24,7 @@ interface HomeProductCardProps {
     title: string;
     tagline: string;
     models: readonly string[];
+    href: string;
   };
   index: number;
 }
@@ -79,9 +80,9 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
 
           {/* "Know More" orange gradient button (M5 style) */}
           <div className="mb-1 mt-7 flex justify-center">
-            <Link
-              href="/products"
-              className="inline-flex h-[48px] items-center justify-center gap-3.5 rounded-full bg-gradient-to-r from-[#E8962C] to-[#F3BE48] px-7 text-sm sm:text-[15px] font-extrabold text-[#161E2C] shadow-[0_8px_20px_rgb(232_150_44/0.28)] transition hover:brightness-105 active:scale-95"
+<Link
+  href={item.href}
+                className="inline-flex h-[48px] items-center justify-center gap-3.5 rounded-full bg-gradient-to-r from-[#E8962C] to-[#F3BE48] px-7 text-sm sm:text-[15px] font-extrabold text-[#161E2C] shadow-[0_8px_20px_rgb(232_150_44/0.28)] transition hover:brightness-105 active:scale-95"
               aria-label={`Know more about the ${item.title}`}
             >
               <span>Know More</span>

@@ -48,6 +48,7 @@ export const productsPage = {
     {
       icon: "bolt",
       tone: "orange",
+      href: "/products/oli-1h-series-3-6kw",
       eyebrow: "Single-phase hybrid inverter",
       title: "OLI-1H series, 3 to 6 kW",
       tagline: "Solar, storage and backup in one compact unit",
@@ -73,6 +74,7 @@ export const productsPage = {
     {
       icon: "factory",
       tone: "orange",
+      href: "/products/oli-3h-series-15-30kw",
       eyebrow: "Three-phase hybrid inverter",
       title: "OLI-3H series, 15 to 30 kW",
       tagline: "Commercial-grade hybrid power for three-phase sites",
@@ -99,6 +101,7 @@ export const productsPage = {
       icon: "battery",
       tone: "green",
       eyebrow: "LFP battery storage",
+      href: "/products/olb-512-lfp-battery-wall",
       title: "OLB-5.12 series, 5.12 kWh",
       tagline: "Safe, long-life storage that grows with you",
       body: "Lithium iron phosphate packs at 51.2 V and 100 Ah, available wall-mount or 19-inch rack-mount. Start with one pack and add more in parallel as demand grows, up to 51.2 kWh.",
@@ -134,9 +137,9 @@ export const productsPage = {
 
 /** Model numbers grouped as in the service-request form. */
 export const productModelGroups = [
-  { label: "Single-phase hybrid inverters (OLI-1H)", options: productsPage.series[0].models },
-  { label: "Three-phase hybrid inverters (OLI-3H)", options: productsPage.series[1].models },
-  { label: "LFP batteries (OLB-5.12)", options: productsPage.series[2].models },
+  { label: "Single-phase hybrid inverters (OLI-1H)", options: productsPage.series[0].models, href: "/products/oli-1h-series-3-6kw" },
+  { label: "Three-phase hybrid inverters (OLI-3H)", options: productsPage.series[1].models, href: "/products/oli-3h-series-15-30kw" },
+  { label: "LFP batteries (OLB-5.12)", options: productsPage.series[2].models, href: "/products/olb-512-lfp-battery-wall" },
 ];
 
 /* -------------------------------------------------------------- Applications */

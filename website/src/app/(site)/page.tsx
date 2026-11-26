@@ -15,7 +15,7 @@ import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: { absolute: `${siteConfig.name} · Clean Energy Solutions` },
-  description: siteConfig.description,
+description: siteConfig.searchDescription,
   alternates: { canonical: "/" },
 };
 
@@ -128,8 +128,11 @@ export default function HomePage() {
 
           <ul className="mt-12 grid justify-items-center gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {productsPage.series.map((item, index) => (
-              <HomeProductCard key={item.title} item={item} index={index} />
-            ))}
+<HomeProductCard
+  key={item.title}
+  item={item}
+  index={index}
+/>            ))}
           </ul>
         </HomeContainer>
       </section>

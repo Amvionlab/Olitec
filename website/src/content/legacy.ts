@@ -34,8 +34,12 @@ export const businessLines = [
     key: "epc",
     title: "Ground-mount open-access EPC",
     body: "Engineering, procuring and constructing ground-mount solar plants under the open-access framework, so that commercial and industrial consumers can source clean power at scale from plants built to last.",
-    image: "/images/legacy/ground-mount-epc.jpg",
-    imageAlt:
+images: [
+  "/images/business-lines/ground-mount-1.webp",
+  "/images/business-lines/ground-mount-2.webp",
+  "/images/business-lines/ground-mount-3.webp",
+],
+imageAlt:
       "Illustration of ground-mounted solar tables feeding a substation and transmission towers toward a factory on the horizon",
     overlay: "groundMount",
   },
@@ -52,8 +56,12 @@ export const businessLines = [
     key: "turnkey",
     title: "Turnkey solutions",
     body: "Taking full responsibility for a customer's energy system — design, supply, installation, commissioning and performance — so that one accountable team delivers the outcome, not just the equipment.",
-    image: "/images/legacy/turnkey.jpg",
-    imageAlt:
+images: [
+  "/images/business-lines/turnkey-1.webp",
+  "/images/business-lines/turnkey-2.webp",
+  "/images/business-lines/turnkey-3.webp",
+],
+imageAlt:
       "Illustration of a circle completed from three segments, with design, supply, installation, commissioning and performance stages around one centre",
     overlay: "turnkey",
   },

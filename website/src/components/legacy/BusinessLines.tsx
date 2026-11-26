@@ -5,7 +5,7 @@ import { businessLines, businessLinesIntro } from "@/content/legacy";
 import { CarouselControls, HomeContainer, SectionTitle } from "@/components/home/primitives";
 import { cn } from "@/lib/cn";
 import { AnimatedIllustration } from "./AnimatedIllustration";
-
+import { CrossfadeImageSlideshow } from "./CrossfadeImageSlideshow";
 const LAST = businessLines.length - 1;
 
 function EpcIcon() {
@@ -201,31 +201,65 @@ export function BusinessLines() {
               style={{ transform: `translateX(-${active * 100}%)` }}
             >
               {businessLines.map((line, idx) => (
-                <article
-                  key={line.key}
-                  className="flex min-w-full w-full flex-shrink-0 flex-wrap items-center gap-6 sm:gap-8 rounded-[25.528px] border-[0.912px] border-[#b7b7b7] bg-white p-5 sm:p-8 xl:gap-11 shadow-sm"
-                >
-                  <div className="min-w-0 flex-[1_1_320px] xl:pl-4">
-                    <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-brand-50 border border-brand-200 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-700">
-                      <span>Business Line 0{idx + 1} of 03</span>
-                    </div>
-                    <h3 className="text-[26px] sm:text-[32px] font-semibold leading-[1.2] text-black xl:text-[38px]">
-                      {line.title}
-                    </h3>
-                    <p className="mt-3.5 max-w-[540px] text-base sm:text-lg font-medium leading-relaxed text-black">
-                      {line.body}
-                    </p>
-                  </div>
-                  <div className="min-w-0 flex-[1.3_1_420px]">
-                    <AnimatedIllustration
-                      src={line.image}
-                      alt={line.imageAlt}
-                      overlay={line.overlay}
-                      sizes="(min-width: 1280px) 640px, 100vw"
-                      className="aspect-[16/10] sm:aspect-[16/11] max-h-[400px] xl:max-h-[430px] w-full rounded-[16.411px] xl:rounded-[25px] object-cover"
-                    />
-                  </div>
-                </article>
+                
+<article
+  key={line.key}
+  className="relative isolate min-w-full w-full shrink-0 min-h-[460px] sm:min-h-[500px] xl:min-h-[520px] overflow-hidden rounded-[25px] bg-[#0C111A]"
+>
+  {/* Background image */}
+  <div className="absolute inset-0 z-0">
+    {line.key === "storage" ? (
+      <AnimatedIllustration
+        src={line.image}
+        alt={line.imageAlt}
+        overlay={line.overlay}
+        sizes="(min-width: 1280px) 1200px, 100vw"
+        className="h-full w-full"
+      />
+    ) : (
+      <CrossfadeImageSlideshow
+        images={[...line.images]}
+        alt={line.imageAlt}
+        className="h-full w-full"
+      />
+    )}
+  </div>
+
+  {/* Text readability gradient */}
+  <div
+    aria-hidden="true"
+    className="pointer-events-none absolute inset-0 z-[1]
+      bg-[linear-gradient(to_top,rgba(12,17,26,0.8)_0%,rgba(12,17,26,0.62)_30%,rgba(12,17,26,0.22)_52%,transparent_68%)]
+      md:bg-[radial-gradient(circle_at_bottom_left,rgba(12,17,26,0.8)_0%,rgba(12,17,26,0.62)_30%,rgba(12,17,26,0.22)_52%,transparent_68%)]"
+  />
+
+  {/* Text directly on image */}
+  <div className="relative z-[2] flex min-h-[460px] sm:min-h-[500px] xl:min-h-[520px] items-end p-6 sm:p-10 xl:p-14">
+    <div className="max-w-[650px]">
+      <p
+        className="mb-3 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] text-[#FCBC62]"
+        style={{ textShadow: "0 2px 10px rgba(0,0,0,0.55)" }}
+      >
+        Business Line 0{idx + 1} of 03
+      </p>
+
+      <h3
+        className="text-[27px] sm:text-[36px] xl:text-[42px] font-bold leading-[1.15] text-white"
+        style={{ textShadow: "0 2px 10px rgba(0,0,0,0.55)" }}
+      >
+        {line.title}
+      </h3>
+
+      <p
+        className="mt-4 max-w-[600px] text-[15px] sm:text-lg font-medium leading-relaxed text-[#F4F1EA]"
+        style={{ textShadow: "0 2px 10px rgba(0,0,0,0.6)" }}
+      >
+        {line.body}
+      </p>
+    </div>
+  </div>
+</article>
+
               ))}
             </div>
           </div>

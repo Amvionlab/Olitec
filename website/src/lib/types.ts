@@ -8,7 +8,9 @@ export type ProductCategory =
   | "Battery"
   | "Air Cooler"
   | "Ceiling Fan"
-  | "Kitchen Appliance";
+  | "Kitchen Appliance"
+  | "Hybrid Inverters"
+  | "Energy Storage";
 
 export interface ProductSpec {
   label: string;

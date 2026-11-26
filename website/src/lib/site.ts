@@ -61,15 +61,25 @@ export const mainNav: readonly NavItem[] = [
 
 /** Footer link groups with Home and Media added (Item M8) */
 export const footerColumns = [
-  {
-    title: "Products",
-    links: [
-      { href: "/products", label: "Hybrid inverters" },
-      { href: "/products", label: "Energy storage" },
-      { href: "/applications", label: "Applications" },
-      { href: "/downloads", label: "Downloads" },
-    ],
-  },
+ {
+  title: "Products",
+  links: [
+    {
+      href: "/products/oli-1h-series-3-6kw",
+      label: "Single-phase hybrid inverter (OLI-1H)",
+    },
+    {
+      href: "/products/oli-3h-series-15-30kw",
+      label: "Three-phase hybrid inverter (OLI-3H)",
+    },
+    {
+      href: "/products/olb-512-lfp-battery-wall",
+      label: "Energy storage (OLB-5.12)",
+    },
+    { href: "/applications", label: "Applications" },
+    { href: "/downloads", label: "Downloads" },
+  ],
+},
   {
     title: "Customer Care",
     links: [
