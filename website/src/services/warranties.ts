@@ -31,7 +31,7 @@ export async function getMyWarranties(status?: WarrantyStatus): Promise<Warranty
 
 export async function getWarrantyById(id: string): Promise<WarrantyWithProduct | undefined> {
   try {
-    const res = await fetch(`${API_BASE_URL}id}`, {
+    const res = await fetch(`${API_BASE_URL}/warranties/${id}`, {
       headers: getAuthHeaders(),
       ...(typeof window === "undefined" ? {} : { cache: "no-store" as RequestCache }),
     });

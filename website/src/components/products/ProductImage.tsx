@@ -24,6 +24,8 @@ const categoryArt: Record<ProductCategory, { icon: LucideIcon; tint: string }> =
   "Water Purifier": { icon: Droplets, tint: "from-sky-100 to-sky-50 text-sky-600" },
   Inverter: { icon: Zap, tint: "from-amber-100 to-amber-50 text-amber-600" },
   Battery: { icon: Battery, tint: "from-emerald-100 to-emerald-50 text-emerald-600" },
+  "Hybrid Inverters": { icon: Zap, tint: "from-amber-100 to-amber-50 text-amber-600" },
+  "Energy Storage": { icon: Battery, tint: "from-emerald-100 to-emerald-50 text-emerald-600" },
   "Air Cooler": { icon: Snowflake, tint: "from-cyan-100 to-cyan-50 text-cyan-600" },
   "Ceiling Fan": { icon: Fan, tint: "from-violet-100 to-violet-50 text-violet-600" },
   "Kitchen Appliance": { icon: ChefHat, tint: "from-rose-100 to-rose-50 text-rose-600" },
