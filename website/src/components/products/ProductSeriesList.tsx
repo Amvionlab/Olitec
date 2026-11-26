@@ -124,9 +124,6 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                             Key figures
                           </h3>
                         </div>
-                        <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-[11px] font-bold text-brand-700">
-                          Verified Specs
-                        </span>
                       </div>
 
                       {/* Specs Table - All 7 rows fit neatly in single view */}
@@ -138,11 +135,6 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                           </div>
                         ))}
                       </dl>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-muted">
-                      <span>Interactive 360° View · Drag to rotate</span>
-                      <span className="font-semibold text-brand-600">360° Hardware CAD</span>
                     </div>
                   </div>
                 </div>

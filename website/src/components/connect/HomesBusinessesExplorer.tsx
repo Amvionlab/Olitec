@@ -459,7 +459,7 @@ export function HomesBusinessesExplorer() {
                   {/* Row 4: Supply Type as Three Interactive Buttons (Per Item M13) */}
                   <div className="sm:col-span-2">
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                      Supply Type (Click to select)
+                      Supply Type
                     </label>
                     <div className="grid grid-cols-3 gap-2">
                       {(["Single-phase", "Three-phase", "Not sure"] as const).map((type) => {

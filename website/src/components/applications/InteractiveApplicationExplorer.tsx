@@ -456,9 +456,6 @@ export function InteractiveApplicationExplorer() {
                       Live Power Flow Topology
                     </h3>
                   </div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Click mode to view real-time energy routing and load dispatch
-                  </p>
                 </div>
 
                 {/* 4 Mode Buttons */}

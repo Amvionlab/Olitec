@@ -178,9 +178,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     <Sparkles className="size-3.5" />
                     <span>{matchedSeries?.eyebrow || product.category}</span>
                   </span>
-                  <span className="text-[11px] font-semibold text-slate-500">
-                    Click 3D View to rotate CAD
-                  </span>
                 </div>
 
                 {/* CAD Image Preview / Interactive 3D Viewer */}
@@ -316,21 +313,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
               {/* Card 3: Technical Specifications Table */}
               <section className="rounded-[28px] border border-[#e6e2d8] bg-white p-6 sm:p-8 shadow-2xs">
-                <div className="flex items-center justify-between gap-2 mb-5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex size-9 items-center justify-center rounded-xl bg-amber-50 text-[#D45C0A]">
-                      <Cpu className="size-4.5" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg sm:text-xl font-bold text-[#161E2C]">
-                        Technical Specifications
-                      </h2>
-                      <p className="text-xs text-slate-500">Official datasheet benchmarks</p>
-                    </div>
+                <div className="flex items-center gap-2.5 mb-5">
+                  <div className="flex size-9 items-center justify-center rounded-xl bg-amber-50 text-[#D45C0A]">
+                    <Cpu className="size-4.5" />
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold text-slate-700">
-                    Verified Specs
-                  </span>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold text-[#161E2C]">
+                      Technical Specifications
+                    </h2>
+                    <p className="text-xs text-slate-500">Official datasheet benchmarks</p>
+                  </div>
                 </div>
 
                 <dl className="divide-y divide-slate-100 rounded-2xl border border-slate-100 overflow-hidden">

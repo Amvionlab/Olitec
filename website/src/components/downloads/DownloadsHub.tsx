@@ -3,21 +3,8 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { Search, ArrowDown, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/cn";
-
-const Product3DViewer = dynamic(
-  () => import("@/components/products/Product3DViewer").then((mod) => mod.Product3DViewer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex size-full items-center justify-center">
-        <div className="size-4 animate-spin rounded-full border-2 border-brand-200 border-t-brand-500" />
-      </div>
-    ),
-  },
-);
 
 type FilterCategory = "all" | "inverters" | "battery" | "brochures";
 
@@ -254,15 +241,13 @@ export function DownloadsHub() {
                   <div>
                     {/* Header Row: Product Render Image + Eyebrow & Title */}
                     <div className="flex items-center gap-4">
-                      <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-slate-50 p-0.5 border border-slate-100 flex items-center justify-center">
-                        <Product3DViewer
-                          category="Hybrid Inverter"
-                          name="Hybrid Inverter"
-                          height="100%"
-                          className="size-full"
-                          autoRotateInit={true}
-                          showHotspots={false}
-                          simpleGifMode={true}
+                      <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-slate-50 p-1.5 border border-slate-100 flex items-center justify-center">
+                        <Image
+                          src="/images/models/oli-1h-preview.webp"
+                          alt="Olitec Hybrid Inverter"
+                          width={64}
+                          height={64}
+                          className="size-full object-contain"
                         />
                       </div>
                       <div>
@@ -318,15 +303,13 @@ export function DownloadsHub() {
                   <div>
                     {/* Header Row: Product Render Image + Eyebrow & Title */}
                     <div className="flex items-center gap-4">
-                      <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-slate-50 p-0.5 border border-slate-100 flex items-center justify-center">
-                        <Product3DViewer
-                          category="Battery"
-                          name="LFP Battery"
-                          height="100%"
-                          className="size-full"
-                          autoRotateInit={true}
-                          showHotspots={false}
-                          simpleGifMode={true}
+                      <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-slate-50 p-1.5 border border-slate-100 flex items-center justify-center">
+                        <Image
+                          src="/images/models/olb-battery-preview.webp"
+                          alt="Olitec LFP Battery"
+                          width={64}
+                          height={64}
+                          className="size-full object-contain"
                         />
                       </div>
                       <div>

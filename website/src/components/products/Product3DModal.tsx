@@ -72,7 +72,6 @@ export function Product3DModal({
                   {category}
                 </span>
               </div>
-              <p className="text-xs text-muted">WebGL 3D CAD Inspection Suite · Rotate 360°, Zoom & Measure</p>
             </div>
           </div>
 
@@ -180,9 +179,6 @@ export function Product3DModal({
         {description && (
           <div className="flex items-center justify-between border-t border-slate-100 bg-white px-6 py-3 text-xs text-muted shrink-0">
             <span className="line-clamp-1">{description}</span>
-            <span className="font-semibold text-brand-600 shrink-0 ml-4 hidden sm:inline">
-              ● Left click to orbit · Right click to pan · Scroll to zoom
-            </span>
           </div>
         )}
       </div>

@@ -496,22 +496,12 @@ export function Product3DViewer({
         </div>
       )}
 
-      {/* Header Info Pill - Hidden in simpleGifMode */}
-      {simpleGifMode ? null : (
-        <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2.5">
-          <div className="glass-panel flex items-center gap-2 rounded-full px-3.5 py-1.5 shadow-sm">
-            <span className="relative flex size-2.5">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
-            </span>
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-black">Interactive 3D View</span>
-            <span className="text-xs text-muted font-medium">· 360° CAD</span>
+      {/* Model chip - Hidden in simpleGifMode */}
+      {simpleGifMode || !modelNumber ? null : (
+        <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2">
+          <div className="glass-panel flex items-center gap-1.5 rounded-full px-3 py-1.5 shadow-sm">
+            <span className="text-xs font-semibold text-brand-600">{modelNumber}</span>
           </div>
-          {modelNumber && (
-            <div className="hidden sm:flex glass-panel items-center gap-1.5 rounded-full px-3 py-1.5 shadow-sm">
-              <span className="text-xs font-semibold text-brand-600">{modelNumber}</span>
-            </div>
-          )}
         </div>
       )}
 

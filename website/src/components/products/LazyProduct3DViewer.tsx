@@ -103,7 +103,7 @@ export function LazyProduct3DViewer({
           className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-bold text-[#161E2C] shadow-sm ring-1 ring-black/10 backdrop-blur-sm transition hover:bg-[#161E2C] hover:text-white cursor-pointer"
         >
           <Rotate3d className="size-3.5 text-[#D45C0A] transition-colors group-hover:text-[#F3BE48]" aria-hidden="true" />
-          <span>Interactive 3D</span>
+          <span>3D View</span>
         </button>
       )}
     </div>
