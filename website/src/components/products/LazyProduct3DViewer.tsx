@@ -70,14 +70,16 @@ export function LazyProduct3DViewer({
       )}
       style={{ height: typeof height === "number" ? `${height}px` : height }}
     >
-      <div className={cn("relative size-full", compactTrigger ? "p-1" : "p-4 sm:p-6")}>
-        <Image
-          src={posterSrc}
-          alt={`${props.name}${props.modelNumber ? ` (${props.modelNumber})` : ""} 3D CAD hardware view`}
-          fill
-          sizes={compactTrigger ? "96px" : "(min-width: 1024px) 360px, 90vw"}
-          className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-        />
+      <div className={cn("size-full flex items-center justify-center", compactTrigger ? "p-1" : "p-4 sm:p-5")}>
+        <div className="relative size-full">
+          <Image
+            src={posterSrc}
+            alt={`${props.name}${props.modelNumber ? ` (${props.modelNumber})` : ""} 3D CAD hardware view`}
+            fill
+            sizes={compactTrigger ? "96px" : "(min-width: 1024px) 360px, 90vw"}
+            className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+          />
+        </div>
       </div>
 
       {compactTrigger ? (
