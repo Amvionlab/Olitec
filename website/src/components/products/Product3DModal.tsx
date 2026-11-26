@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, Box, Download, FileText, CheckCircle2, ChevronRight, Sparkles } from "lucide-react";
+import { X, Box, Download, FileText, CheckCircle2, ChevronRight } from "lucide-react";
 import { Product3DViewer } from "./Product3DViewer";
 import { cn } from "@/lib/cn";
 
@@ -131,8 +131,8 @@ export function Product3DModal({
                 {/* Verified Specs Table */}
                 <div className="rounded-[22px] border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
                   <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <Sparkles className="size-4 text-brand-500" />
-                    <h4 className="text-sm font-bold text-slate-900">Verified Specifications</h4>
+                    <CheckCircle2 className="size-4 text-brand-500" />
+                    <h4 className="text-sm font-bold text-slate-900">Technical Specifications</h4>
                   </div>
                   <dl className="mt-3 divide-y divide-slate-100 text-xs">
                     {figures.map((fig) => (

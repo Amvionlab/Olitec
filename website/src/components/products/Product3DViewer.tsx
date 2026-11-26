@@ -13,7 +13,6 @@ import {
   Play,
   Pause,
   Layers,
-  Sparkles,
   Info,
   ShieldCheck,
   CheckCircle2,

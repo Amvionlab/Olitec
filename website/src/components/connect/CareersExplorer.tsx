@@ -13,7 +13,6 @@ import {
   Upload,
   Check,
   Briefcase,
-  Sparkles,
 } from "lucide-react";
 import { submitEnquiry, type EnquiryValues } from "@/services/enquiries";
 import { getStoredUser, type UserProfile } from "@/services/auth";

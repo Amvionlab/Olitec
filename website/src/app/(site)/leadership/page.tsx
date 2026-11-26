@@ -10,7 +10,6 @@ import {
   Layers,
   MapPin,
   ShieldCheck,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { leaders, leadershipIntro, legacyLead, values } from "@/content/legacy";
@@ -211,7 +210,6 @@ export default function LeadershipPage() {
             {/* Right Values Narrative + Pillars (7 cols) */}
             <div className="lg:col-span-7 space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#1F7A34]">
-                <Sparkles className="size-3.5" />
                 <span>Our Core Values</span>
               </div>
 

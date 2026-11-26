@@ -12,7 +12,6 @@ import {
   BadgeCheck,
   Check,
   Building2,
-  Sparkles,
 } from "lucide-react";
 import { submitEnquiry, type EnquiryValues } from "@/services/enquiries";
 import { getStoredUser, type UserProfile } from "@/services/auth";

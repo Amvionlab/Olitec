@@ -24,7 +24,6 @@ import {
   Mail,
   MapPin,
   Calendar,
-  Sparkles,
   RefreshCw,
   KeyRound,
   Eye,
@@ -765,7 +764,7 @@ export function CustomerUnifiedDashboard() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5">
                     <div className="flex size-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
-                      <Sparkles size={18} />
+                      <Package size={18} />
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-slate-900">

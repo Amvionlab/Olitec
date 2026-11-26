@@ -12,7 +12,6 @@ import {
   AlertCircle,
   Calendar,
   Clock,
-  Sparkles,
   Zap,
   Check,
   HelpCircle,
@@ -293,7 +292,7 @@ export function WarrantyStatusExplorer() {
           {!found && (
             <div className="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-8 space-y-6">
               <h3 className="text-lg font-bold text-[#161E2C] flex items-center gap-2">
-                <Sparkles className="size-5 text-[#D45C0A]" />
+                <ShieldCheck className="size-5 text-[#D45C0A]" />
                 <span>What is covered under your Olitec Warranty?</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">

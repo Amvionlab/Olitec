@@ -8,7 +8,6 @@ import {
   Phone,
   FileText,
   HelpCircle,
-  Sparkles,
   Zap,
   Battery,
   Award,

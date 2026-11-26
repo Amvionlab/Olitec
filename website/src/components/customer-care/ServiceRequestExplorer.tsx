@@ -14,7 +14,7 @@ import {
   Phone,
   CheckCircle2,
   ArrowRight,
-  Sparkles,
+  ShieldCheck,
   Search,
   Check,
   AlertTriangle,
@@ -268,7 +268,7 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
           {/* Service Guarantees & SLAs */}
           <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Sparkles className="size-4.5 text-[#D45C0A]" />
+              <ShieldCheck className="size-4.5 text-[#D45C0A]" />
               <span>Olitec Service Guarantees</span>
             </h3>
 

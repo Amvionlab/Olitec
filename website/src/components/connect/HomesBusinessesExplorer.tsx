@@ -13,7 +13,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Zap,
-  Sparkles,
   Check,
 } from "lucide-react";
 import { submitEnquiry, type EnquiryValues } from "@/services/enquiries";

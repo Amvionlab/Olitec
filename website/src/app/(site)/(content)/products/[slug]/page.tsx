@@ -9,7 +9,6 @@ import {
   Download,
   Phone,
   ShieldCheck,
-  Sparkles,
   Zap,
 } from "lucide-react";
 import { ProductMediaViewer } from "@/components/products/ProductMediaViewer";
@@ -175,7 +174,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       isBattery ? "bg-emerald-500/10 text-[#1F7A34]" : "bg-amber-500/10 text-[#D45C0A]",
                     )}
                   >
-                    <Sparkles className="size-3.5" />
+                    <Zap className="size-3.5" />
                     <span>{matchedSeries?.eyebrow || product.category}</span>
                   </span>
                 </div>
