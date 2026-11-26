@@ -65,12 +65,29 @@ const icons = { epc: EpcIcon, storage: StorageIcon, turnkey: TurnkeyIcon };
 export function BusinessLines() {
   const containerRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [isClient, setIsClient] = useState(false);
+  const [loadAllSlides, setLoadAllSlides] = useState(false);
   const isNavigatingRef = useRef(false);
 
   useEffect(() => {
-    setIsClient(true);
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setLoadAllSlides(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLoadAllSlides(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "350px 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     let rafId: number | null = null;
 
     const handleScroll = () => {
@@ -84,21 +101,16 @@ export function BusinessLines() {
       if (totalScrollable <= 0) return;
 
       const scrolled = -rect.top;
-      const rawProgress = scrolled / totalScrollable;
-      const clamped = Math.min(Math.max(rawProgress, 0), 1);
-      setProgress(clamped);
+      const clamped = Math.min(Math.max(scrolled / totalScrollable, 0), 1);
 
-      // Map progress to active slide (0, 1, 2)
       let nextIndex = 0;
       if (clamped >= 0.68) {
         nextIndex = 2;
       } else if (clamped >= 0.32) {
         nextIndex = 1;
-      } else {
-        nextIndex = 0;
       }
 
-      setActive(nextIndex);
+      setActive((prev) => (prev === nextIndex ? prev : nextIndex));
     };
 
     const onScroll = () => {
@@ -108,7 +120,6 @@ export function BusinessLines() {
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
-    handleScroll();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
@@ -119,6 +130,7 @@ export function BusinessLines() {
 
   const goToSlide = (targetIndex: number) => {
     const nextIdx = Math.max(0, Math.min(LAST, targetIndex));
+    setLoadAllSlides(true);
     setActive(nextIdx);
 
     if (!containerRef.current) return;
@@ -206,23 +218,24 @@ export function BusinessLines() {
   key={line.key}
   className="relative isolate min-w-full w-full shrink-0 min-h-[460px] sm:min-h-[500px] xl:min-h-[520px] overflow-hidden rounded-[25px] bg-[#0C111A]"
 >
-  {/* Background image */}
+  {/* Background image — defer slides 1 & 2 until #services nears viewport */}
   <div className="absolute inset-0 z-0">
-    {line.key === "storage" ? (
-      <AnimatedIllustration
-        src={line.image}
-        alt={line.imageAlt}
-        overlay={line.overlay}
-        sizes="(min-width: 1280px) 1200px, 100vw"
-        className="h-full w-full"
-      />
-    ) : (
-      <CrossfadeImageSlideshow
-        images={[...line.images]}
-        alt={line.imageAlt}
-        className="h-full w-full"
-      />
-    )}
+    {(idx === 0 || loadAllSlides || active === idx) &&
+      (line.key === "storage" ? (
+        <AnimatedIllustration
+          src={line.image}
+          alt={line.imageAlt}
+          overlay={line.overlay}
+          sizes="(min-width: 1280px) 1200px, 100vw"
+          className="h-full w-full"
+        />
+      ) : (
+        <CrossfadeImageSlideshow
+          images={[...line.images]}
+          alt={line.imageAlt}
+          className="h-full w-full"
+        />
+      ))}
   </div>
 
   {/* Text readability gradient */}
@@ -266,7 +279,7 @@ export function BusinessLines() {
 
           {/* Bottom Navigation & Controls */}
           <div className="mt-7 sm:mt-8 flex items-center justify-between border-t-[0.751px] border-[#262626]/20 pt-4">
-            <p className="font-sans text-[15.013px] font-medium leading-[1.5] text-[#999]" aria-live="polite">
+            <p className="font-sans text-[15.013px] font-medium leading-[1.5] text-[#525252]" aria-live="polite">
               <span className="font-bold text-black">{String(active + 1).padStart(2, "0")}</span> of{" "}
               {String(businessLines.length).padStart(2, "0")}
             </p>

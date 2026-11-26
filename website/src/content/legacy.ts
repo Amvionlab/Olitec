@@ -9,8 +9,8 @@ export const legacyHero = {
   titleLines: ["Building a dependable", "clean-energy model"],
   titleAccent: "for India",
   cta: { href: "/products", label: "Explore our products" },
-  card: { href: "/#services", label: "Three connected lines of business", image: "/images/legacy/ground-mount-epc.jpg" },
-  image: "/images/legacy/hero.jpg",
+  card: { href: "/#services", label: "Three connected lines of business", image: "/images/legacy/ground-mount-epc.webp" },
+  image: "/images/legacy/hero.webp",
   imageAlt:
     "Illustration of a sunrise over rows of solar arrays feeding an inverter, battery storage and transmission towers toward a city skyline",
 };
@@ -47,7 +47,7 @@ imageAlt:
     key: "storage",
     title: "Inverters and energy storage",
     body: "Delivering state-of-the-art hybrid inverters and battery energy storage systems under the Olitec brand — developed through in-house R&D, built to manufacturing-grade quality and supported through our partner network across India.",
-    image: "/images/legacy/inverters-storage.jpg",
+    image: "/images/legacy/inverters-storage.webp",
     imageAlt:
       "Illustration of a wall-mounted inverter and battery turning a rough waveform into clean power for lights, appliances and the grid",
     overlay: "inverters",
@@ -70,13 +70,13 @@ imageAlt:
 export const synergy = {
   statement:
     "Each line of business strengthens the others: what we learn operating plants shapes the products we build, and the products we build make the solutions we deliver more reliable.",
-  image: "/images/legacy/synergy.jpg",
+  image: "/images/legacy/synergy.webp",
   imageAlt: "Three linked nodes representing solar plants, inverters and storage, and turnkey delivery",
 };
 
 export const values = {
   title: "At Olitec, our values are at the core of how we work.",
-  image: "/images/legacy/values.jpg",
+  image: "/images/legacy/values.webp",
   imageAlt: "Abstract contour lines radiating from a single point",
   paragraphs: [
     "Olitec is led by engineers, builders and manufacturers with deep experience in power electronics, energy storage, solar generation and industrial production — people who have built factories, commissioned power plants and put products into millions of Indian homes.",

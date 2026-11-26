@@ -144,8 +144,8 @@ export function SiteHeader() {
             mobileOpen
               ? "bg-[#FFF7EA] shadow-[0_12px_30px_rgba(40,30,10,0.16)] border border-white"
               : scrolled
-              ? "bg-[#FFF7EA]/85 backdrop-blur-[16px] shadow-[0_12px_30px_rgba(40,30,10,0.16)] border border-white/75"
-              : "bg-[#FFFAF2]/60 backdrop-blur-[16px] shadow-[0_12px_30px_rgba(40,30,10,0.12)] border border-white/75",
+              ? "bg-[#FFF7EA]/92 md:bg-[#FFF7EA]/85 md:backdrop-blur-[16px] shadow-[0_12px_30px_rgba(40,30,10,0.16)] border border-white/75"
+              : "bg-[#FFFAF2]/94 md:bg-[#FFFAF2]/65 md:backdrop-blur-[16px] shadow-[0_12px_30px_rgba(40,30,10,0.12)] border border-white/75",
           )}
         >
           {/* Logo on Left */}
@@ -155,7 +155,6 @@ export function SiteHeader() {
               alt="Olitec"
               width={160}
               height={48}
-              priority
               className="h-[36px] sm:h-[42px] w-auto"
             />
           </Link>

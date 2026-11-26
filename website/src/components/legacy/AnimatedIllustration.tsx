@@ -22,7 +22,15 @@ export function AnimatedIllustration({ src, alt, overlay, sizes, className, prio
   return (
     <div className={cn("relative w-full overflow-hidden", className)}>
       {children}
-      <Image src={src} alt={alt} fill priority={priority} sizes={sizes} className="object-cover" />
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        priority={priority}
+        loading={priority ? "eager" : "lazy"}
+        sizes={sizes}
+        className="object-cover"
+      />
       <OverlaySvg viewBox={viewBox} markup={markup} />
     </div>
   );

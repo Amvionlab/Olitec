@@ -35,12 +35,12 @@ export interface SubNavItem {
 }
 
 const ART_IMAGES: Record<keyof typeof legacyOverlays, string> = {
-  hero: "/images/legacy/hero.jpg",
-  groundMount: "/images/legacy/ground-mount-epc.jpg",
-  inverters: "/images/legacy/inverters-storage.jpg",
-  turnkey: "/images/legacy/turnkey.jpg",
-  synergy: "/images/legacy/synergy.jpg",
-  values: "/images/legacy/values.jpg",
+  hero: "/images/legacy/hero.webp",
+  groundMount: "/images/legacy/ground-mount-epc.webp",
+  inverters: "/images/legacy/inverters-storage.webp",
+  turnkey: "/images/legacy/turnkey.webp",
+  synergy: "/images/legacy/synergy.webp",
+  values: "/images/legacy/values.webp",
 };
 
 /** Page banner in the style of the Figma hero: rounded illustration panel, dark gradient, white text. */

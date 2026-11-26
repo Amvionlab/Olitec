@@ -23,6 +23,7 @@ export function OverlaySvg({ viewBox, markup }: { viewBox: string; markup: strin
   return (
     <svg
       ref={ref}
+      data-paused=""
       className="olx pointer-events-none absolute inset-0 size-full"
       aria-hidden
       viewBox={viewBox}

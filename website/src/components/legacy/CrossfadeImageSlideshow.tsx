@@ -109,8 +109,7 @@ export function CrossfadeImageSlideshow({
         src={images[activeIndex]}
         alt={alt}
         fill
-        priority={activeIndex === 0}
-        loading={activeIndex === 0 ? "eager" : "lazy"}
+        loading="lazy"
         sizes="(min-width: 1280px) 1200px, 100vw"
         className="z-[1] object-cover transition-opacity ease-in-out"
         style={{

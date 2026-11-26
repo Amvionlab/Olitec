@@ -44,7 +44,7 @@ export function SiteFooter() {
           {/* Navigation Columns */}
           {footerColumns.map((column) => (
             <nav key={column.title} aria-label={column.title} className="flex flex-col">
-              <p className="font-sans text-xs sm:text-sm font-bold tracking-wider uppercase text-[#C46E0E]">
+              <p className="font-sans text-xs sm:text-sm font-bold tracking-wider uppercase text-[#9A5205]">
                 {column.title}
               </p>
               <ul className="mt-4 space-y-2.5">
@@ -52,7 +52,7 @@ export function SiteFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#161E2C] transition-all hover:text-[#C46E0E] hover:translate-x-1"
+                      className="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#161E2C] transition-all hover:text-[#9A5205] hover:translate-x-1"
                     >
                       <span className="size-1 rounded-full bg-[#E8962C] transition-colors group-hover:scale-125" />
                       <span>{link.label}</span>
@@ -65,7 +65,7 @@ export function SiteFooter() {
 
           {/* Column 5: Facilities & Direct Contact Hub */}
           <div className="flex flex-col space-y-4">
-            <p className="font-sans text-xs sm:text-sm font-bold tracking-wider uppercase text-[#C46E0E]">
+            <p className="font-sans text-xs sm:text-sm font-bold tracking-wider uppercase text-[#9A5205]">
               Operations & Facilities
             </p>
 
@@ -73,7 +73,7 @@ export function SiteFooter() {
             <div>
               <a
                 href={`mailto:${siteConfig.supportEmail}`}
-                className="group inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-[#161E2C] hover:text-[#C46E0E] transition-colors"
+                className="group inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-[#161E2C] hover:text-[#9A5205] transition-colors"
               >
                 <Mail className="size-4 text-[#E8962C] shrink-0" />
                 <span className="group-hover:underline">{siteConfig.supportEmail}</span>
@@ -85,7 +85,7 @@ export function SiteFooter() {
               <Phone className="size-4 text-[#E8962C] shrink-0" />
               <a
                 href={tel(siteConfig.supportPhone)}
-                className="font-bold text-sm tracking-wide text-[#161E2C] hover:text-[#C46E0E] transition-colors"
+                className="font-bold text-sm tracking-wide text-[#161E2C] hover:text-[#9A5205] transition-colors"
               >
                 {siteConfig.supportPhone}
               </a>
@@ -102,9 +102,10 @@ export function SiteFooter() {
                   href={factoryMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#C46E0E] hover:underline"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#9A5205] hover:underline"
                 >
                   <span>Map</span>
+                  <span className="sr-only"> (Factory and R&amp;D Plant)</span>
                   <ExternalLink className="size-3" />
                 </a>
               </div>
@@ -124,9 +125,10 @@ export function SiteFooter() {
                   href={corporateMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#C46E0E] hover:underline"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#9A5205] hover:underline"
                 >
                   <span>Map</span>
+                  <span className="sr-only"> (Corporate Headquarters)</span>
                   <ExternalLink className="size-3" />
                 </a>
               </div>
