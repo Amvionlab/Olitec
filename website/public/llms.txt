@@ -1,0 +1,29 @@
+# OLITEC (Olitec Solar Private Limited)
+
+> Hybrid inverters and lithium iron phosphate (LFP) energy storage systems in India, engineered as one unified platform and supported through our nationwide channel partner network.
+
+## Company Overview
+- Legal Entity: Olitec Solar Private Limited
+- Manufacturing Facility: No. 127/2, Vallimalai Ring Road, Perumalkuppam, Katpadi Taluk, Vellore, Tamil Nadu 632 520, India
+- Corporate Office: No. 5/63, Gateway House, House of Hiranandani, Egattur, OMR, Chennai, Tamil Nadu 600 130, India
+- Customer Care & Helpline: 8501 800 800 (Monday to Saturday, 9:00 AM - 6:30 PM IST)
+- Email: contact@olitec.in
+
+## Core Products
+- [OLI-1H Series Single-Phase Hybrid Inverter (3 to 6 kW)](/products/oli-1h-series-3-6kw): Compact residential & small-commercial hybrid inverter. Features up to 200% PV oversizing, 2 MPPTs, 40-60 V battery compatibility, <10 ms UPS backup switch-over, 97.3% peak efficiency, IP66 weatherproof enclosure, fanless <35 dB operation, and up to 6 units parallel scaling (36 kW). Models: OLI-1H3L, OLI-1H3.6L, OLI-1H4L, OLI-1H4.6L, OLI-1H5L, OLI-1H6L, OLI-1H5L-2.
+- [OLI-3H Series Three-Phase Hybrid Inverter (15 to 30 kW)](/products/oli-3h-series-15-30kw): Commercial and industrial hybrid inverter. Supports up to 60 kW PV input, 2-3 MPPTs, 160-750 V HV battery range, 100% unbalanced three-phase output, AC coupling, diesel generator integration, <10 ms backup switch-over, 97.8% peak efficiency, IP66 enclosure, and up to 6 units parallel scaling (180 kW). Models: OLI-3H15H, OLI-3H20H, OLI-3H25H, OLI-3H29.9H, OLI-3H30H.
+- [OLB-5.12 LFP Energy Storage Battery (5.12 kWh)](/products/olb-512-lfp-battery-wall): Cobalt-free LiFePO4 battery module at 51.2 V / 100 Ah. Certified to BIS, UN 38.3, IEC 62619, and UL 1973. Passive cooling, intelligent BMS, 4,000+ cycles at 80% DoD, RS485/CAN/RS232 communication, parallel scaling up to 10 packs (51.2 kWh). Models: OLB-5.12W (wall-mount), OLB-5.12R (3U 19-inch rack-mount).
+
+## Key Website Pages
+- [Home](/): Brand overview, connected solar businesses (products, ground-mount open-access EPC, turnkey plants), product summary, and FAQs.
+- [Products](/products): Complete hybrid inverter and LFP battery portfolio with specifications and datasheets.
+- [Applications](/applications): Six real-world deployment architectures (Homes & clinics, Remote/off-grid, Camper vans & mobile power, Defence & border outposts, Hill & rural microgrids, Commercial & industrial).
+- [Downloads](/downloads): Engineering datasheets and brochures in PDF format.
+- [Our Legacy](/leadership): Olitec leadership background, manufacturing philosophy, and clean-energy heritage.
+- [Media](/media): Product announcements, facility updates, and energy transition news.
+- [Register Warranty](/warranties/register): Online manufacturer warranty activation by serial number.
+- [Check Warranty Status](/warranty-status): Verify active warranty coverage and download PDF certificate.
+- [Raise Service Request](/service-request): Technical support ticket booking and dispatch.
+- [Channel Partners](/channel-partners): Partner onboarding for distributors, dealers, and solar EPC integrators.
+- [Homes & Businesses](/homes-and-businesses): Consultation and site sizing request with authorized installers.
+- [Careers](/careers): Engineering, R&D, manufacturing, and field service opportunities.

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import dynamic from "next/dynamic";
+import { LazyProduct3DViewer } from "@/components/products/LazyProduct3DViewer";
 import {
   CheckCircle2,
   ArrowUpRight,
@@ -13,18 +13,6 @@ import {
   Info,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
-
-const Product3DViewer = dynamic(
-  () => import("@/components/products/Product3DViewer").then((mod) => mod.Product3DViewer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex size-full items-center justify-center">
-        <div className="size-5 animate-spin rounded-full border-2 border-brand-200 border-t-brand-500" />
-      </div>
-    ),
-  },
-);
 
 export interface ApplicationData {
   id: string;
@@ -55,9 +43,9 @@ export const APPLICATIONS: ApplicationData[] = [
     challenge:
       "Frequent outages, voltage swings and rising tariffs make grid-only supply unreliable and expensive for homes, shops and clinics.",
     inverterModel: "OLI-1H Single-Phase (3 – 6 kW)",
-    inverterSlug: "powermax-1100-inverter",
+    inverterSlug: "oli-1h-series-3-6kw",
     batteryModel: "OLB-5.12 LFP Battery (5.12 kWh)",
-    batterySlug: "tubular-150ah-battery",
+    batterySlug: "olb-512-lfp-battery-wall",
     system: [
       "OLI-1H single-phase hybrid inverter, 3 to 6 kW",
       "One to four OLB-5.12 battery packs",
@@ -83,9 +71,9 @@ export const APPLICATIONS: ApplicationData[] = [
     challenge:
       "Farms, borewell pumps, eco-resorts, quarries and construction camps often depend on a diesel generator that is costly to run and to refuel.",
     inverterModel: "OLI-1H / OLI-3H Hybrid Inverter",
-    inverterSlug: "powermax-1100-inverter",
+    inverterSlug: "oli-1h-series-3-6kw",
     batteryModel: "OLB-5.12 Multi-Pack Bank (10 – 30 kWh)",
-    batterySlug: "tubular-150ah-battery",
+    batterySlug: "olb-512-lfp-battery-wall",
     system: [
       "OLI-1H or OLI-3H hybrid inverter, matched to the load",
       "OLB-5.12 storage sized for overnight and cloudy-day autonomy",
@@ -111,9 +99,9 @@ export const APPLICATIONS: ApplicationData[] = [
     challenge:
       "Camper vans, mobile clinics, broadcast vans and outdoor event units need silent, clean power on the move and at remote halts.",
     inverterModel: "Compact OLI-1H (3 to 3.6 kW)",
-    inverterSlug: "powermax-1100-inverter",
+    inverterSlug: "oli-1h-series-3-6kw",
     batteryModel: "OLB-5.12R Rack-Mount LFP Pack",
-    batterySlug: "tubular-150ah-battery",
+    batterySlug: "olb-512-lfp-battery-wall",
     system: [
       "Compact OLI-1H hybrid inverter, 3 to 3.6 kW",
       "OLB-5.12R rack-mount batteries in a ventilated compartment",
@@ -139,9 +127,9 @@ export const APPLICATIONS: ApplicationData[] = [
     challenge:
       "Forward posts, border outposts and surveillance stations need dependable power in harsh climates, with minimal fuel logistics and maintenance.",
     inverterModel: "OLI-1H / OLI-3H Rugged IP66 Inverter",
-    inverterSlug: "powermax-1100-inverter",
+    inverterSlug: "oli-3h-series-15-30kw",
     batteryModel: "OLB-5.12 Extreme-Temp LFP Array",
-    batterySlug: "tubular-150ah-battery",
+    batterySlug: "olb-512-lfp-battery-wall",
     system: [
       "OLI-1H or OLI-3H hybrid inverters, IP66 rated for outdoor mounting",
       "OLB-5.12 storage installed in a protected shelter",
@@ -167,9 +155,9 @@ export const APPLICATIONS: ApplicationData[] = [
     challenge:
       "Hill hamlets, island communities and remote settlements are often served by long, unreliable feeder lines or by no grid at all.",
     inverterModel: "Parallel OLI-3H Cluster (up to 180 kW)",
-    inverterSlug: "powermax-1100-inverter",
+    inverterSlug: "oli-3h-series-15-30kw",
     batteryModel: "High-Capacity Community LFP Bank",
-    batterySlug: "tubular-150ah-battery",
+    batterySlug: "olb-512-lfp-battery-wall",
     system: [
       "Three-phase OLI-3H hybrid inverters in parallel, up to 180 kW",
       "Battery bank sized for community night-time demand",
@@ -195,9 +183,9 @@ export const APPLICATIONS: ApplicationData[] = [
     challenge:
       "Factories, hospitals, cold stores and commercial buildings face peak demand charges and costly downtime when the supply fails.",
     inverterModel: "OLI-3H Three-Phase Inverter (15 – 30 kW)",
-    inverterSlug: "powermax-1100-inverter",
+    inverterSlug: "oli-3h-series-15-30kw",
     batteryModel: "High-Voltage Industrial LFP Storage",
-    batterySlug: "tubular-150ah-battery",
+    batterySlug: "olb-512-lfp-battery-wall",
     system: [
       "OLI-3H three-phase hybrid inverters, 15 to 30 kW each",
       "High-voltage battery storage",
@@ -703,9 +691,9 @@ export function InteractiveApplicationExplorer() {
                         : "border-slate-300 hover:border-slate-500",
                     )}
                   >
-                    {/* Left: 3D Inverter Viewer */}
+                    {/* Left: 3D Inverter Viewer (lazy on click) */}
                     <div className="relative size-18 sm:size-20 shrink-0 overflow-hidden rounded-xl bg-slate-50/80 border border-slate-100 flex items-center justify-center">
-                      <Product3DViewer
+                      <LazyProduct3DViewer
                         category="Hybrid Inverter"
                         name={app.inverterModel}
                         height="100%"
@@ -713,6 +701,7 @@ export function InteractiveApplicationExplorer() {
                         autoRotateInit={true}
                         showHotspots={false}
                         simpleGifMode={true}
+                        compactTrigger={true}
                       />
                     </div>
                     {/* Right: Content */}
@@ -727,7 +716,7 @@ export function InteractiveApplicationExplorer() {
                         Pure Sine Wave · Sub-10ms UPS
                       </span>
                       <Link
-                        href={`/products`}
+                        href={`/products/${app.inverterSlug}`}
                         className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-[#E0761B] hover:text-[#B85E0E] underline"
                       >
                         <span>View product</span>
@@ -749,9 +738,9 @@ export function InteractiveApplicationExplorer() {
                         : "border-slate-300 hover:border-slate-500",
                     )}
                   >
-                    {/* Left: 3D Battery Viewer */}
+                    {/* Left: 3D Battery Viewer (lazy on click) */}
                     <div className="relative size-16 sm:size-18 shrink-0 overflow-hidden rounded-xl bg-slate-50/80 border border-slate-100 flex items-center justify-center">
-                      <Product3DViewer
+                      <LazyProduct3DViewer
                         category="Battery"
                         name={app.batteryModel}
                         height="100%"
@@ -759,6 +748,7 @@ export function InteractiveApplicationExplorer() {
                         autoRotateInit={true}
                         showHotspots={false}
                         simpleGifMode={true}
+                        compactTrigger={true}
                       />
                     </div>
                     {/* Right: Content */}
@@ -773,7 +763,7 @@ export function InteractiveApplicationExplorer() {
                         {mode === "day" ? "Charging (+1.8 kW)" : mode === "night" ? "Discharging (92% SOC)" : "UPS Active"}
                       </span>
                       <Link
-                        href={`/products`}
+                        href={`/products/${app.batterySlug}`}
                         className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-[#E0761B] hover:text-[#B85E0E] underline"
                       >
                         <span>View product</span>

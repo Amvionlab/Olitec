@@ -16,7 +16,23 @@ export const metadata: Metadata = {
     shortcut: "/favicon-32x32.png",
     apple: "/apple-touch-icon.png",
   },
-  openGraph: { siteName: siteConfig.name, type: "website", locale: "en_IN" },
+  openGraph: {
+    siteName: siteConfig.name,
+    type: "website",
+    locale: "en_IN",
+    images: [
+      {
+        url: "/images/og-preview.jpg",
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} — Hybrid inverters and energy storage systems for India`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og-preview.jpg"],
+  },
 };
 
 export const viewport: Viewport = {

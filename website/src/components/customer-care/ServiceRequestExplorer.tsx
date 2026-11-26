@@ -189,9 +189,9 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
           <Wrench className="size-4" />
           <span>On-Site Technical Service</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#161E2C] leading-tight">
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#161E2C] leading-tight">
           Raise an authorized service request
-        </h1>
+        </h2>
         <p className="mt-2 text-slate-600 text-sm sm:text-base leading-relaxed">
           Select your issue category and schedule an on-site service engineer. All warranty repairs use genuine Olitec components with guaranteed SLA turnaround.
         </p>

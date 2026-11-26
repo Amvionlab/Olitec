@@ -10,12 +10,14 @@ import { BusinessLines } from "@/components/legacy/BusinessLines";
 import { CtaPanel } from "@/components/legacy/ui";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { legacyLead } from "@/content/legacy";
+import { faqs } from "@/content/home";
 import { applicationsPage, productsPage } from "@/content/pages";
+import { FaqJsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: { absolute: `${siteConfig.name} · Clean Energy Solutions` },
-description: siteConfig.searchDescription,
+  title: { absolute: `${siteConfig.name} · Hybrid Inverters & LFP Energy Storage India` },
+  description: siteConfig.searchDescription,
   alternates: { canonical: "/" },
 };
 
@@ -23,11 +25,24 @@ const structuredData = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: siteConfig.legalName,
+  alternateName: siteConfig.name,
   url: siteConfig.url,
-  logo: `${siteConfig.url}/images/home/olitec-logo.png`,
+  logo: `${siteConfig.url.replace(/\/$/, "")}/images/home/olitec-logo.png`,
   email: siteConfig.supportEmail,
   telephone: siteConfig.carePhones[0],
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: siteConfig.carePhones[0],
+    email: siteConfig.supportEmail,
+    contactType: "customer service",
+    areaServed: "IN",
+    availableLanguage: ["English", "Hindi", "Tamil"],
+  },
   address: { "@type": "PostalAddress", streetAddress: siteConfig.corporateAddress, addressCountry: "IN" },
+  location: [
+    { "@type": "Place", name: "Corporate Office", address: siteConfig.corporateAddress },
+    { "@type": "Place", name: "Manufacturing Facility", address: siteConfig.factoryAddress },
+  ],
 };
 
 export default function HomePage() {
@@ -37,6 +52,7 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
       />
+      <FaqJsonLd items={faqs} />
 
       {/* 1. Hero with warm apricot radial glow and deep green action */}
       <Hero />

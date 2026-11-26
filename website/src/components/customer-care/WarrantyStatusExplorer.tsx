@@ -86,9 +86,9 @@ export function WarrantyStatusExplorer() {
           <ShieldCheck className="size-4" />
           <span>Official Warranty Verification</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#161E2C] leading-tight">
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#161E2C] leading-tight">
           Check your hardware warranty status
-        </h1>
+        </h2>
         <p className="mt-2 text-slate-600 text-sm sm:text-base leading-relaxed">
           Verify active manufacturer coverage, review warranty terms, and instantly download your official digital warranty certificate.
         </p>

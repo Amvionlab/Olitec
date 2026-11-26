@@ -3,16 +3,19 @@ import { homesPage } from "@/content/pages";
 import { LegacyPage } from "@/components/legacy/ui";
 import { ConnectBanner } from "@/components/layout/ConnectBanner";
 import { HomesBusinessesExplorer } from "@/components/connect/HomesBusinessesExplorer";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "For homes and businesses",
-  description: homesPage.lead,
+  title: "Solar Hybrid Inverter & Battery Backup for Homes & Businesses",
+  description:
+    "Plan a solar inverter and 5.12 kWh LFP battery backup system for your home, clinic, shop, or factory with authorized Olitec engineers.",
   alternates: { canonical: "/homes-and-businesses" },
 };
 
 export default function HomesAndBusinessesPage() {
   return (
     <LegacyPage>
+      <BreadcrumbJsonLd items={[{ name: "Homes & Businesses", path: "/homes-and-businesses" }]} />
       <ConnectBanner current="/homes-and-businesses" />
       <HomesBusinessesExplorer />
     </LegacyPage>

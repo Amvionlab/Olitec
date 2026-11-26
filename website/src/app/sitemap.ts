@@ -6,28 +6,31 @@ export const dynamic = "force-static";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await getProducts();
+  const baseUrl = siteConfig.url.replace(/\/$/, "");
   const staticRoutes = [
     "",
     "/leadership",
     "/products",
     "/applications",
     "/downloads",
+    "/media",
     "/warranties/register",
     "/warranty-status",
     "/service-request",
     "/channel-partners",
     "/homes-and-businesses",
     "/careers",
-    "/support",
-    "/register",
-    "/login",
   ];
   return [
-    ...staticRoutes.map((route) => ({ url: `${siteConfig.url}${route}`, changeFrequency: "weekly" as const, priority: route ? 0.7 : 1 })),
+    ...staticRoutes.map((route) => ({
+      url: `${baseUrl}${route}`,
+      changeFrequency: "weekly" as const,
+      priority: route ? 0.8 : 1,
+    })),
     ...products.map((product) => ({
-      url: `${siteConfig.url}/products/${product.slug}`,
+      url: `${baseUrl}/products/${product.slug}`,
       changeFrequency: "monthly" as const,
-      priority: 0.8,
+      priority: 0.9,
     })),
   ];
 }

@@ -26,9 +26,9 @@ export function WarrantyRegisterExplorer() {
           <ShieldCheck className="size-4" />
           <span>Manufacturer Warranty Registration</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#161E2C] leading-tight">
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#161E2C] leading-tight">
           Register your Olitec product warranty
-        </h1>
+        </h2>
         <p className="mt-2 text-slate-600 text-sm sm:text-base leading-relaxed">
           Activate certified coverage for your hybrid inverter or energy storage system. Enjoy instant serial verification, digital certificate generation, and priority technical support.
         </p>

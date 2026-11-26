@@ -7,8 +7,9 @@ import { SupportCenter } from "@/components/support/SupportCenter";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Support",
-  description: `Contact ${siteConfig.name} for installation, repairs and warranty claims.`,
+  title: "Customer Support Desk",
+  description: `Contact ${siteConfig.name} customer care (${siteConfig.supportPhone}) for solar hybrid inverter installation, service requests, and warranty help.`,
+  alternates: { canonical: "/support" },
 };
 
 export default function SupportPage() {

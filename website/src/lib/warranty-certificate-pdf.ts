@@ -369,7 +369,7 @@ export async function generateWarrantyCertificatePdf(data: WarrantyCertificateDa
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.setTextColor(148, 163, 184);
-  doc.text("Olitec Support Desk: support@olitec.in  |  Toll-Free: 1800-OLITEC (654832)  |  Web: www.olitec.in", pageWidth / 2, footerY - 1, { align: "center" });
+  doc.text("Olitec Customer Care: contact@olitec.in  |  Helpline: 8501 800 800  |  Web: www.olitec.in", pageWidth / 2, footerY - 1, { align: "center" });
 
   return doc;
 }

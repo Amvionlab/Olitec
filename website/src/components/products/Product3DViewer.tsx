@@ -56,9 +56,16 @@ export function Product3DViewer({
   const animFrameRef = useRef<number | null>(null);
 
   const catLower = category.toLowerCase();
+  const isBatteryModel =
+    catLower.includes("battery") ||
+    catLower.includes("storage") ||
+    name.toLowerCase().includes("battery") ||
+    name.toLowerCase().includes("olb") ||
+    (modelNumber ? modelNumber.toLowerCase().includes("olb") : false);
+
   // Canonical camera angle matching the exact 3D CAD model screenshot confirmed by user
   const initialCamPos = useRef<[number, number, number]>(
-    catLower.includes("battery")
+    isBatteryModel
       ? [0.82, 0.32, 1.85]
       : [-1.22, 0.40, 2.15]
   );
@@ -74,7 +81,7 @@ export function Product3DViewer({
   // Generate category-specific hotspots
   const hotspots: Hotspot[] = (() => {
     const cat = category.toLowerCase();
-    if (cat.includes("battery")) {
+    if (isBatteryModel) {
       return [
         { id: "bms", title: "Smart BMS", desc: "Active cell balancing & thermal management", pos: [0.35, 0.1, 0.45] },
         { id: "terminals", title: "Dual Terminals", desc: "High-amp brass positive & negative lugs", pos: [-0.35, 0.15, 0.45] },
@@ -211,7 +218,7 @@ export function Product3DViewer({
         nameLower.includes("3h") ||
         (modelNumber ? modelNumber.toLowerCase().includes("3h") : false);
 
-      if (catLower.includes("battery")) {
+      if (isBatteryModel) {
         try {
           let res = await fetch("/3d/olitec-battery.json");
           if (!res.ok) {

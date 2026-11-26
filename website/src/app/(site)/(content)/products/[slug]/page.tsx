@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { ProductMediaViewer } from "@/components/products/ProductMediaViewer";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { getProductBySlug, getProducts } from "@/services/products";
 import { formatInr, formatWarrantyPeriod } from "@/lib/format";
 import { siteConfig } from "@/lib/site";
@@ -35,6 +36,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const product = await getProductBySlug((await params).slug);
   if (!product) notFound();
 
+  const canonicalUrl = `${siteConfig.url.replace(/\/$/, "")}/products/${product.slug}`;
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -42,13 +44,46 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     model: product.model,
     sku: product.model,
     category: product.category,
-    description: product.description,
+    description: product.description || product.shortDescription,
     brand: { "@type": "Brand", name: siteConfig.name },
-    offers: { "@type": "Offer", priceCurrency: "INR", price: product.priceInr, url: `${siteConfig.url}/products/${product.slug}` },
+    manufacturer: { "@type": "Organization", name: siteConfig.legalName },
+    ...(product.specs && product.specs.length > 0
+      ? {
+          additionalProperty: product.specs.map((spec) => ({
+            "@type": "PropertyValue",
+            name: spec.label,
+            value: spec.value,
+          })),
+        }
+      : {}),
+    ...(product.priceInr > 0
+      ? {
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "INR",
+            price: product.priceInr,
+            availability: "https://schema.org/InStock",
+            url: canonicalUrl,
+          },
+        }
+      : {
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "INR",
+            availability: "https://schema.org/InStock",
+            url: canonicalUrl,
+          },
+        }),
   };
 
   return (
     <Container className="space-y-10">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Products", path: "/products" },
+          { name: product.name, path: `/products/${product.slug}` },
+        ]}
+      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
       
       <div className="reveal-on-scroll">
@@ -75,8 +110,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <Card className="p-6 sm:p-7 shadow-[0_8px_30px_rgb(0_0_0/0.03)]">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <div>
-                <p className="text-3xl font-bold tracking-tight text-slate-900">{formatInr(product.priceInr)}</p>
-                <p className="mt-1 text-xs font-medium text-slate-500">MRP inclusive of all taxes · Commercial & Residential</p>
+                <p className="text-3xl font-bold tracking-tight text-slate-900">
+                  {product.priceInr > 0 ? formatInr(product.priceInr) : "Authorized Partner Supply"}
+                </p>
+                <p className="mt-1 text-xs font-medium text-slate-500">
+                  {product.priceInr > 0
+                    ? "MRP inclusive of all taxes · Commercial & Residential"
+                    : "System pricing & site sizing via Olitec partner network"}
+                </p>
               </div>
               <div className="flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-700">
                 <Sparkles className="size-3.5" />

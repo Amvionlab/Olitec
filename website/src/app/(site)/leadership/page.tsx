@@ -4,11 +4,13 @@ import { leaders, leadershipIntro, legacyLead, values } from "@/content/legacy";
 import { LegacyPage, PageHero, Section, SectionHeading } from "@/components/legacy/ui";
 import { SlimPageBanner } from "@/components/layout/SlimPageBanner";
 import { AnimatedIllustration } from "@/components/legacy/AnimatedIllustration";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
-  title: "Our Legacy & Leadership",
-  description: legacyLead.statement,
+  title: "Our Legacy & Leadership | Solar Manufacturing in India",
+  description:
+    "Meet Olitec's leadership team and manufacturing heritage in Vellore and Chennai — building hybrid inverters, LFP batteries, and solar power plants for India.",
   alternates: { canonical: "/leadership" },
 };
 
@@ -21,6 +23,7 @@ const badgeTones = {
 export default function LeadershipPage() {
   return (
     <LegacyPage>
+      <BreadcrumbJsonLd items={[{ name: "Our Legacy", path: "/leadership" }]} />
       <SlimPageBanner
         title="Building a dependable clean-energy model for India"
         accentWords="for India"

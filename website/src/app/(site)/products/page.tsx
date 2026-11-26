@@ -14,10 +14,12 @@ import {
 import { SlimPageBanner } from "@/components/layout/SlimPageBanner";
 import { cn } from "@/lib/cn";
 import { ProductSeriesList } from "@/components/products/ProductSeriesList";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Products",
-  description: productsPage.lead,
+  title: "Hybrid Inverters & LFP Battery Storage (5.12 kWh)",
+  description:
+    "Explore Olitec OLI-1H single-phase (3–6 kW) & OLI-3H three-phase (15–30 kW) hybrid solar inverters and OLB-5.12 LFP battery 5.12 kWh packs designed as one system in India.",
   alternates: { canonical: "/products" },
 };
 
@@ -25,6 +27,7 @@ export default function ProductsPage() {
   const { series, platform } = productsPage;
   return (
     <LegacyPage>
+      <BreadcrumbJsonLd items={[{ name: "Products", path: "/products" }]} />
       <SlimPageBanner
         title="Inverters and energy storage, engineered to work together"
         accentWords="engineered to work together"

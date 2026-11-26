@@ -1,21 +1,9 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { Battery, ChefHat, Droplets, Fan, Snowflake, Zap, type LucideIcon } from "lucide-react";
+import { LazyProduct3DViewer } from "./LazyProduct3DViewer";
 import type { ProductCategory } from "@/lib/types";
 import { cn } from "@/lib/cn";
-
-const Product3DViewer = dynamic(
-  () => import("./Product3DViewer").then((mod) => mod.Product3DViewer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex size-full items-center justify-center">
-        <div className="size-5 animate-spin rounded-full border-2 border-brand-200 border-t-brand-500" />
-      </div>
-    ),
-  },
-);
 
 /**
  * Category illustration used until real product photography is supplied.
@@ -48,15 +36,23 @@ export function ProductImage({ category, name, size = "md", className }: Product
   const catLower = category ? category.toLowerCase() : "";
   const nameLower = name ? name.toLowerCase() : "";
 
-  const isGreen = catLower.includes("battery") || nameLower.includes("battery") || nameLower.includes("olb");
+  const isGreen =
+    catLower.includes("battery") ||
+    catLower.includes("storage") ||
+    nameLower.includes("battery") ||
+    nameLower.includes("olb");
   const isThreePhase = nameLower.includes("three") || nameLower.includes("3h");
 
-  if (catLower.includes("inverter") || catLower.includes("battery")) {
-    const isBattery = catLower.includes("battery") || nameLower.includes("battery") || nameLower.includes("olb");
+  if (catLower.includes("inverter") || catLower.includes("battery") || catLower.includes("storage")) {
+    const isBattery =
+      catLower.includes("battery") ||
+      catLower.includes("storage") ||
+      nameLower.includes("battery") ||
+      nameLower.includes("olb");
 
     return (
       <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden", sizes[size].box, className)}>
-        <Product3DViewer
+        <LazyProduct3DViewer
           category={isBattery ? "Battery" : "Hybrid Inverter"}
           name={name}
           height="100%"
@@ -64,6 +60,7 @@ export function ProductImage({ category, name, size = "md", className }: Product
           autoRotateInit={false}
           showHotspots={false}
           simpleGifMode={true}
+          compactTrigger={size !== "lg"}
         />
       </div>
     );

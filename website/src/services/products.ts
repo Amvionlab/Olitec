@@ -1,6 +1,41 @@
 
 import type { Product, ProductCategory } from "@/lib/types";
+import { productsPage } from "@/content/pages";
 import { mockProducts } from "@/mock/data";
+
+/**
+ * Flagship Olitec series mapped directly from canonical engineering specs in content/pages.ts
+ * so /products/[slug] routes linked from Home, Footer, and Applications always resolve with 200 OK.
+ */
+export const olitecCatalogProducts: Product[] = productsPage.series.map((series, idx) => {
+  const slug = series.href.replace(/^\/products\//, "");
+  const isBattery = series.tone === "green";
+  return {
+    id: `olitec_series_${idx + 1}`,
+    slug,
+    name: series.title,
+    model: series.models.join(", "),
+    category: isBattery ? "Energy Storage" : "Hybrid Inverters",
+    shortDescription: series.tagline,
+    description: series.body,
+    warrantyMonths: 60,
+    priceInr: 0,
+    features: [...series.bullets],
+    specs: series.figures.map((fig) => ({ label: fig.label, value: fig.value })),
+  };
+});
+
+function mergeWithCatalog(apiProducts: Product[]): Product[] {
+  const seen = new Set(apiProducts.map((p) => p.slug));
+  const merged = [...apiProducts];
+  for (const item of olitecCatalogProducts) {
+    if (!seen.has(item.slug)) {
+      merged.push(item);
+      seen.add(item.slug);
+    }
+  }
+  return merged;
+}
 
 const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
@@ -76,7 +111,7 @@ export async function getProducts(
     const data = await res.json();
 
     if (res.ok && data.success && Array.isArray(data.data)) {
-      return data.data.map(normalizeProduct);
+      return mergeWithCatalog(data.data.map(normalizeProduct));
     }
   } catch (error) {
     console.error("Failed to fetch products:", error);
@@ -84,7 +119,7 @@ export async function getProducts(
 
   const q = filter?.q?.trim().toLowerCase();
 
-  return mockProducts.filter((product) => {
+  return olitecCatalogProducts.filter((product) => {
     if (filter?.category && product.category !== filter.category) {
       return false;
     }
@@ -150,7 +185,10 @@ export async function getProductBySlug(
     console.error("Failed to fetch product by slug:", error);
   }
 
-  return mockProducts.find((product) => product.slug === slug);
+  return (
+    olitecCatalogProducts.find((product) => product.slug === slug) ??
+    mockProducts.find((product) => product.slug === slug)
+  );
 }
 
 export function getProductById(id: string): Product | undefined {

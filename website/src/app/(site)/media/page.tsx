@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import { MediaPageClient } from "./MediaPageClient";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Media & Updates | OLITEC",
-  description: "Latest news, articles, video features and industry insights from Olitec Solar.",
+  title: "Media, Press Releases & Solar Energy News",
+  description:
+    "Latest product announcements, Katpadi manufacturing updates, and clean-energy insights on Olitec hybrid inverters and LFP storage systems.",
   alternates: { canonical: "/media" },
 };
 
 export default function MediaPage() {
-  return <MediaPageClient />;
+  return (
+    <>
+      <BreadcrumbJsonLd items={[{ name: "Media", path: "/media" }]} />
+      <MediaPageClient />
+    </>
+  );
 }

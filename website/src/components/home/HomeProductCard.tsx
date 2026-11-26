@@ -1,20 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-
-const Product3DViewer = dynamic(
-  () => import("@/components/products/Product3DViewer").then((mod) => mod.Product3DViewer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex size-full items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-      </div>
-    ),
-  },
-);
+import { LazyProduct3DViewer } from "@/components/products/LazyProduct3DViewer";
 
 interface HomeProductCardProps {
   item: {
@@ -58,7 +46,7 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
           <div
             className={`relative h-60 sm:h-64 w-full rounded-[22px] ${boxGradient} overflow-hidden shadow-inner flex items-center justify-center`}
           >
-            <Product3DViewer
+            <LazyProduct3DViewer
               category={category}
               name={item.title}
               modelNumber={item.models[0]}

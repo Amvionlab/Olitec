@@ -1,27 +1,17 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Download } from "lucide-react";
 import { IconTile, BulletList, headingFont } from "@/components/legacy/ui";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { LazyProduct3DViewer } from "@/components/products/LazyProduct3DViewer";
 import { cn } from "@/lib/cn";
-
-const Product3DViewer = dynamic(
-  () => import("./Product3DViewer").then((mod) => mod.Product3DViewer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex size-full items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-2 border-brand-200 border-t-brand-500" />
-      </div>
-    ),
-  },
-);
 
 interface SeriesItem {
   readonly icon: string;
   readonly tone: string;
   readonly eyebrow: string;
+  readonly href: string;
   readonly title: string;
   readonly tagline: string;
   readonly body: string;
@@ -105,6 +95,12 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2.5">
+                      <Link
+                        href={item.href}
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-xs font-bold text-[#161E2C] shadow-2xs transition hover:border-[#D45C0A] hover:text-[#D45C0A]"
+                      >
+                        Full product page
+                      </Link>
                       <a
                         href={item.datasheet}
                         target="_blank"
@@ -154,7 +150,7 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                 {/* 3. Right Column: 360 Turntable 3D Showcase (lg:col-span-4) */}
                 <div className="lg:col-span-4 xl:col-span-4 flex flex-col">
                   <div className="relative flex-1 h-full min-h-[380px] w-full flex flex-col overflow-hidden rounded-[26px] border border-slate-200 bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7] shadow-[0_8px_30px_rgb(0_0_0/0.03)] transition">
-                    <Product3DViewer
+                    <LazyProduct3DViewer
                       category={category}
                       name={item.title}
                       modelNumber={item.models[0]}
