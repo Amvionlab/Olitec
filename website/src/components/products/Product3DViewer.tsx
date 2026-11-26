@@ -24,6 +24,7 @@ export interface Product3DViewerProps {
   category: string;
   name: string;
   modelNumber?: string;
+  batteryVariant?: "wall" | "stack";
   className?: string;
   height?: string | number;
   autoRotateInit?: boolean;
@@ -42,6 +43,7 @@ export function Product3DViewer({
   category,
   name,
   modelNumber,
+  batteryVariant,
   className,
   height = "460px",
   autoRotateInit = false, // Not animated: stationary front-three-quarter view by default
@@ -63,12 +65,34 @@ export function Product3DViewer({
     name.toLowerCase().includes("olb") ||
     (modelNumber ? modelNumber.toLowerCase().includes("olb") : false);
 
-  // Canonical camera angle matching the exact 3D CAD model screenshot confirmed by user
+  const isStackVariant =
+    batteryVariant === "stack" ||
+    (!batteryVariant &&
+      /stack|5\.12r|rack|multi|bank/i.test(`${name} ${modelNumber || ""}`));
+
+  // Canonical camera angle for inverter vs battery (wall / stack)
   const initialCamPos = useRef<[number, number, number]>(
     isBatteryModel
-      ? [0.82, 0.32, 1.85]
+      ? isStackVariant
+        ? [1.15, 0.45, 2.05]
+        : [1.05, 0.35, 1.95]
       : [-1.22, 0.40, 2.15]
   );
+
+  // Sync camera position if variant changes
+  useEffect(() => {
+    const nextPos: [number, number, number] = isBatteryModel
+      ? isStackVariant
+        ? [1.15, 0.45, 2.05]
+        : [1.05, 0.35, 1.95]
+      : [-1.22, 0.40, 2.15];
+    initialCamPos.current = nextPos;
+    if (cameraRef.current && controlsRef.current) {
+      cameraRef.current.position.set(...nextPos);
+      controlsRef.current.target.set(0, 0, 0);
+      controlsRef.current.update();
+    }
+  }, [isBatteryModel, isStackVariant]);
 
   const [loading, setLoading] = useState(true);
   const [autoRotate, setAutoRotate] = useState(autoRotateInit);
@@ -210,6 +234,66 @@ export function Product3DViewer({
     scene.add(modelGroup);
     modelGroupRef.current = modelGroup;
 
+    async function loadGlbIntoGroup(urls: string[], maxSize: number) {
+      const loader = new GLTFLoader();
+      let gltf;
+      let lastErr;
+      for (const url of urls) {
+        try {
+          gltf = await loader.loadAsync(url);
+          break;
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      if (!gltf) throw lastErr ?? new Error("Could not load GLB model");
+
+      const model = gltf.scene;
+      const objectsToRemove: THREE.Object3D[] = [];
+      model.traverse((child) => {
+        const lowerName = child.name.toLowerCase();
+        if (
+          lowerName.includes("plane") ||
+          lowerName.includes("backdrop") ||
+          lowerName.includes("studio") ||
+          lowerName.includes("camera") ||
+          lowerName.includes("light")
+        ) {
+          objectsToRemove.push(child);
+        }
+      });
+      objectsToRemove.forEach((obj) => {
+        if (obj.parent) obj.parent.remove(obj);
+      });
+
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const targetScale = maxSize / (maxDim || 1);
+
+      model.scale.set(targetScale, targetScale, targetScale);
+      model.position.set(-center.x * targetScale, -center.y * targetScale, -center.z * targetScale);
+
+      model.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach((m) => {
+                m.side = THREE.DoubleSide;
+              });
+            } else {
+              child.material.side = THREE.DoubleSide;
+            }
+          }
+        }
+      });
+
+      modelGroup.add(model);
+    }
+
     async function loadOrBuildModel() {
       const catLower = category.toLowerCase();
       const nameLower = name.toLowerCase();
@@ -220,118 +304,19 @@ export function Product3DViewer({
 
       if (isBatteryModel) {
         try {
-          let res = await fetch("/3d/olitec-battery.json");
-          if (!res.ok) {
-            res = await fetch("/models/olitec-battery.json");
-          }
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.parts && data.parts.length > 0) {
-              const cadGroup = new THREE.Group();
-              data.parts.forEach((part: any) => {
-                const geom = new THREE.BufferGeometry();
-                const positions: number[] = [];
-                part.triangles.forEach((tri: number[][]) => {
-                  tri.forEach((pt: number[]) => {
-                    positions.push(pt[0], pt[1], pt[2]);
-                  });
-                });
-                geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-                geom.computeVertexNormals();
-
-                const col = new THREE.Color(part.color[0], part.color[1], part.color[2]);
-                const mat = new THREE.MeshStandardMaterial({
-                  color: col,
-                  metalness: part.name.includes("Terminal") ? 0.8 : 0.35,
-                  roughness: part.name.includes("Front") ? 0.25 : 0.45,
-                });
-                const mesh = new THREE.Mesh(geom, mat);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                cadGroup.add(mesh);
-              });
-
-              addBatteryDetails(cadGroup);
-
-              const box = new THREE.Box3().setFromObject(cadGroup);
-              const center = box.getCenter(new THREE.Vector3());
-              const size = box.getSize(new THREE.Vector3());
-
-              const maxDim = Math.max(size.x, size.y, size.z);
-              const targetScale = 0.92 / (maxDim || 1);
-              cadGroup.scale.set(targetScale, targetScale, targetScale);
-
-              cadGroup.position.x = -center.x * targetScale;
-              cadGroup.position.y = -center.y * targetScale;
-              cadGroup.position.z = -center.z * targetScale;
-
-              modelGroup.add(cadGroup);
-              if (isMounted) setLoading(false);
-              return;
-            }
-          }
+          const urls = isStackVariant
+            ? ["/models/battery-stack.glb", "/3d/battery-stack.glb"]
+            : ["/models/battery-wall.glb", "/3d/battery-wall.glb"];
+          await loadGlbIntoGroup(urls, 1.15);
+          if (isMounted) setLoading(false);
+          return;
         } catch (err) {
-          console.warn("Could not load /models/olitec-battery.json:", err);
+          console.warn("Could not load battery GLB:", err);
         }
         buildProceduralBattery(modelGroup);
       } else if (catLower.includes("inverter")) {
         try {
-          const loader = new GLTFLoader();
-          let gltf;
-          try {
-            gltf = await loader.loadAsync("/3d/inverter.glb");
-          } catch {
-            gltf = await loader.loadAsync("/models/inverter.glb");
-          }
-          const model = gltf.scene;
-
-          const objectsToRemove: THREE.Object3D[] = [];
-          model.traverse((child) => {
-            const lowerName = child.name.toLowerCase();
-            if (
-              lowerName.includes("plane") ||
-              lowerName.includes("backdrop") ||
-              lowerName.includes("studio") ||
-              lowerName.includes("camera") ||
-              lowerName.includes("light")
-            ) {
-              objectsToRemove.push(child);
-            }
-          });
-          objectsToRemove.forEach((obj) => {
-            if (obj.parent) obj.parent.remove(obj);
-          });
-
-          const box = new THREE.Box3().setFromObject(model);
-          const center = box.getCenter(new THREE.Vector3());
-          const size = box.getSize(new THREE.Vector3());
-
-          const maxDim = Math.max(size.x, size.y, size.z);
-          // Scale inverter model cleanly
-          const targetScale = 1.25 / (maxDim || 1);
-          model.scale.set(targetScale, targetScale, targetScale);
-
-          model.position.x = -center.x * targetScale;
-          model.position.y = -center.y * targetScale;
-          model.position.z = -center.z * targetScale;
-
-          model.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-              if (child.material) {
-                if (Array.isArray(child.material)) {
-                  child.material.forEach((m) => {
-                    m.side = THREE.DoubleSide;
-                  });
-                } else {
-                  child.material.side = THREE.DoubleSide;
-                }
-              }
-            }
-          });
-
-          modelGroup.add(model);
+          await loadGlbIntoGroup(["/3d/inverter.glb", "/models/inverter.glb"], 1.25);
           if (isMounted) setLoading(false);
           return;
         } catch (err) {
@@ -405,7 +390,7 @@ export function Product3DViewer({
   }
 }
     };
-}, [category, name, modelNumber, height, simpleGifMode]);
+}, [category, name, modelNumber, height, simpleGifMode, isBatteryModel, isStackVariant]);
   // Sync controls autoRotate state
   useEffect(() => {
     if (controlsRef.current) {

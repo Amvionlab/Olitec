@@ -38,17 +38,23 @@ export function ProductMediaViewer({
   viewerHeight = 380,
 }: ProductMediaViewerProps) {
   const [viewMode, setViewMode] = useState<"photo" | "3d">("photo");
+  const [batteryVariant, setBatteryVariant] = useState<"wall" | "stack">("wall");
+
+  const isBattery =
+    category.toLowerCase().includes("battery") ||
+    category.toLowerCase().includes("storage") ||
+    name.toLowerCase().includes("olb");
 
   return (
     <div className={cn("overflow-hidden rounded-[25.528px] border border-slate-200 bg-white p-3 sm:p-4 shadow-sm", className)}>
       {/* View Switcher Tabs */}
-      <div className="mb-3 flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div className="flex items-center gap-1.5 rounded-full bg-slate-100 p-1">
           <button
             type="button"
             onClick={() => setViewMode("3d")}
             className={cn(
-              "flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
+              "flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
               viewMode === "3d" ? "brand-gradient text-black font-bold shadow-sm" : "text-slate-600 hover:text-black",
             )}
           >
@@ -59,7 +65,7 @@ export function ProductMediaViewer({
             type="button"
             onClick={() => setViewMode("photo")}
             className={cn(
-              "flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
+              "flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
               viewMode === "photo" ? "bg-white text-black font-bold shadow-sm" : "text-slate-600 hover:text-black",
             )}
           >
@@ -67,6 +73,35 @@ export function ProductMediaViewer({
             <span>Photo</span>
           </button>
         </div>
+
+        {isBattery && (
+          <div className="flex items-center gap-1 rounded-full bg-emerald-50/80 p-1 border border-emerald-200/70">
+            <button
+              type="button"
+              onClick={() => setBatteryVariant("wall")}
+              className={cn(
+                "rounded-full px-3 py-1 text-[11px] font-bold transition-all cursor-pointer",
+                batteryVariant === "wall"
+                  ? "bg-[#1F7A34] text-white shadow-xs"
+                  : "text-[#161E2C] hover:bg-white/70",
+              )}
+            >
+              Wall Mount
+            </button>
+            <button
+              type="button"
+              onClick={() => setBatteryVariant("stack")}
+              className={cn(
+                "rounded-full px-3 py-1 text-[11px] font-bold transition-all cursor-pointer",
+                batteryVariant === "stack"
+                  ? "bg-[#1F7A34] text-white shadow-xs"
+                  : "text-[#161E2C] hover:bg-white/70",
+              )}
+            >
+              Stack
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Display Area */}
@@ -76,6 +111,7 @@ export function ProductMediaViewer({
             category={category}
             name={name}
             modelNumber={model}
+            batteryVariant={isBattery ? batteryVariant : undefined}
             height={viewerHeight}
             autoRotateInit={true}
             showHotspots={false}
@@ -85,13 +121,11 @@ export function ProductMediaViewer({
             className="relative flex w-full flex-col items-center justify-center rounded-[20px] bg-gradient-to-b from-[#FAFBFD] to-[#F3F5F8] p-5"
             style={{ height: `${viewerHeight}px` }}
           >
-            {category.toLowerCase().includes("inverter") ||
-            category.toLowerCase().includes("battery") ||
-            category.toLowerCase().includes("storage") ? (
+            {category.toLowerCase().includes("inverter") || isBattery ? (
               <div className="relative size-full max-w-[340px]">
                 <Image
-                  src={getProductPosterSrc(category, name, model)}
-                  alt={`${name} (${model})`}
+                  src={getProductPosterSrc(category, name, model, isBattery ? batteryVariant : undefined)}
+                  alt={`${name}${isBattery ? (batteryVariant === "stack" ? " (Battery Stack)" : " (Wall Mount)") : ""} (${model})`}
                   fill
                   priority
                   sizes="(min-width: 1024px) 380px, 90vw"

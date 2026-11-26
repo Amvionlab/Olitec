@@ -20,13 +20,23 @@ const Product3DViewer = dynamic(
   },
 );
 
-export function getProductPosterSrc(category: string, name: string, modelNumber?: string): string {
+export function getProductPosterSrc(
+  category: string,
+  name: string,
+  modelNumber?: string,
+  batteryVariant?: "wall" | "stack",
+): string {
   const catLower = category.toLowerCase();
   const nameLower = name.toLowerCase();
   const modelLower = (modelNumber || "").toLowerCase();
 
   if (catLower.includes("battery") || catLower.includes("storage") || nameLower.includes("battery") || nameLower.includes("olb")) {
-    return "/images/models/olb-battery-preview.webp";
+    const isStack =
+      batteryVariant === "stack" ||
+      (!batteryVariant && /stack|5\.12r|rack|multi|bank/i.test(`${name} ${modelNumber || ""}`));
+    return isStack
+      ? "/images/models/olb-battery-stack-preview.webp"
+      : "/images/models/olb-battery-preview.webp";
   }
   if (nameLower.includes("three") || nameLower.includes("3h") || modelLower.includes("3h")) {
     return "/images/models/oli-3h-preview.webp";
@@ -60,7 +70,7 @@ export function LazyProduct3DViewer({
     );
   }
 
-  const posterSrc = getProductPosterSrc(props.category, props.name, props.modelNumber);
+  const posterSrc = getProductPosterSrc(props.category, props.name, props.modelNumber, props.batteryVariant);
 
   return (
     <div

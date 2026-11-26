@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Download } from "lucide-react";
 import { IconTile, BulletList, headingFont } from "@/components/legacy/ui";
@@ -22,6 +23,8 @@ interface SeriesItem {
 }
 
 export function ProductSeriesList({ series }: { series: readonly SeriesItem[] }) {
+  const [batteryVariant, setBatteryVariant] = useState<"wall" | "stack">("wall");
+
   const getCategory = (title: string) => {
     const t = title.toLowerCase();
     if (t.includes("battery") || t.includes("olb")) return "Battery";
@@ -142,10 +145,35 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                 {/* 3. Right Column: 360 Turntable 3D Showcase (lg:col-span-4) */}
                 <div className="lg:col-span-4 xl:col-span-4 flex flex-col">
                   <div className="relative flex-1 h-full min-h-[380px] w-full flex flex-col overflow-hidden rounded-[26px] border border-slate-200 bg-gradient-to-b from-[#f9fafb] via-white to-[#f4f5f7] shadow-[0_8px_30px_rgb(0_0_0/0.03)] transition">
+                    {category === "Battery" && (
+                      <div className="absolute top-3 left-3 z-20 inline-flex items-center gap-1 rounded-full bg-white/90 p-1 shadow-xs ring-1 ring-black/10 backdrop-blur-sm">
+                        <button
+                          type="button"
+                          onClick={() => setBatteryVariant("wall")}
+                          className={cn(
+                            "rounded-full px-3 py-1 text-[11px] font-bold transition cursor-pointer",
+                            batteryVariant === "wall" ? "bg-[#1F7A34] text-white" : "text-[#161E2C] hover:bg-black/5",
+                          )}
+                        >
+                          Wall Mount
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setBatteryVariant("stack")}
+                          className={cn(
+                            "rounded-full px-3 py-1 text-[11px] font-bold transition cursor-pointer",
+                            batteryVariant === "stack" ? "bg-[#1F7A34] text-white" : "text-[#161E2C] hover:bg-black/5",
+                          )}
+                        >
+                          Stack
+                        </button>
+                      </div>
+                    )}
                     <LazyProduct3DViewer
                       category={category}
                       name={item.title}
                       modelNumber={item.models[0]}
+                      batteryVariant={category === "Battery" ? batteryVariant : undefined}
                       height="100%"
                       className="h-full w-full flex-1"
                       autoRotateInit={true}

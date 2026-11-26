@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { LazyProduct3DViewer } from "@/components/products/LazyProduct3DViewer";
+import { cn } from "@/lib/cn";
 
 interface HomeProductCardProps {
   item: {
@@ -18,6 +20,7 @@ interface HomeProductCardProps {
 }
 
 export function HomeProductCard({ item, index }: HomeProductCardProps) {
+  const [batteryVariant, setBatteryVariant] = useState<"wall" | "stack">("wall");
   const isGreen = item.tone === "green";
   const category = isGreen ? "Battery" : "Hybrid Inverter";
   const headingColor = isGreen ? "#1F7A34" : "#C46E0E";
@@ -50,12 +53,38 @@ export function HomeProductCard({ item, index }: HomeProductCardProps) {
               category={category}
               name={item.title}
               modelNumber={item.models[0]}
+              batteryVariant={isGreen ? batteryVariant : undefined}
               height="100%"
               className="size-full bg-transparent"
               autoRotateInit={false}
               showHotspots={false}
               simpleGifMode={true}
             />
+
+            {isGreen && (
+              <div className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-0.5 rounded-full bg-white/90 p-0.5 shadow-xs ring-1 ring-black/10 backdrop-blur-sm">
+                <button
+                  type="button"
+                  onClick={() => setBatteryVariant("wall")}
+                  className={cn(
+                    "rounded-full px-2.5 py-1 text-[10px] font-bold transition cursor-pointer",
+                    batteryVariant === "wall" ? "bg-[#1F7A34] text-white" : "text-[#161E2C] hover:bg-black/5",
+                  )}
+                >
+                  Wall
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBatteryVariant("stack")}
+                  className={cn(
+                    "rounded-full px-2.5 py-1 text-[10px] font-bold transition cursor-pointer",
+                    batteryVariant === "stack" ? "bg-[#1F7A34] text-white" : "text-[#161E2C] hover:bg-black/5",
+                  )}
+                >
+                  Stack
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Title & Tagline */}
