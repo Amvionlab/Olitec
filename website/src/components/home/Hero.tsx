@@ -16,17 +16,17 @@ import { legacyHero, legacyLead } from "@/content/legacy";
 export function Hero() {
   return (
     <section
-      className="mx-auto w-full max-w-[1440px] px-4 sm:px-8 xl:px-12 pt-2 pb-6"
+      className="mx-auto w-full max-w-[1560px] 2xl:max-w-[1640px] px-3 sm:px-6 xl:px-8 pt-2 pb-6"
       aria-labelledby="hero-title"
     >
-      <div className="relative w-full overflow-hidden rounded-[28px] sm:rounded-[36px] xl:rounded-[44px] shadow-[0_12px_40px_rgb(0_0_0/0.06)] border border-[#E6E2D8]/80 min-h-[460px] sm:min-h-[480px] md:min-h-0 md:aspect-[2576/1030]">
-        {/* Full-bleed Panoramic Banner Illustration (Original 2576x1030 ultra-res, exact 2.5:1 proportion, no stretch) */}
+      <div className="relative flex w-full items-center overflow-hidden rounded-[28px] sm:rounded-[36px] xl:rounded-[44px] shadow-[0_12px_40px_rgb(0_0_0/0.06)] border border-[#E6E2D8]/80 min-h-[480px] sm:min-h-[520px] md:min-h-[540px] lg:min-h-[580px] xl:min-h-[620px] md:aspect-[22/10]">
+        {/* Full-bleed Panoramic Banner Illustration */}
         <Image
           src="/images/legacy/hero-banner.jpg"
           alt={legacyHero.imageAlt}
           fill
           priority
-          sizes="(min-width: 1440px) 1360px, 100vw"
+          sizes="(min-width: 1560px) 1560px, 100vw"
           className="object-cover object-[72%_center] md:object-cover md:object-center pointer-events-none select-none"
         />
 
