@@ -101,9 +101,9 @@ export function InstallationScene({ className, playing = true }: { className?: s
         }}
       />
 
-      {/* Window, upper left: the sky changes from day to night */}
-      <div aria-hidden className="absolute left-[28%] top-[9%] hidden h-[34%] w-[13%] lg:block">
-        <div className="absolute inset-0 overflow-hidden rounded-[10px] shadow-[inset_0_0_0_6px_#F7F0E4,0_10px_24px_rgba(60,40,15,0.25)]">
+      {/* Window: the sky changes from day to night (top centre on phones, upper left on desktop) */}
+      <div aria-hidden className="absolute left-[38%] top-[4%] h-[18%] w-[19%] lg:left-[28%] lg:top-[9%] lg:h-[34%] lg:w-[13%]">
+        <div className="absolute inset-0 overflow-hidden rounded-[8px] shadow-[inset_0_0_0_4px_#F7F0E4,0_8px_18px_rgba(60,40,15,0.25)] lg:rounded-[10px] lg:shadow-[inset_0_0_0_6px_#F7F0E4,0_10px_24px_rgba(60,40,15,0.25)]">
           <div
             className="absolute inset-0 transition-opacity duration-[1500ms]"
             style={{ opacity: night ? 0 : 1, background: "linear-gradient(180deg, #A9D8F2 0%, #D8EEF6 55%, #FFF1D6 100%)" }}
@@ -133,8 +133,8 @@ export function InstallationScene({ className, playing = true }: { className?: s
               <span key={`${x}-${y}`} className="absolute size-[3px] rounded-full bg-white/80" style={{ left: `${x}%`, top: `${y}%` }} />
             ))}
           </div>
-          <div className="absolute inset-y-0 left-1/2 w-[6px] -translate-x-1/2 bg-[#F7F0E4]" />
-          <div className="absolute inset-x-0 top-1/2 h-[6px] -translate-y-1/2 bg-[#F7F0E4]" />
+          <div className="absolute inset-y-0 left-1/2 w-[4px] -translate-x-1/2 bg-[#F7F0E4] lg:w-[6px]" />
+          <div className="absolute inset-x-0 top-1/2 h-[4px] -translate-y-1/2 bg-[#F7F0E4] lg:h-[6px]" />
         </div>
       </div>
       {/* Sunlight falling from the window */}
@@ -211,9 +211,9 @@ export function InstallationScene({ className, playing = true }: { className?: s
         {/* rooftop solar feed into the inverter (day) */}
         <Conduit vertical className="left-[23%] top-0 h-[6%]" flowing={moving && !night} />
         {/* inverter <-> battery: charging by day, discharging at night */}
-        <Conduit className="left-[36%] top-[22%] w-[24%]" flowing={moving} reverse={night} />
+        <Conduit className="left-[36%] top-[26%] w-[32%]" flowing={moving} reverse={night} />
         {/* pendant lamp between them, lit at night by the battery */}
-        <div aria-hidden className="absolute left-[42%] top-0 h-[15%] w-[9%]">
+        <div aria-hidden className="absolute left-[57%] top-0 h-[13%] w-[7.5%]">
           <div className="absolute left-1/2 top-0 h-[55%] w-[2px] -translate-x-1/2 bg-[#5B5348]" />
           <div
             className="absolute left-1/2 top-[52%] h-[26%] w-full -translate-x-1/2 bg-gradient-to-b from-[#2A323F] to-[#161E2C]"
@@ -229,30 +229,23 @@ export function InstallationScene({ className, playing = true }: { className?: s
         </div>
         <div
           aria-hidden
-          className="absolute left-[28%] top-[10%] h-[30%] w-[40%] transition-opacity duration-700"
+          className="absolute left-[42%] top-[8%] h-[34%] w-[38%] transition-opacity duration-700"
           style={{
             opacity: night ? 1 : 0,
             background: "radial-gradient(ellipse 50% 60% at 50% 0%, rgba(255,214,140,0.55) 0%, rgba(255,214,140,0) 70%)",
             mixBlendMode: "screen",
           }}
         />
-        {/* status chip with the battery level */}
+        {/* battery gauge on top of the battery stack */}
         <div
           aria-hidden
-          className="absolute right-[3%] top-2.5 z-[3] w-[38%] min-w-[128px] rounded-xl bg-[#161E2C]/80 px-2.5 py-1.5 text-white shadow-[0_6px_14px_rgba(12,17,26,0.3)] backdrop-blur-md"
+          className="absolute right-[3%] top-[3%] z-[3] w-[34%] min-w-[118px] rounded-lg border border-white/70 bg-white/85 px-2 py-1 shadow-[0_4px_10px_rgba(40,30,10,0.18)] backdrop-blur-sm"
         >
-          <p className="flex items-center gap-1.5 text-[10.5px] font-semibold leading-tight">
-            <span
-              className={cn(
-                "size-2 shrink-0 rounded-full transition-colors duration-700",
-                night ? "bg-[#9DB4FF] shadow-[0_0_6px_#9DB4FF]" : "bg-[#FFC23A] shadow-[0_0_6px_#FFC23A]",
-              )}
-            />
-            <span>
-              <strong className="text-[#FCBC62]">{now.label}</strong> · {night ? "Battery powers home" : "Solar charging"}
-            </span>
+          <p className="flex items-center justify-between gap-1 whitespace-nowrap text-[9px] font-bold leading-tight text-[#161E2C]">
+            <span>Battery</span>
+            <span className={night ? "text-[#A8450A]" : "text-[#1F7A34]"}>{night ? "Powering home" : "Charging"}</span>
           </p>
-          <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/20">
+          <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#E6E2D8]">
             <div
               className="h-full rounded-full bg-gradient-to-r from-[#41A145] to-[#7CC96E]"
               style={{
