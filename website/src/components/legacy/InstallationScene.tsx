@@ -151,7 +151,7 @@ export function InstallationScene({ className, playing = true }: { className?: s
       {/* Floor */}
       <div
         aria-hidden
-        className="absolute inset-x-0 bottom-0 h-[50%] lg:h-[22%]"
+        className="absolute inset-x-0 bottom-0 h-[62%] lg:h-[22%]"
         style={{
           background: "linear-gradient(180deg, #A89478 0%, #8C7A62 30%, #6F604D 100%)",
           boxShadow: "inset 0 10px 18px -8px rgba(40,30,10,0.45)",
@@ -162,7 +162,7 @@ export function InstallationScene({ className, playing = true }: { className?: s
           style={{ backgroundImage: "linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px)", backgroundSize: "120px 100%" }}
         />
       </div>
-      <div aria-hidden className="absolute inset-x-0 bottom-[50%] h-[10px] bg-[#EFE4D2] shadow-[0_2px_4px_rgba(40,30,10,0.25)] lg:bottom-[22%]" />
+      <div aria-hidden className="absolute inset-x-0 bottom-[62%] h-[10px] bg-[#EFE4D2] shadow-[0_2px_4px_rgba(40,30,10,0.25)] lg:bottom-[22%]" />
 
       {/* Night falls over the room */}
       <div aria-hidden className="absolute inset-0 bg-[#0F1529] transition-opacity duration-[1500ms]" style={{ opacity: night ? 0.5 : 0 }} />
@@ -206,8 +206,66 @@ export function InstallationScene({ className, playing = true }: { className?: s
         <Conduit className="left-[60%] top-[71%] w-[13%]" flowing={moving} reverse={night} />
       </div>
 
+      {/* Phones and tablets: a compact version of the same story */}
+      <div className="lg:hidden">
+        {/* rooftop solar feed into the inverter (day) */}
+        <Conduit vertical className="left-[23%] top-0 h-[6%]" flowing={moving && !night} />
+        {/* inverter <-> battery: charging by day, discharging at night */}
+        <Conduit className="left-[36%] top-[22%] w-[24%]" flowing={moving} reverse={night} />
+        {/* pendant lamp between them, lit at night by the battery */}
+        <div aria-hidden className="absolute left-[42%] top-0 h-[15%] w-[9%]">
+          <div className="absolute left-1/2 top-0 h-[55%] w-[2px] -translate-x-1/2 bg-[#5B5348]" />
+          <div
+            className="absolute left-1/2 top-[52%] h-[26%] w-full -translate-x-1/2 bg-gradient-to-b from-[#2A323F] to-[#161E2C]"
+            style={{ clipPath: "polygon(24% 0, 76% 0, 100% 100%, 0 100%)" }}
+          />
+          <div
+            className="absolute left-1/2 top-[74%] aspect-square w-[42%] -translate-x-1/2 rounded-full transition-all duration-700"
+            style={{
+              background: night ? "radial-gradient(circle, #FFF6D8 0%, #FFD36E 70%)" : "#E9E2D3",
+              boxShadow: night ? "0 0 18px 8px rgba(255,205,110,0.8)" : "none",
+            }}
+          />
+        </div>
+        <div
+          aria-hidden
+          className="absolute left-[28%] top-[10%] h-[30%] w-[40%] transition-opacity duration-700"
+          style={{
+            opacity: night ? 1 : 0,
+            background: "radial-gradient(ellipse 50% 60% at 50% 0%, rgba(255,214,140,0.55) 0%, rgba(255,214,140,0) 70%)",
+            mixBlendMode: "screen",
+          }}
+        />
+        {/* status chip with the battery level */}
+        <div
+          aria-hidden
+          className="absolute right-[3%] top-2.5 z-[3] w-[38%] min-w-[128px] rounded-xl bg-[#161E2C]/80 px-2.5 py-1.5 text-white shadow-[0_6px_14px_rgba(12,17,26,0.3)] backdrop-blur-md"
+        >
+          <p className="flex items-center gap-1.5 text-[10.5px] font-semibold leading-tight">
+            <span
+              className={cn(
+                "size-2 shrink-0 rounded-full transition-colors duration-700",
+                night ? "bg-[#9DB4FF] shadow-[0_0_6px_#9DB4FF]" : "bg-[#FFC23A] shadow-[0_0_6px_#FFC23A]",
+              )}
+            />
+            <span>
+              <strong className="text-[#FCBC62]">{now.label}</strong> · {night ? "Battery powers home" : "Solar charging"}
+            </span>
+          </p>
+          <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/20">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#41A145] to-[#7CC96E]"
+              style={{
+                width: reduced ? "80%" : night ? "38%" : "96%",
+                transition: `width ${night ? PHASE_MS.night : PHASE_MS.day}ms linear`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Inverter on the wall, with a live waveform on its screen */}
-      <div className="absolute left-[12%] top-[8%] h-[30%] lg:left-[52%] lg:top-[14%] lg:h-[52%]">
+      <div className="absolute left-[10%] top-[5%] h-[27%] lg:left-[52%] lg:top-[14%] lg:h-[52%]">
         <div className="relative h-full">
           <Image
             src="/images/models/oli-1h-preview.webp"
@@ -233,7 +291,7 @@ export function InstallationScene({ className, playing = true }: { className?: s
       </div>
 
       {/* Battery stack on the floor, with its charge gauge */}
-      <div className="absolute bottom-[50%] right-[8%] h-[31%] lg:bottom-[22%] lg:right-[7%] lg:h-[58%]">
+      <div className="absolute bottom-[62%] right-[8%] h-[24%] lg:bottom-[22%] lg:right-[7%] lg:h-[58%]">
         <div className="relative h-full">
           <Image
             src="/images/models/olb-battery-stack-preview.webp"
@@ -266,7 +324,7 @@ export function InstallationScene({ className, playing = true }: { className?: s
       </div>
       <div
         aria-hidden
-        className="absolute bottom-[48.5%] right-[6%] h-[4%] w-[44%] rounded-[50%] bg-black/35 blur-md lg:bottom-[20.5%] lg:right-[6%] lg:w-[26%]"
+        className="absolute bottom-[60.5%] right-[6%] h-[3%] w-[40%] rounded-[50%] bg-black/35 blur-md lg:bottom-[20.5%] lg:right-[6%] lg:w-[26%]"
       />
 
       {/* Story caption, top right */}
