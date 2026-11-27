@@ -274,3 +274,19 @@ to{transform:translateX(90px)}
   .hero-motion * { animation: none !important; }
   .hero-motion .hm-flow, .hero-motion .hm-rise, .hero-motion .hm-charge { display: none; }
 }
+
+/* "Have an application in mind?" band: a burning sun with real heat distortion (CtaPanel, components/legacy/ui.tsx). */
+@keyframes ctaHalo {
+  0%, 100% { box-shadow: 0 0 26px 4px rgb(255 196 70 / 0.4), 0 0 70px 12px rgb(255 210 110 / 0.12); }
+  50% { box-shadow: 0 0 38px 8px rgb(255 196 70 / 0.58), 0 0 96px 20px rgb(255 210 110 / 0.2); }
+}
+@keyframes ctaSunHeat { 0%, 100% { transform: scale(0.94); opacity: 0.75; } 50% { transform: scale(1.06); opacity: 1; } }
+@keyframes ctaRise { from { transform: translateY(18%); } to { transform: translateY(0); } }
+.cta-sun-disc { animation: ctaHalo 4.5s ease-in-out infinite; box-shadow: 0 0 26px 4px rgb(255 196 70 / 0.4); }
+.cta-heat-glow { animation: ctaSunHeat 4.5s ease-in-out infinite; }
+@supports (animation-timeline: view()) {
+  .cta-sun-rise { animation: ctaRise linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-sun-disc, .cta-heat-glow, .cta-sun-rise { animation: none !important; }
+}
