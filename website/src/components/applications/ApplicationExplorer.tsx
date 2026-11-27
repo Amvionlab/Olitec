@@ -239,7 +239,7 @@ export function ApplicationExplorer() {
           <div>
             {items.map((i) => (
               <div key={i.id} id={`app-panel-${i.id}`} role="tabpanel" hidden={i.id !== activeId}>
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#D45C0A]">Application</p>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#A8450A]">Application</p>
                 <h2 className="mt-2 text-[26px] font-bold leading-tight text-[#161E2C] sm:text-[30px]">{i.title}</h2>
                 <p className="mt-1.5 text-[15px] font-semibold text-[#1F7A34]">{i.tagline}</p>
 
@@ -363,7 +363,7 @@ export function ApplicationExplorer() {
 
             <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-[#ECE7DD] bg-white px-4 py-3">
               <div className="min-w-0">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#D45C0A]">{shown.label}</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#A8450A]">{shown.label}</p>
                 <p className="mt-0.5 text-[14.5px] font-semibold leading-snug text-[#161E2C]">{shown.text}</p>
               </div>
               {shown.href && (

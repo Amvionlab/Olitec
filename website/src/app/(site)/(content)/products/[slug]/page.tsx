@@ -37,7 +37,10 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   if (!product) return { title: "Product not found" };
   return {
     title: `${product.name} (${product.model})`,
-    description: product.shortDescription,
+    description:
+      product.shortDescription ||
+      productsPage.series.find((s) => s.href === `/products/${product.slug}`)?.tagline ||
+      siteConfig.searchDescription,
     alternates: { canonical: `/products/${product.slug}` },
   };
 }
@@ -171,7 +174,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   <span
                     className={cn(
                       "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider",
-                      isBattery ? "bg-emerald-500/10 text-[#1F7A34]" : "bg-amber-500/10 text-[#D45C0A]",
+                      isBattery ? "bg-emerald-500/10 text-[#1F7A34]" : "bg-amber-500/10 text-[#A8450A]",
                     )}
                   >
                     <Zap className="size-3.5" />
@@ -245,7 +248,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <section className="rounded-[28px] border border-[#e6e2d8] bg-white p-6 sm:p-8 shadow-2xs">
                 <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-5">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#D45C0A]">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#A8450A]">
                       Engineering Overview
                     </span>
                     <h2 className="mt-1 text-2xl sm:text-[26px] font-extrabold text-[#161E2C] tracking-tight">

@@ -264,9 +264,9 @@ to{transform:translateX(90px)}
 @keyframes hmWave { to { transform: translateX(-36px); } }
 @keyframes hmCharge { 0%, 15% { opacity: 0; } 30%, 70% { opacity: 0.32; } 85%, 100% { opacity: 0; } }
 @keyframes hmRise { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(-260px); } }
-.hero-motion .hm-breathe { animation: hmBreathe 6s ease-in-out infinite; mix-blend-mode: screen; }
+.hero-motion .hm-breathe { animation: hmBreathe 6s ease-in-out infinite; }
 .hero-motion .hm-spin { animation: hmSpin 90s linear infinite; }
-.hero-motion .hm-flow { animation: hmFlow 2.4s linear infinite; filter: drop-shadow(0 0 4px rgba(255, 177, 46, 0.9)); }
+.hero-motion .hm-flow { animation: hmFlow 2.4s linear infinite; }
 .hero-motion .hm-wave { animation: hmWave 1.4s linear infinite; }
 .hero-motion .hm-charge { animation: hmCharge 3.6s ease-in-out infinite; opacity: 0; }
 .hero-motion .hm-rise { animation: hmRise 7s ease-out infinite; opacity: 0; }
@@ -289,4 +289,17 @@ to{transform:translateX(90px)}
 }
 @media (prefers-reduced-motion: reduce) {
   .cta-sun-disc, .cta-heat-glow, .cta-sun-rise { animation: none !important; }
+}
+.cta-sun-still .cta-sun-disc, .cta-sun-still .cta-heat-glow { animation-play-state: paused; }
+
+/* Decorative motion waits until the page has loaded (components/ui/MotionReady.tsx). */
+html:not(.motion-ready) .hero-motion *,
+html:not(.motion-ready) .app-flow,
+html:not(.motion-ready) .app-flow-rev,
+html:not(.motion-ready) .scene-flow-x,
+html:not(.motion-ready) .scene-flow-y,
+html:not(.motion-ready) .scene-wave,
+html:not(.motion-ready) .cta-sun-disc,
+html:not(.motion-ready) .cta-heat-glow {
+  animation-play-state: paused;
 }

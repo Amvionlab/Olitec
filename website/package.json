@@ -32,13 +32,9 @@
     "typescript": "5.9.3"
   },
   "browserslist": [
-    "> 0.5%",
-    "last 2 versions",
-    "Firefox ESR",
-    "not dead",
-    "chrome >= 109",
-    "edge >= 109",
-    "firefox >= 109",
-    "safari >= 15.4"
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 111",
+    "safari >= 16.4"
   ]
 }

@@ -165,7 +165,7 @@ export function BusinessLines() {
                 
 <article
   key={line.key}
-  aria-hidden={active !== idx}
+  inert={active !== idx}
   className="relative isolate min-w-full w-full shrink-0 min-h-[460px] sm:min-h-[500px] xl:min-h-[520px] overflow-hidden rounded-[25px] bg-[#0C111A]"
 >
   {/* Background image — defer slides 1 & 2 until #services nears viewport */}

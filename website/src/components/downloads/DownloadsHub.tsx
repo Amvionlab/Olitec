@@ -31,7 +31,7 @@ const DOCUMENTS: DocumentItem[] = [
     title: "Energy storage solutions brochure",
     familyTitle: "Energy storage solutions brochure",
     eyebrow: "START HERE",
-    eyebrowColor: "text-[#C46E0E]",
+    eyebrowColor: "text-[#9A5508]",
     description: "The complete Olitec inverter and battery range with applications and specifications, in one document.",
     pdfSize: "PDF 1.9 MB",
     pdfUrl: "/downloads/olitec-energy-storage-brochure.pdf",
@@ -43,7 +43,7 @@ const DOCUMENTS: DocumentItem[] = [
     title: "Hybrid inverter datasheet",
     familyTitle: "OLI-1H and OLI-3H series",
     eyebrow: "HYBRID INVERTERS",
-    eyebrowColor: "text-[#C46E0E]",
+    eyebrowColor: "text-[#9A5508]",
     description: "PDF 0.7 MB · OLI-1H single-phase 3 to 6 kW and OLI-3H three-phase 15 to 30 kW",
     pdfSize: "0.7 MB",
     pdfUrl: "/downloads/olitec-hybrid-inverter-datasheet.pdf",
@@ -206,7 +206,7 @@ export function DownloadsHub() {
             <div className="relative overflow-hidden rounded-[22px] border border-[#FBEAD4] bg-[#FFF8EE] p-6 sm:p-7 shadow-xs">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="max-w-2xl">
-                  <p className="text-xs font-black uppercase tracking-wider text-[#C46E0E] mb-1.5">
+                  <p className="text-xs font-black uppercase tracking-wider text-[#9A5508] mb-1.5">
                     START HERE
                   </p>
                   <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121C28]">

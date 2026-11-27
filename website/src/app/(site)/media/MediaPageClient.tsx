@@ -229,7 +229,7 @@ export function MediaPageClient() {
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-[#E6E2D8] pb-8">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-[#C46E0E]">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#9A5508]">
             News & Editorial
           </p>
           <h1 className="mt-2 text-3xl sm:text-4xl font-extrabold text-[#161E2C] tracking-tight">
@@ -288,7 +288,7 @@ export function MediaPageClient() {
           >
             <div>
               <div className="flex items-center justify-between text-xs text-[#6B7280]">
-                <span className="rounded-full bg-[#FFF7EA] px-3 py-1 font-bold text-[#C46E0E] border border-[#FFDDAA]">
+                <span className="rounded-full bg-[#FFF7EA] px-3 py-1 font-bold text-[#9A5508] border border-[#FFDDAA]">
                   {item.badge}
                 </span>
                 <div className="flex items-center gap-2">
@@ -335,7 +335,7 @@ export function MediaPageClient() {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-bold text-[#C46E0E] hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#9A5508] hover:underline"
               >
                 <span>Read / Watch</span>
                 <ExternalLink className="size-3" />

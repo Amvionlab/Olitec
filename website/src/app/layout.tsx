@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Figtree } from "next/font/google";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
+import { MotionReady } from "@/components/ui/MotionReady";
 
 // Figtree stands in for the licensed Faktum typeface used in the Figma design.
 const figtree = Figtree({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-figtree", display: "swap" });
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={figtree.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="min-h-screen font-sans" suppressHydrationWarning>
         {children}
+        <MotionReady />
       </body>
     </html>
   );

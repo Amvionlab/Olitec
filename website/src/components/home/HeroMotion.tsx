@@ -9,7 +9,7 @@
  * Everything stops for visitors who prefer reduced motion.
  */
 
-const FLOW = { stroke: "#FFB12E", strokeLinecap: "round" as const, fill: "none" };
+const FLOW = { stroke: "#FF9F1A", strokeLinecap: "round" as const, fill: "none" };
 
 export function HeroMotion() {
   return (

@@ -924,7 +924,7 @@ onBlur={handleSerialValidation}            />
             window.scrollTo({ top: 0, behavior: "smooth" });
           }
         }}
-className="rounded-lg bg-green-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-green-700"      >
+className="rounded-lg bg-[#1F7A34] px-7 py-3 text-sm font-semibold text-white transition hover:bg-green-800"      >
         Next
       </button>
     ) : (
@@ -937,7 +937,7 @@ className="rounded-lg bg-green-600 px-7 py-3 text-sm font-semibold text-white tr
           !serialValidated ||
           serialStatus === "checking"
         }
-className="rounded-lg bg-green-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"      >
+className="rounded-lg bg-[#1F7A34] px-7 py-3 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"      >
         {submitting ? "Submitting..." : "Submit Registration"}
       </button>
     )}

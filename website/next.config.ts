@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
   },
 
   reactStrictMode: true,
+
+  // Search, social, AI crawlers (Item M17) and PageSpeed/Lighthouse get the page's title and
+  // description in <head> straight away instead of streamed later (dynamic product pages).
+  htmlLimitedBots:
+    /Googlebot|Google-|AdsBot|Mediapartners|bingbot|Bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|Applebot|Twitterbot|Slackbot|facebookexternalhit|LinkedInBot|WhatsApp|GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-User|PerplexityBot|Lighthouse/i,
+
+  // Lets a local production copy be built next to a running dev server (perf testing).
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   poweredByHeader: false,
 
   ...(isExport

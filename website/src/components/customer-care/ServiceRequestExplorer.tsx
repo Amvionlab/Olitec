@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, type FormEvent } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import {
   Wrench,
   Zap,
@@ -73,8 +72,10 @@ const SERVICE_CATEGORIES: ServiceCategory[] = [
 ];
 
 export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?: string }) {
-  const searchParams = useSearchParams();
-  const serialFromUrl = searchParams.get("serial") || initialSerial;
+  // The serial (?serial=…) is read after load, so the whole form is in the static HTML
+  // (useSearchParams would turn this page into a client-only "Loading…" placeholder).
+  const serialFromUrl = initialSerial;
+  const [minDate, setMinDate] = useState<string | undefined>(undefined);
   const formRef = useRef<HTMLDivElement>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>(SERVICE_CATEGORIES[0].id);
 
@@ -97,6 +98,10 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
   const [result, setResult] = useState<{ ticketId: string; message: string } | null>(null);
 
   useEffect(() => {
+    setMinDate(new Date().toLocaleDateString("en-CA"));
+    const urlSerial = new URLSearchParams(window.location.search).get("serial");
+    if (urlSerial) setFormData((prev) => ({ ...prev, serial: prev.serial || urlSerial }));
+
     getActiveProductModels().then((items) => {
       if (items && items.length > 0) setProductOptions(items);
     });
@@ -182,7 +187,7 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
       {/* 1. Header Section */}
       <div className="max-w-3xl mb-8 sm:mb-12">
-        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#D45C0A] mb-3">
+        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#A8450A] mb-3">
           <Wrench className="size-4" />
           <span>On-Site Technical Service</span>
         </div>
@@ -200,7 +205,7 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
           {/* Issue Categories Selection */}
           <div>
             <div className="mb-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#D45C0A]">Step 1</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#A8450A]">Step 1</span>
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#161E2C] mt-0.5">
                 What issue are you facing?
               </h2>
@@ -251,7 +256,7 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
                           <span className="hidden sm:inline">Selected</span>
                         </span>
                       ) : (
-                        <span className="text-xs font-bold text-slate-400 group-hover:text-[#D45C0A]">
+                        <span className="text-xs font-bold text-slate-500 group-hover:text-[#A8450A]">
                           Select
                         </span>
                       )}
@@ -326,7 +331,7 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
           ) : (
             <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-lg shadow-slate-100">
               <div className="mb-6 pb-4 border-b border-slate-100">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#D45C0A]">Step 2</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#A8450A]">Step 2</span>
                 <h3 className="text-xl font-bold text-slate-900 mt-0.5">Service Details</h3>
                 <p className="text-xs text-slate-500 mt-1">
                   Selected issue: <strong className="text-slate-800">{selectedCategory}</strong>
@@ -342,7 +347,7 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
                     </label>
                     <Link
                       href="/warranty-status"
-                      className="text-[11px] font-semibold text-[#D45C0A] hover:underline"
+                      className="text-[11px] font-semibold text-[#A8450A] hover:underline"
                     >
                       Check status
                     </Link>
@@ -468,10 +473,11 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-900 mb-1.5">Preferred Visit Date</label>
+                    <label htmlFor="sr-preferred-date" className="block text-xs font-bold text-slate-900 mb-1.5">Preferred Visit Date</label>
                     <input
+                      id="sr-preferred-date"
                       type="date"
-                      min={new Date().toLocaleDateString("en-CA")}
+                      min={minDate}
                       value={formData.preferredDate}
                       onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
                       className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#D45C0A] focus:ring-2 focus:ring-[#D45C0A]/30 transition"

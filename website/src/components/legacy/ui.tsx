@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { legacyOverlays } from "@/content/legacy-overlays";
 import { AnimatedIllustration } from "./AnimatedIllustration";
+import { CtaSun } from "./CtaSun";
 import { LegacyIcon, type LegacyIconName } from "./icons";
 
 /** Figma expansive page grid: wide and spacious. */
@@ -274,8 +275,6 @@ export function CtaPanel({
     accent = "in mind?";
   }
 
-  const rings = [1.45, 1.95, 2.55, 3.25, 4.05];
-
   return (
     <section
       className="relative isolate overflow-hidden bg-[#161E2C] pb-[160px] pt-14 md:pb-24 md:pt-20 xl:pb-28 xl:pt-24"
@@ -284,66 +283,7 @@ export function CtaPanel({
       {/* Item M7, Option A "Clean sun": a crisp sunrise disc with only a thin halo, lower right
           on desktop and bottom centre on mobile, with faint rings around it. Orange never fades
           straight into the navy; the disc edge stays crisp. */}
-      {/* Heat filters for the sun (SVG turbulence, animated) */}
-      <svg aria-hidden width="0" height="0" className="absolute">
-        <defs>
-          {/* rising hot air: bends whatever is behind it, flowing upward */}
-          <filter id="cta-heat" x="-10%" y="-10%" width="120%" height="120%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.05" numOctaves="2" seed="7" result="noise">
-              <animate attributeName="baseFrequency" dur="11s" values="0.01 0.05;0.013 0.065;0.01 0.05" repeatCount="indefinite" />
-            </feTurbulence>
-            <feOffset in="noise" result="rising">
-              <animate attributeName="dy" dur="2.6s" values="0;-80" repeatCount="indefinite" />
-            </feOffset>
-            <feDisplacementMap in="SourceGraphic" in2="rising" scale="9" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-          {/* burning plasma for the sun's surface */}
-          <filter id="cta-plasma" x="0" y="0" width="100%" height="100%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="3">
-              <animate attributeName="baseFrequency" dur="14s" values="0.022;0.03;0.022" repeatCount="indefinite" />
-            </feTurbulence>
-            <feColorMatrix
-              type="matrix"
-              values="0 0 0 0 1   0 0 0 0 0.86   0 0 0 0 0.45   1.6 0 0 0 -0.55"
-            />
-          </filter>
-        </defs>
-      </svg>
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-0 left-1/2 z-0 size-[230px] -translate-x-1/2 translate-y-[50%] md:left-[76%] md:size-[320px] md:translate-y-[64%] xl:size-[360px]"
-      >
-        <div className="cta-sun-rise absolute inset-0">
-          {/* faint rings around the sun (Item M7) */}
-          <svg className="absolute left-1/2 top-1/2 size-[420%] -translate-x-1/2 -translate-y-1/2 overflow-visible" viewBox="-210 -210 420 420" fill="none">
-            {rings.map((r, i) => (
-              <circle key={r} cx="0" cy="0" r={r * 50} stroke="#FFD69C" strokeOpacity={0.16 - i * 0.025} strokeWidth="0.45" />
-            ))}
-          </svg>
-          {/* radiating heat glow (light-additive so it never turns brown on navy) */}
-          <div
-            className="cta-heat-glow absolute inset-[-55%] rounded-full mix-blend-screen"
-            style={{ background: "radial-gradient(circle, rgb(255 214 110 / 0.42) 0%, rgb(255 200 90 / 0.16) 38%, rgb(255 200 90 / 0) 66%)" }}
-          />
-
-          {/* the disc with a live burning surface, its outline wavering through rising hot air */}
-          <div className="absolute inset-[-12%] p-[9.68%]" style={{ filter: "url(#cta-heat)" }}>
-          <div
-            className="cta-sun-disc relative size-full overflow-hidden rounded-full"
-            style={{ background: "radial-gradient(circle at 50% 50%, #FFD04A 0%, #FFC23A 42%, #FBAA2A 74%, #F7961C 100%)" }}
-          >
-            <svg className="absolute inset-0 size-full mix-blend-soft-light" viewBox="0 0 200 200" preserveAspectRatio="none">
-              <rect width="200" height="200" filter="url(#cta-plasma)" />
-            </svg>
-            <span
-              className="absolute inset-0 rounded-full"
-              style={{ background: "radial-gradient(circle at 50% 45%, rgb(255 246 200 / 0.45) 0%, rgb(255 246 200 / 0) 55%)" }}
-            />
-          </div>
-          </div>
-        </div>
-      </div>
+      <CtaSun />
 
       <div className="relative z-10 mx-auto max-w-[1440px] px-5 sm:px-10 xl:px-[88px]">
         <div className="flex flex-col items-center text-center">

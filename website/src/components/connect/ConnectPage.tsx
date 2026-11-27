@@ -358,7 +358,7 @@ export function ConnectPage({ variant }: { variant: Variant }) {
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,520px)] lg:gap-14">
         {/* Left: information */}
         <div className="min-w-0">
-          <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[#D45C0A]">{c.eyebrow}</p>
+          <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[#A8450A]">{c.eyebrow}</p>
           <h2 className="mt-2 text-[28px] font-bold leading-tight text-[#161E2C] sm:text-[34px]">
             {c.heading}
             <span className="text-[#D45C0A]">{c.accent}</span>

@@ -55,7 +55,7 @@ export function ProductSeriesList({ series }: { series: readonly SeriesItem[] })
                       <p
                         className={cn(
                           "text-xs font-bold uppercase tracking-[0.14em]",
-                          item.tone === "green" ? "text-leaf" : "text-brand-600",
+                          item.tone === "green" ? "text-[#1F7A34]" : "text-[#9A5508]",
                         )}
                       >
                         {item.eyebrow}

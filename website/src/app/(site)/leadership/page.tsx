@@ -58,7 +58,7 @@ export default function LeadershipPage() {
               <div className="rounded-[28px] border border-[#e6e2d8] bg-gradient-to-b from-[#FFFDF9] to-[#FDFBF7] p-6 sm:p-7 shadow-[0_10px_34px_rgb(0_0_0/0.04)] space-y-5">
                 <div className="flex items-center justify-between border-b border-[#e6e2d8]/80 pb-4">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#D45C0A]">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#A8450A]">
                       Olitec Solar Private Limited
                     </span>
                     <h3 className="mt-0.5 text-lg font-extrabold text-[#161E2C]">
@@ -165,7 +165,7 @@ export default function LeadershipPage() {
                   <article className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-10 py-8 sm:py-10 px-2 sm:px-4 items-start">
                     {/* Left Column: Index + Minimal Monogram + Name & Domain */}
                     <div className="lg:col-span-5 flex items-start gap-4 sm:gap-5">
-                      <span className="font-mono text-xs font-bold text-slate-400 pt-3.5 shrink-0">
+                      <span className="font-mono text-xs font-bold text-slate-500 pt-3.5 shrink-0">
                         {idxLabel}
                       </span>
                       <div

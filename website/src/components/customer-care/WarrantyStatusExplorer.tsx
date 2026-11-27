@@ -81,7 +81,7 @@ export function WarrantyStatusExplorer() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
       {/* 1. Header Section */}
       <div className="max-w-3xl mb-8 sm:mb-12">
-        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#D45C0A] mb-3">
+        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#A8450A] mb-3">
           <ShieldCheck className="size-4" />
           <span>Official Warranty Verification</span>
         </div>
@@ -373,7 +373,7 @@ export function WarrantyStatusExplorer() {
                 <Phone className="size-4.5" />
               </div>
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   CALL OLITEC
                 </span>
                 <h4 className="text-base font-extrabold text-slate-900">8501 800 800</h4>

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 
@@ -25,6 +24,19 @@ export function CrossfadeImageSlideshow({ images, alt, className, paused = false
   const [active, setActive] = useState(0);
   const [previous, setPrevious] = useState<number | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
+  // The 2nd and 3rd images are only added once the page has settled, so they never
+  // compete with the first paint (they are needed 5 seconds later at the earliest).
+  const [primed, setPrimed] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+    const t = setTimeout(() => {
+      if (w.requestIdleCallback) w.requestIdleCallback(() => setPrimed(true), { timeout: 2000 });
+      else setPrimed(true);
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [paused]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -35,13 +47,13 @@ export function CrossfadeImageSlideshow({ images, alt, className, paused = false
   }, []);
 
   useEffect(() => {
-    if (reducedMotion || paused || images.length <= 1) return;
+    if (reducedMotion || paused || !primed || images.length <= 1) return;
     const timer = setTimeout(() => {
       setPrevious(active);
       setActive((active + 1) % images.length);
     }, INTERVAL);
     return () => clearTimeout(timer);
-  }, [active, images.length, reducedMotion, paused]);
+  }, [active, images.length, reducedMotion, paused, primed]);
 
   // Once the fade is complete the old image can drop to the back of the stack.
   useEffect(() => {
@@ -69,16 +81,22 @@ export function CrossfadeImageSlideshow({ images, alt, className, paused = false
       {images.map((src, index) => {
         const isActive = index === shown;
         const isPrevious = index === previous && !isActive;
+        if (index !== 0 && !primed && !isActive) return null;
+        const small = src.replace(/\.webp$/, "-720.webp");
         return (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             key={src}
             src={src}
+            srcSet={`${small} 720w, ${src} 1280w`}
+            sizes="(min-width: 1280px) 1200px, (min-width: 768px) 92vw, calc(100vw - 32px)"
             alt={isActive ? alt : ""}
             aria-hidden={isActive ? undefined : true}
-            fill
-            loading={index === 0 ? undefined : "lazy"}
-            sizes="(min-width: 1280px) 1200px, 100vw"
-            className="object-cover object-center"
+            width={1280}
+            height={720}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 size-full object-cover object-center"
             style={{
               opacity: isActive || isPrevious ? 1 : 0,
               zIndex: isActive ? 2 : isPrevious ? 1 : 0,
