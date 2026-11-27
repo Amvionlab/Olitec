@@ -241,7 +241,7 @@ export function HelpCard({ phones, children }: { phones: readonly string[]; chil
   return (
     <div className="rounded-[30px] bg-forest p-7 text-white">
       <h3 className="mb-2.5 text-[22.663px] font-semibold">Need help?</h3>
-      <p className="mb-4 text-base font-normal leading-[25px] text-white/85">Our customer care team is available Monday to Saturday, 9:30 am to 6:30 pm.</p>
+      <p className="mb-4 text-base font-normal leading-[25px] text-white/85">Call the Olitec customer care team.</p>
       {phones.map((phone, i) => (
         <p key={phone} className={cn("text-lg font-semibold", i === phones.length - 1 ? "mb-5" : "mb-1.5")}>
           <a href={`tel:${phone.replace(/\s/g, "")}`} className="hover:text-brand-300">
@@ -274,64 +274,70 @@ export function CtaPanel({
     accent = "in mind?";
   }
 
-  return (
-    <section className="relative overflow-hidden bg-[#161E2C] py-16 xl:py-20" aria-label={title}>
-      {/* Sunrise glow in lower right corner */}
-      <div
-        className="pointer-events-none absolute -bottom-24 -right-24 size-[520px] rounded-full opacity-80 blur-3xl"
-        style={{
-          background: "radial-gradient(circle, #FFD04A 0%, #F7961C 50%, transparent 75%)",
-        }}
-        aria-hidden
-      />
-      {/* Faint concentric orbit rings */}
-      <svg
-        className="pointer-events-none absolute -bottom-16 -right-16 size-[600px] opacity-25"
-        viewBox="0 0 600 600"
-        fill="none"
-        aria-hidden
-      >
-        <circle cx="500" cy="500" r="220" stroke="#FFD69C" strokeWidth="1.2" />
-        <circle cx="500" cy="500" r="320" stroke="#FFD69C" strokeWidth="1" strokeDasharray="6 6" />
-        <circle cx="500" cy="500" r="440" stroke="#FFD69C" strokeWidth="0.8" />
-      </svg>
+  const rings = [1.45, 1.95, 2.55, 3.25, 4.05];
 
-      <div className="relative mx-auto max-w-[1440px] px-6 sm:px-10 xl:px-[88px]">
+  return (
+    <section
+      className="relative isolate overflow-hidden bg-[#161E2C] pb-[160px] pt-14 md:pb-24 md:pt-20 xl:pb-28 xl:pt-24"
+      aria-label={title}
+    >
+      {/* Item M7, Option A "Clean sun": a crisp sunrise disc with only a thin halo, lower right
+          on desktop and bottom centre on mobile, with faint rings around it. Orange never fades
+          straight into the navy; the disc edge stays crisp. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute bottom-0 left-1/2 z-0 size-[230px] -translate-x-1/2 translate-y-[50%] md:left-[76%] md:size-[320px] md:translate-y-[64%] xl:size-[360px]"
+      >
+        <svg className="absolute left-1/2 top-1/2 size-[420%] -translate-x-1/2 -translate-y-1/2 overflow-visible" viewBox="-210 -210 420 420" fill="none">
+          {rings.map((r, i) => (
+            <circle key={r} cx="0" cy="0" r={r * 50} stroke="#FFD69C" strokeOpacity={0.16 - i * 0.025} strokeWidth="0.45" />
+          ))}
+        </svg>
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: "radial-gradient(circle at 50% 50%, #FFD04A 0%, #FFC23A 42%, #FBAA2A 74%, #F7961C 100%)",
+            boxShadow: "0 0 0 6px rgb(247 150 28 / 0.16), 0 0 36px 6px rgb(247 150 28 / 0.38)",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-[1440px] px-5 sm:px-10 xl:px-[88px]">
         <div className="flex flex-col items-center text-center">
-          <h2 className="max-w-[820px] text-[36px] font-bold leading-[1.14] text-white sm:text-[48px] xl:text-[58px]">
+          <h2 className="text-[34px] font-bold leading-[1.18] text-white sm:text-[44px] md:whitespace-nowrap xl:text-[52px]">
             {accent ? (
               <>
-                {beforeAccent}
-                <span className="text-[#FCBC62]">{accent}</span>
+                <span className="block md:inline">{beforeAccent.trim()}</span>{" "}
+                <span className="block text-[#FCBC62] md:inline">{accent}</span>
               </>
             ) : (
               title
             )}
           </h2>
-          <p className="mt-5 max-w-[640px] text-base font-normal leading-relaxed text-white/80 sm:text-lg xl:text-[19px]">
+          <p className="mt-4 max-w-[600px] text-[15px] font-normal leading-relaxed text-white/80 sm:text-base xl:text-lg">
             {body}
           </p>
 
-          <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
+          <div className="mt-8 flex w-full max-w-[420px] flex-col gap-3.5 md:w-auto md:max-w-none md:flex-row-reverse md:gap-5">
+            <Link
+              href={primary.href}
+              className="inline-flex h-[52px] w-full items-center justify-between gap-4 rounded-full bg-gradient-to-r from-[#E8962C] to-[#F3BE48] pl-7 pr-2 text-[15px] font-bold text-[#161E2C] shadow-[0_8px_22px_rgb(232_150_44/0.3)] transition hover:brightness-105 active:scale-[0.98] md:w-auto md:min-w-[250px]"
+            >
+              <span>{primary.label}</span>
+              <span className="flex size-9 items-center justify-center rounded-full bg-white text-[#161E2C]">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M7 17L17 7M8 7h9v9" />
+                </svg>
+              </span>
+            </Link>
             {secondary && (
               <Link
                 href={secondary.href}
-                className="inline-flex h-12 min-w-[220px] items-center justify-center rounded-full border-2 border-white/80 bg-transparent px-7 text-xs font-bold text-white transition hover:bg-white hover:text-[#161E2C] active:scale-95"
+                className="inline-flex h-[52px] w-full items-center justify-center rounded-full border-[1.5px] border-white/85 bg-transparent px-8 text-[15px] font-semibold text-white transition hover:bg-white hover:text-[#161E2C] active:scale-[0.98] md:w-auto md:min-w-[220px]"
               >
                 {secondary.label}
               </Link>
             )}
-            <Link
-              href={primary.href}
-              className="inline-flex h-12 min-w-[240px] items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#E8962C] to-[#F3BE48] px-7 text-xs font-bold text-[#161E2C] shadow-lg transition hover:brightness-105 active:scale-95"
-            >
-              <span>{primary.label}</span>
-              <span className="flex size-7 items-center justify-center rounded-full bg-[#161E2C]/10">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </span>
-            </Link>
           </div>
         </div>
       </div>

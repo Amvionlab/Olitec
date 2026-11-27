@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { homesPage } from "@/content/pages";
 import { LegacyPage } from "@/components/legacy/ui";
 import { ConnectBanner } from "@/components/layout/ConnectBanner";
-import { HomesBusinessesExplorer } from "@/components/connect/HomesBusinessesExplorer";
+import { ConnectPage } from "@/components/connect/ConnectPage";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export default function HomesAndBusinessesPage() {
     <LegacyPage>
       <BreadcrumbJsonLd items={[{ name: "Homes & Businesses", path: "/homes-and-businesses" }]} />
       <ConnectBanner current="/homes-and-businesses" />
-      <HomesBusinessesExplorer />
+      <ConnectPage variant="consultation" />
     </LegacyPage>
   );
 }

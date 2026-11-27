@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { businessLines, businessLinesIntro } from "@/content/legacy";
 import { CarouselControls, HomeContainer, SectionTitle } from "@/components/home/primitives";
 import { cn } from "@/lib/cn";
-import { AnimatedIllustration } from "./AnimatedIllustration";
+import { InstallationScene } from "./InstallationScene";
 import { CrossfadeImageSlideshow } from "./CrossfadeImageSlideshow";
 const LAST = businessLines.length - 1;
 
@@ -55,31 +55,28 @@ function TurnkeyIcon() {
 const icons = { epc: EpcIcon, storage: StorageIcon, turnkey: TurnkeyIcon };
 
 /**
- * "What Olitec does": Scroll-driven 3-slide presentation.
- * As the user scrolls vertically down, it pins in place and slides smoothly through:
- * 1. Ground-mount open-access EPC
- * 2. Inverters and energy storage
- * 3. Turnkey solutions
- * Once the 3rd slide is complete, continuing scroll naturally moves to the next section below.
+ * "What Olitec does": three slides, switched by the tabs, the arrows or a swipe.
+ * The section scrolls with the page like every other section (no pinning or scroll-jacking),
+ * so the page never sticks or jumps while scrolling past it.
  */
 export function BusinessLines() {
   const containerRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
   const [loadAllSlides, setLoadAllSlides] = useState(false);
-  const isNavigatingRef = useRef(false);
+  const [inView, setInView] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el || typeof IntersectionObserver === "undefined") {
       setLoadAllSlides(true);
+      setInView(true);
       return;
     }
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setLoadAllSlides(true);
-          observer.disconnect();
-        }
+        setInView(entry.isIntersecting);
+        if (entry.isIntersecting) setLoadAllSlides(true);
       },
       { rootMargin: "350px 0px" },
     );
@@ -87,85 +84,33 @@ export function BusinessLines() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    let rafId: number | null = null;
-
-    const handleScroll = () => {
-      if (isNavigatingRef.current) return;
-      if (!containerRef.current) return;
-
-      const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const totalScrollable = containerRef.current.offsetHeight - windowHeight;
-
-      if (totalScrollable <= 0) return;
-
-      const scrolled = -rect.top;
-      const clamped = Math.min(Math.max(scrolled / totalScrollable, 0), 1);
-
-      let nextIndex = 0;
-      if (clamped >= 0.68) {
-        nextIndex = 2;
-      } else if (clamped >= 0.32) {
-        nextIndex = 1;
-      }
-
-      setActive((prev) => (prev === nextIndex ? prev : nextIndex));
-    };
-
-    const onScroll = () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(handleScroll);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (rafId !== null) cancelAnimationFrame(rafId);
-    };
-  }, []);
-
   const goToSlide = (targetIndex: number) => {
-    const nextIdx = Math.max(0, Math.min(LAST, targetIndex));
     setLoadAllSlides(true);
-    setActive(nextIdx);
+    setActive(Math.max(0, Math.min(LAST, targetIndex)));
+  };
 
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const containerTop = scrollTop + rect.top;
-    const totalScrollable = containerRef.current.offsetHeight - window.innerHeight;
-
-    // Slide 0: ~15%, Slide 1: ~50%, Slide 2: ~85%
-    const progressOffsets = [0.15, 0.50, 0.85];
-    const targetScroll = containerTop + totalScrollable * progressOffsets[nextIdx];
-
-    isNavigatingRef.current = true;
-    window.scrollTo({
-      top: targetScroll,
-      behavior: "smooth",
-    });
-
-    setTimeout(() => {
-      isNavigatingRef.current = false;
-    }, 600);
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const dx = (e.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 50) return;
+    goToSlide(active + (dx < 0 ? 1 : -1));
   };
 
   return (
     <section
       id="services"
       ref={containerRef}
-      className="relative min-h-[210vh] md:min-h-[240vh] scroll-mt-6 bg-[rgb(217_217_217/0.44)]"
+      className="relative scroll-mt-24 bg-[rgb(217_217_217/0.44)]"
       aria-labelledby="business-lines-title"
     >
-      {/* Sticky presentation viewport */}
-      <div className="sticky top-16 md:top-20 z-10 flex min-h-[calc(100vh-4rem)] flex-col justify-center py-7 xl:py-10">
+      <div className="py-14 xl:py-20">
         <HomeContainer>
           {/* Title & 3 Tab Buttons in the Same Row */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3.5 sm:gap-4">
+          <div className="flex flex-col gap-3.5 sm:gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <SectionTitle id="business-lines-title">{businessLinesIntro.title}</SectionTitle>
               <p className="mt-1.5 max-w-[620px] text-sm sm:text-base font-medium leading-relaxed text-black">
@@ -207,7 +152,11 @@ export function BusinessLines() {
           </div>
 
           {/* Animated Horizontal Slide Deck */}
-          <div className="mt-6 sm:mt-7 overflow-hidden rounded-[25.528px]">
+          <div
+            className="mt-6 sm:mt-7 overflow-hidden rounded-[25.528px] touch-pan-y"
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
             <div
               className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{ transform: `translateX(-${active * 100}%)` }}
@@ -216,23 +165,19 @@ export function BusinessLines() {
                 
 <article
   key={line.key}
+  aria-hidden={active !== idx}
   className="relative isolate min-w-full w-full shrink-0 min-h-[460px] sm:min-h-[500px] xl:min-h-[520px] overflow-hidden rounded-[25px] bg-[#0C111A]"
 >
   {/* Background image — defer slides 1 & 2 until #services nears viewport */}
   <div className="absolute inset-0 z-0">
     {(idx === 0 || loadAllSlides || active === idx) &&
       (line.key === "storage" ? (
-        <AnimatedIllustration
-          src={line.image}
-          alt={line.imageAlt}
-          overlay={line.overlay}
-          sizes="(min-width: 1280px) 1200px, 100vw"
-          className="h-full w-full"
-        />
+        <InstallationScene playing={inView && active === idx} />
       ) : (
         <CrossfadeImageSlideshow
           images={[...line.images]}
           alt={line.imageAlt}
+          paused={!inView || active !== idx}
           className="h-full w-full"
         />
       ))}

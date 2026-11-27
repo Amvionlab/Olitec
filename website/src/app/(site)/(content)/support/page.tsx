@@ -26,7 +26,7 @@ export default function SupportPage() {
         {[
           {
             icon: Phone,
-            label: "Toll-free helpline",
+            label: "Customer care",
             value: siteConfig.supportPhone,
             href: `tel:${siteConfig.supportPhone.replace(/\s/g, "")}`,
           },

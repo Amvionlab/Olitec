@@ -36,7 +36,7 @@ export function SlimPageBanner({
       )}
     >
       <div
-        className="relative overflow-hidden rounded-t-[32px] sm:rounded-t-[40px] px-6 py-8 sm:px-10 sm:py-10 xl:px-14 xl:py-12"
+        className="relative overflow-hidden rounded-t-[32px] sm:rounded-t-[40px] px-6 py-7 sm:px-10 sm:py-8 xl:px-14 xl:py-9"
         style={{
           background: `
             radial-gradient(ellipse 65% 90% at 95% 85%, #FCBE68 0%, transparent 60%),
@@ -91,30 +91,23 @@ export function SlimPageBanner({
           />
         </svg>
 
-        {/* Two-line clean content: Heading on line 1, single sentence on line 2 */}
-        <div className="relative z-10 flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
-          <div className="max-w-[840px]">
-            <h1 className="text-2xl font-bold tracking-tight text-[#161E2C] sm:text-3xl xl:text-[34px] xl:leading-[1.18]">
-              {accent ? (
-                <>
-                  {beforeAccent}
-                  <span className="text-[#D45C0A]">{accent}</span>
-                  {afterAccent}
-                </>
-              ) : (
-                title
-              )}
-            </h1>
-            <p className="mt-2 text-sm font-medium leading-relaxed text-[#2A323F] sm:text-base xl:text-[17px]">
-              {lead}
-            </p>
+        {/* Two lines only: heading on line 1; one sentence on line 2 with any buttons at its right end */}
+        <div className="relative z-10">
+          <h1 className="text-[26px] font-bold leading-tight tracking-tight text-[#161E2C] sm:text-3xl xl:text-[34px]">
+            {accent ? (
+              <>
+                {beforeAccent}
+                <span className="text-[#D45C0A]">{accent}</span>
+                {afterAccent}
+              </>
+            ) : (
+              title
+            )}
+          </h1>
+          <div className="mt-2 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+            <p className="text-[15px] font-medium leading-relaxed text-[#2A323F] sm:text-base xl:text-[17px]">{lead}</p>
+            {children && <div className="flex shrink-0 flex-wrap items-center gap-3">{children}</div>}
           </div>
-
-          {children && (
-            <div className="flex shrink-0 flex-wrap items-center gap-3">
-              {children}
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -63,6 +63,9 @@ try:
     run_command("curl -s http://127.0.0.1:4005/health || echo 'Health check failed'")
     run_command("curl -s -I http://127.0.0.1:3005 || echo 'Website check failed'")
     run_command("curl -s -I http://127.0.0.1:3000 || echo 'Nginx 3000 check failed'")
+    run_command("curl -s -I http://127.0.0.1:3000/warranty-status || echo 'Warranty status check failed'")
+    run_command("curl -s -I http://127.0.0.1:3000/service-request || echo 'Service request check failed'")
+    run_command("curl -s -I http://127.0.0.1:3000/warranties/register || echo 'Warranty register check failed'")
     run_command("curl -s -I http://127.0.0.1:8080 || echo 'Nginx 8080 check failed'")
 
 finally:

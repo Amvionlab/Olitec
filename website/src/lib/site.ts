@@ -53,7 +53,7 @@ export const mainNav: readonly NavItem[] = [
     label: "Connect",
     children: [
       { href: "/channel-partners", label: "For channel partners", description: "Distributors and EPC integrators" },
-      { href: "/homes-and-businesses", label: "For homes and businesses", description: "Plan a system and find an installer" },
+      { href: "/homes-and-businesses", label: "For homes and businesses", description: "Plan a system for your site" },
       { href: "/careers", label: "Careers", description: "Build India's energy infrastructure with us" },
     ],
   },

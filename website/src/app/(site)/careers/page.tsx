@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { careersPage } from "@/content/pages";
 import { LegacyPage } from "@/components/legacy/ui";
 import { ConnectBanner } from "@/components/layout/ConnectBanner";
-import { CareersExplorer } from "@/components/connect/CareersExplorer";
+import { ConnectPage } from "@/components/connect/ConnectPage";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export default function CareersPage() {
     <LegacyPage>
       <BreadcrumbJsonLd items={[{ name: "Careers", path: "/careers" }]} />
       <ConnectBanner current="/careers" />
-      <CareersExplorer />
+      <ConnectPage variant="career" />
     </LegacyPage>
   );
 }

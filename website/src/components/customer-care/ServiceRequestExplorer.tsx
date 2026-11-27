@@ -10,14 +10,11 @@ import {
   Sun,
   ShieldAlert,
   Calendar,
-  Clock,
   Phone,
   CheckCircle2,
   ArrowRight,
-  ShieldCheck,
   Search,
   Check,
-  AlertTriangle,
   Building,
   User,
   MapPin,
@@ -193,7 +190,7 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
           Raise an authorized service request
         </h2>
         <p className="mt-2 text-slate-600 text-sm sm:text-base leading-relaxed">
-          Select your issue category and schedule an on-site service engineer. All warranty repairs use genuine Olitec components with guaranteed SLA turnaround.
+          Report a problem with your Olitec product and our service team will get back to you.
         </p>
       </div>
 
@@ -265,56 +262,18 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
             </div>
           </div>
 
-          {/* Service Guarantees & SLAs */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 space-y-4">
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <ShieldCheck className="size-4.5 text-[#D45C0A]" />
-              <span>Olitec Service Guarantees</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                <div className="flex items-center gap-2 text-slate-900 font-bold mb-1">
-                  <Clock className="size-4 text-[#D45C0A]" />
-                  <span>24–48 Hour On-Site SLA</span>
-                </div>
-                <p className="text-slate-600 leading-relaxed">
-                  Technicians dispatched within 24 to 48 hours for verified active warranty units across all operational pin codes.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                <div className="flex items-center gap-2 text-slate-900 font-bold mb-1">
-                  <CheckCircle2 className="size-4 text-emerald-600" />
-                  <span>100% Genuine Components</span>
-                </div>
-                <p className="text-slate-600 leading-relaxed">
-                  Replacement parts come factory-sealed directly from our Katpadi manufacturing facility.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Emergency Helpline Banner */}
-          <div className="rounded-3xl border border-red-200 bg-gradient-to-r from-red-50 to-orange-50 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          {/* Need help? (Items 4 and 9: one phone number, no support hours) */}
+          <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-6 sm:flex-row sm:items-center">
             <div>
-              <div className="flex items-center gap-2 text-red-700 font-bold text-xs uppercase tracking-wider mb-1">
-                <AlertTriangle className="size-4" />
-                <span>Complete Power Outage?</span>
-              </div>
-              <h4 className="text-lg font-extrabold text-slate-900">
-                Call Emergency Solar Helpline: 8501 800 800
-              </h4>
-              <p className="text-xs text-slate-600 mt-0.5">
-                Direct phone triage with application engineering team for critical site blackouts.
-              </p>
+              <h3 className="text-base font-bold text-slate-900">Need help?</h3>
+              <p className="mt-0.5 text-sm text-slate-600">Call the Olitec customer care team.</p>
             </div>
             <a
               href="tel:8501800800"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#E8962C] to-[#F3BE48] px-5 py-2.5 text-sm font-bold text-[#161E2C] shadow-sm transition hover:brightness-105"
             >
               <Phone className="size-4" />
-              <span>Call 8501 800 800</span>
+              <span>8501 800 800</span>
             </a>
           </div>
         </div>
@@ -335,36 +294,9 @@ export function ServiceRequestExplorer({ initialSerial = "" }: { initialSerial?:
                   Ticket #{result.ticketId}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-2">
-                  {result.message} A field coordinator has been assigned and will call you on{" "}
-                  <strong>{formData.mobile}</strong> to confirm the technician visit window.
+                  {result.message} Our service team will call you on{" "}
+                  <strong>{formData.mobile}</strong>.
                 </p>
-              </div>
-
-              {/* What Happens Next Timeline */}
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4.5 space-y-3.5">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  What Happens Next:
-                </h4>
-                <ol className="space-y-3 text-xs text-slate-600">
-                  <li className="flex items-start gap-2.5">
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-[10px]">
-                      1
-                    </span>
-                    <span>SMS & WhatsApp confirmation sent with ticket tracking link.</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-700 font-bold text-[10px]">
-                      2
-                    </span>
-                    <span>Application Engineer remote diagnostics call within 2 hours.</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-700 font-bold text-[10px]">
-                      3
-                    </span>
-                    <span>On-site technician visit with factory-certified spare parts.</span>
-                  </li>
-                </ol>
               </div>
 
               <div className="pt-2">

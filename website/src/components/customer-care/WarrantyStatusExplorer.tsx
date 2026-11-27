@@ -374,13 +374,13 @@ export function WarrantyStatusExplorer() {
               </div>
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  TOLL-FREE CARE LINE
+                  CALL OLITEC
                 </span>
                 <h4 className="text-base font-extrabold text-slate-900">8501 800 800</h4>
               </div>
             </div>
             <p className="text-xs text-slate-500 leading-relaxed mt-2">
-              Monday to Saturday, 9:00 AM – 6:30 PM. Direct access to Olitec warranty and application engineers.
+              Direct access to Olitec warranty and application engineers.
             </p>
             <div className="mt-3.5 pt-3 border-t border-slate-100">
               <a

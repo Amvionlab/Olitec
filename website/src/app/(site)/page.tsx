@@ -8,15 +8,14 @@ import { HomeProductCard } from "@/components/home/HomeProductCard";
 import { HomeContainer, SectionTitle } from "@/components/home/primitives";
 import { BusinessLines } from "@/components/legacy/BusinessLines";
 import { CtaPanel } from "@/components/legacy/ui";
+import { synergy } from "@/content/legacy";
+import { SynergyBand } from "@/components/home/SynergyBand";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import { legacyLead } from "@/content/legacy";
-import { faqs } from "@/content/home";
 import { applicationsPage, productsPage } from "@/content/pages";
-import { FaqJsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: { absolute: `${siteConfig.name} · Hybrid Inverters & LFP Energy Storage India` },
+  title: { absolute: `${siteConfig.name} | Hybrid inverters and energy storage` },
   description: siteConfig.searchDescription,
   alternates: { canonical: "/" },
 };
@@ -58,7 +57,9 @@ export default function HomePage() {
       <link
         rel="preload"
         as="image"
-        href="/images/legacy/hero-banner.webp"
+        href="/images/legacy/hero-banner-1600.webp"
+        imageSrcSet="/images/legacy/hero-banner-1600.webp 1600w, /images/legacy/hero-banner-2576.webp 2576w"
+        imageSizes="(min-width: 1640px) 1640px, 100vw"
         media="(min-width: 768px)"
         fetchPriority="high"
       />
@@ -66,7 +67,6 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
       />
-      <FaqJsonLd items={faqs} />
 
       {/* 1. Hero with warm apricot radial glow and deep green action */}
       <Hero />
@@ -74,64 +74,8 @@ export default function HomePage() {
       {/* 2. Three Connected Lines of Business */}
       <BusinessLines />
 
-      {/* 3. Synergy — Sun-like gradient band with 3 interconnected circles (Item M4) */}
-      <section
-        className="py-16 xl:py-20 border-y border-[#FFDDAA]/50"
-        style={{
-          background: "linear-gradient(135deg, #FFDBA6 0%, #FFE4BC 35%, #FFEED4 70%, #FFF6E8 100%)",
-        }}
-        aria-label="How our businesses connect"
-      >
-        <ScrollReveal>
-          <HomeContainer className="max-w-[1200px] xl:max-w-[1260px] 2xl:max-w-[1260px]">
-            <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-10 xl:gap-14">
-              <h2 className="max-w-[580px] text-[26px] font-bold leading-[38px] text-[#161E2C] sm:text-[30px] xl:text-[34px] xl:leading-[46px]">
-                Each line of business strengthens the others: what we learn operating plants shapes the products we build, and the products we build make the solutions we deliver{" "}
-                <span className="text-[#1F7A34]">more reliable.</span>
-              </h2>
-
-              {/* 3 Interconnected Circles in a Triangle */}
-              <div className="relative flex h-[320px] w-full max-w-[440px] items-center justify-center">
-                <svg className="absolute inset-0 size-full" viewBox="0 0 400 300" fill="none">
-                  <line x1="200" y1="60" x2="90" y2="230" stroke="#E8962C" strokeWidth="2.5" strokeDasharray="4 4" />
-                  <line x1="200" y1="60" x2="310" y2="230" stroke="#1F7A34" strokeWidth="2.5" strokeDasharray="4 4" />
-                  <line x1="90" y1="230" x2="310" y2="230" stroke="#D45C0A" strokeWidth="2.5" strokeDasharray="4 4" />
-                </svg>
-
-                {/* Node 1: Top (Solar plants) */}
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                  <div className="flex size-20 items-center justify-center rounded-full bg-white shadow-md border-2 border-[#E8962C]">
-                    <span className="text-2xl">☀️</span>
-                  </div>
-                  <span className="mt-2 text-xs font-bold text-[#161E2C] bg-white/90 px-3 py-1 rounded-full shadow-2xs">
-                    Solar plants
-                  </span>
-                </div>
-
-                {/* Node 2: Bottom-Left (Inverters and storage) */}
-                <div className="absolute bottom-2 left-4 flex flex-col items-center">
-                  <div className="flex size-20 items-center justify-center rounded-full bg-white shadow-md border-2 border-[#1F7A34]">
-                    <span className="text-2xl">⚡</span>
-                  </div>
-                  <span className="mt-2 text-xs font-bold text-[#161E2C] bg-white/90 px-3 py-1 rounded-full shadow-2xs text-center max-w-[130px]">
-                    Inverters & storage
-                  </span>
-                </div>
-
-                {/* Node 3: Bottom-Right (Turnkey solutions) */}
-                <div className="absolute bottom-2 right-4 flex flex-col items-center">
-                  <div className="flex size-20 items-center justify-center rounded-full bg-white shadow-md border-2 border-[#D45C0A]">
-                    <span className="text-2xl">🔄</span>
-                  </div>
-                  <span className="mt-2 text-xs font-bold text-[#161E2C] bg-white/90 px-3 py-1 rounded-full shadow-2xs text-center max-w-[130px]">
-                    Turnkey solutions
-                  </span>
-                </div>
-              </div>
-            </div>
-          </HomeContainer>
-        </ScrollReveal>
-      </section>
+      {/* 3. "Each line of business strengthens the others" band (Item M4) */}
+      <SynergyBand statement={synergy.statement} accent="more reliable." />
 
       {/* 4. Products Section (Items M5 & 19) */}
       <section id="products" className="py-16 scroll-mt-6 xl:py-20" aria-labelledby="products-title">

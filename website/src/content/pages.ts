@@ -164,13 +164,13 @@ export const applicationsPage = {
       outcome: [
         "Essential loads stay on through outages, with switch-over in under 10 ms",
         "Solar powers the day and stored energy covers the evening peak",
-        "Monitoring and scheduling from a mobile app",
+        "Monitoring and scheduling from one platform",
       ],
     },
     {
       id: "remote",
       icon: "pin",
-      title: "Remote locations and off-grid sites",
+      title: "Remote and off-grid sites",
       tagline: "Reliable power where the grid does not reach",
       challenge:
         "Farms, borewell pumps, eco-resorts, quarries and construction camps often depend on a diesel generator that is costly to run and to refuel.",
@@ -218,13 +218,13 @@ export const applicationsPage = {
       outcome: [
         "Continuous power for communications, surveillance and living quarters",
         "Reduced dependence on fuel convoys to remote locations",
-        "Wide operating temperature range from minus 20 to 60 °C on the inverter",
+        "Wide operating temperature range on the inverter",
       ],
     },
     {
       id: "microgrid",
       icon: "mountain",
-      title: "Microgrids for hill and remote settlements",
+      title: "Microgrids for remote settlements",
       tagline: "Community power for villages beyond the grid",
       challenge:
         "Hill hamlets, island communities and remote settlements are often served by long, unreliable feeder lines or by no grid at all.",
@@ -327,7 +327,7 @@ export const downloadsPage = {
 export const warrantyRegistrationHero = {
   eyebrow: "Olitec Warranty Support",
   title: "Warranty Registration",
-  lead: "Register your solar product to submit your warranty details.",
+  lead: "Register your Olitec inverter or battery to activate its warranty.",
 };
 
 export const warrantyStatusPage = {
@@ -396,7 +396,7 @@ export const careersPage = {
     { icon: "chip", title: "Research and development", body: "Power electronics, embedded firmware, battery management and product validation." },
     { icon: "factory", title: "Manufacturing and quality", body: "Production, testing, process engineering and quality assurance." },
     { icon: "sun", title: "Project engineering", body: "Design, execution and commissioning of large-scale solar plants." },
-    { icon: "people", title: "Sales and channel", body: "Building and supporting our distributor, dealer and installer network." },
+    { icon: "people", title: "Sales and channel", body: "Building and supporting our distributor and EPC partner network." },
     { icon: "wrench", title: "Service and support", body: "Field service, remote diagnostics and customer care." },
     { icon: "graduate", title: "Freshers", body: "Structured training and hands-on exposure for fresh engineers and diploma holders." },
   ],

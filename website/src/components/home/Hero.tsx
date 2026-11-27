@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { legacyHero, legacyLead } from "@/content/legacy";
+import { HeroMotion } from "./HeroMotion";
 
 /**
  * Enterprise Hero matching exact reference in Review (media_1795426227749_f1ffaf21.jpg):
@@ -16,7 +17,12 @@ export function Hero() {
       <div className="relative flex w-full items-start md:items-center overflow-hidden rounded-[28px] sm:rounded-[36px] xl:rounded-[44px] bg-[#FFF3DC] shadow-[0_12px_40px_rgb(0_0_0/0.06)] border border-[#E6E2D8]/80 min-h-[600px] sm:min-h-[660px] md:min-h-[540px] lg:min-h-[580px] xl:min-h-[620px] md:aspect-[22/10]">
         {/* Responsive Hero Artwork: mobile gets portrait WebP only, desktop gets panoramic WebP only */}
         <picture>
-          <source media="(min-width: 768px)" srcSet="/images/legacy/hero-banner.webp" type="image/webp" />
+          <source
+            media="(min-width: 768px)"
+            srcSet="/images/legacy/hero-banner-1600.webp 1600w, /images/legacy/hero-banner-2576.webp 2576w"
+            sizes="(min-width: 1640px) 1640px, 100vw"
+            type="image/webp"
+          />
           <img
             src="/images/legacy/hero-banner-mobile.webp"
             alt={legacyHero.imageAlt}
@@ -28,6 +34,9 @@ export function Hero() {
             className="absolute inset-0 size-full object-cover object-bottom md:object-center pointer-events-none select-none"
           />
         </picture>
+
+        {/* Gentle live motion over the artwork */}
+        <HeroMotion />
 
         {/* Text and CTA Overlay Content */}
         <div className="relative z-10 flex w-full flex-col justify-start md:justify-center px-6 pt-8 pb-[290px] sm:px-10 sm:pt-10 sm:pb-[320px] md:py-10 md:px-14 lg:px-16 xl:px-20 max-w-[560px] lg:max-w-[620px]">

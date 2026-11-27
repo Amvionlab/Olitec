@@ -66,7 +66,7 @@ const CAREER_AREAS: CareerArea[] = [
   {
     id: "Freshers",
     label: "Freshers",
-    tag: "Graduate Pathway",
+    tag: "Entry level",
     icon: GraduationCap,
     desc: "Structured training and hands-on laboratory mentoring for fresh electrical and electronics engineers.",
   },
@@ -212,7 +212,7 @@ export function CareersExplorer() {
               </h2>
             </div>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
-              Select an engineering division or freshers program to align your application with our active technical hiring pods.
+              Choose the area you would like to work in.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

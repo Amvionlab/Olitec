@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -9,83 +8,56 @@ interface CrossfadeImageSlideshowProps {
   images: string[];
   alt: string;
   className?: string;
+  /** Pause cycling (e.g. while the slide is not the visible one). */
+  paused?: boolean;
 }
 
+/** Item M14: about 5 seconds per image, 1.2 second crossfade, looping. */
 const INTERVAL = 5000;
 const FADE_DURATION = 1200;
 
-export function CrossfadeImageSlideshow({
-  images,
-  alt,
-  className,
-}: CrossfadeImageSlideshowProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [previousIndex, setPreviousIndex] = useState<number | null>(null);
-  const [fadeIn, setFadeIn] = useState(false);
+/**
+ * Crossfade without a washed-out look: every image stays mounted (so the next one is already
+ * decoded), the incoming image fades in ON TOP of the current one, and the current image stays
+ * fully visible underneath until the fade has finished. Reduced motion → first image only.
+ */
+export function CrossfadeImageSlideshow({ images, alt, className, paused = false }: CrossfadeImageSlideshowProps) {
+  const [active, setActive] = useState(0);
+  const [previous, setPrevious] = useState<number | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [resetTimer, setResetTimer] = useState(0);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    );
-
-    const updateMotionPreference = () => {
-      setReducedMotion(mediaQuery.matches);
-    };
-
-    updateMotionPreference();
-    mediaQuery.addEventListener("change", updateMotionPreference);
-
-    return () => {
-      mediaQuery.removeEventListener("change", updateMotionPreference);
-    };
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
 
   useEffect(() => {
-    if (reducedMotion || images.length <= 1) return;
-
-    let fadeTimer: ReturnType<typeof setTimeout> | undefined;
-    let fadeFrame1 = 0;
-    let fadeFrame2 = 0;
-
-    const interval = setInterval(() => {
-      const nextIndex = (activeIndex + 1) % images.length;
-
-      setPreviousIndex(activeIndex);
-      setActiveIndex(nextIndex);
-      setFadeIn(false);
-
-      fadeFrame1 = requestAnimationFrame(() => {
-        fadeFrame2 = requestAnimationFrame(() => {
-          setFadeIn(true);
-        });
-      });
-
-      fadeTimer = setTimeout(() => {
-        setPreviousIndex(null);
-        setFadeIn(false);
-      }, FADE_DURATION);
+    if (reducedMotion || paused || images.length <= 1) return;
+    const timer = setTimeout(() => {
+      setPrevious(active);
+      setActive((active + 1) % images.length);
     }, INTERVAL);
+    return () => clearTimeout(timer);
+  }, [active, images.length, reducedMotion, paused]);
 
-    return () => {
-      clearInterval(interval);
-      if (fadeTimer) clearTimeout(fadeTimer);
-      cancelAnimationFrame(fadeFrame1);
-      cancelAnimationFrame(fadeFrame2);
-    };
-  }, [activeIndex, images.length, reducedMotion, resetTimer]);
+  // Once the fade is complete the old image can drop to the back of the stack.
+  useEffect(() => {
+    if (previous === null) return;
+    const timer = setTimeout(() => setPrevious(null), FADE_DURATION + 50);
+    return () => clearTimeout(timer);
+  }, [previous]);
 
   const showImage = (index: number) => {
-    if (index === activeIndex) return;
-
-    setPreviousIndex(null);
-    setFadeIn(false);
-    setActiveIndex(index);
-    setResetTimer((current) => current + 1);
+    if (index === active) return;
+    setPrevious(active);
+    setActive(index);
   };
 
   if (!images.length) return null;
+  const shown = reducedMotion ? 0 : active;
 
   return (
     <div
@@ -94,45 +66,45 @@ export function CrossfadeImageSlideshow({
       aria-label="Project images"
       aria-roledescription="carousel"
     >
-      {previousIndex !== null && (
-        <Image
-          src={images[previousIndex]}
-          alt=""
-          fill
-          sizes="(min-width: 1280px) 1200px, 100vw"
-          className="z-0 object-cover"
-          aria-hidden="true"
-        />
-      )}
-
-      <Image
-        src={images[activeIndex]}
-        alt={alt}
-        fill
-        loading="lazy"
-        sizes="(min-width: 1280px) 1200px, 100vw"
-        className="z-[1] object-cover transition-opacity ease-in-out"
-        style={{
-          opacity: previousIndex === null || fadeIn ? 1 : 0,
-          transitionDuration: `${FADE_DURATION}ms`,
-        }}
-      />
-
-      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            type="button"
-            aria-label={`Show image ${index + 1}`}
-            aria-current={activeIndex === index ? "true" : undefined}
-            onClick={() => showImage(index)}
-            className={cn(
-              "h-2.5 w-2.5 rounded-full border border-white transition-colors",
-              activeIndex === index ? "bg-white" : "bg-white/35"
-            )}
+      {images.map((src, index) => {
+        const isActive = index === shown;
+        const isPrevious = index === previous && !isActive;
+        return (
+          <Image
+            key={src}
+            src={src}
+            alt={isActive ? alt : ""}
+            aria-hidden={isActive ? undefined : true}
+            fill
+            loading={index === 0 ? undefined : "lazy"}
+            sizes="(min-width: 1280px) 1200px, 100vw"
+            className="object-cover object-center"
+            style={{
+              opacity: isActive || isPrevious ? 1 : 0,
+              zIndex: isActive ? 2 : isPrevious ? 1 : 0,
+              transition: isActive ? `opacity ${FADE_DURATION}ms ease-in-out` : "none",
+            }}
           />
-        ))}
-      </div>
+        );
+      })}
+
+      {images.length > 1 && !reducedMotion && (
+        <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 md:left-auto md:right-6 md:translate-x-0">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              aria-label={`Show image ${index + 1} of ${images.length}`}
+              aria-current={active === index ? "true" : undefined}
+              onClick={() => showImage(index)}
+              className={cn(
+                "h-2 rounded-full transition-all duration-300",
+                active === index ? "w-5 bg-white" : "w-2 bg-white/45 hover:bg-white/70",
+              )}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -15,7 +15,7 @@ export const faqs = [
   {
     question: "How do I raise a service request?",
     answer:
-      "Report a problem with your Olitec product and our service team will get back to you. Our customer care team is available Monday to Saturday, 9:30 am to 6:30 pm.",
+      "Report a problem with your Olitec product and our service team will get back to you.",
   },
   {
     question: "Which batteries work with the OLI-1H inverter?",
@@ -24,6 +24,6 @@ export const faqs = [
   {
     question: "Who can become an Olitec channel partner?",
     answer:
-      "We work with distributors, dealers, installers and EPC companies across India to bring dependable solar and storage to more customers.",
+      "We work with distributors and EPC and system integrators across India to bring dependable solar and storage to more customers.",
   },
 ];

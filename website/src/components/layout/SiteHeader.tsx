@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Phone,
   ChevronDown,
+  ChevronRight,
   Menu,
   X,
   UserRound,
@@ -142,10 +143,10 @@ export function SiteHeader() {
           className={cn(
             "pointer-events-auto mx-auto flex h-[62px] sm:h-[68px] max-w-[1480px] items-center justify-between rounded-full px-4 sm:px-6 transition-all duration-300",
             mobileOpen
-              ? "bg-[#FFF7EA] shadow-[0_12px_30px_rgba(40,30,10,0.16)] border border-white"
+              ? "bg-[#FFF7EA] shadow-[0_12px_30px_rgb(40_30_10/0.16)] border border-white/75"
               : scrolled
-              ? "bg-[#FFF7EA]/92 md:bg-[#FFF7EA]/85 md:backdrop-blur-[16px] shadow-[0_12px_30px_rgba(40,30,10,0.16)] border border-white/75"
-              : "bg-[#FFFAF2]/94 md:bg-[#FFFAF2]/65 md:backdrop-blur-[16px] shadow-[0_12px_30px_rgba(40,30,10,0.12)] border border-white/75",
+              ? "bg-[#FFF7EA]/70 backdrop-blur-[16px] shadow-[0_12px_30px_rgb(40_30_10/0.16)] border border-white/75 supports-[not(backdrop-filter:blur(1px))]:bg-[#FFF7EA]/95"
+              : "bg-[#FFFAF2]/40 backdrop-blur-[16px] shadow-[0_12px_30px_rgb(40_30_10/0.16)] border border-white/75 supports-[not(backdrop-filter:blur(1px))]:bg-[#FFF7EA]/95",
           )}
         >
           {/* Logo on Left */}
@@ -214,7 +215,7 @@ export function SiteHeader() {
 
                   {/* Dropdown Card */}
                   {isCurrentOpen && (
-                    <div className="absolute left-1/2 top-full mt-2.5 w-[310px] -translate-x-1/2 rounded-2xl border border-white/80 bg-[#FFFAF2]/95 p-2 shadow-[0_16px_36px_rgba(40,30,10,0.18)] backdrop-blur-[20px] transition-all">
+                    <div className="absolute left-1/2 top-full mt-2.5 w-[310px] -translate-x-1/2 rounded-2xl border border-white/80 bg-[#FFFAF2]/97 p-2 shadow-[0_16px_36px_rgba(40,30,10,0.18)] backdrop-blur-[20px] transition-all">
                       <div className="space-y-1">
                         {item.children?.map((child) => (
                           <Link
@@ -317,7 +318,7 @@ export function SiteHeader() {
 
         {/* Mobile Dropdown Menu Card (Item M18) */}
         {mobileOpen && (
-          <div className="pointer-events-auto mx-auto mt-2 max-w-[1480px] rounded-3xl border border-white/80 bg-[#FFFAF2]/98 p-5 shadow-[0_20px_45px_rgba(40,30,10,0.2)] backdrop-blur-[20px] transition-all min-[1180px]:hidden">
+          <div className="pointer-events-auto mx-auto mt-2 max-w-[1480px] rounded-3xl border border-white/80 bg-[#FFFAF2]/97 p-5 shadow-[0_20px_45px_rgba(40,30,10,0.2)] backdrop-blur-[20px] transition-all min-[1180px]:hidden">
             <div className="space-y-4 max-h-[calc(100vh-120px)] overflow-y-auto">
               {/* Main Nav Links */}
               <div className="space-y-1">
@@ -331,12 +332,14 @@ export function SiteHeader() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMobileOpen(false)}
+                        aria-current={active ? "page" : undefined}
                         className={cn(
-                          "block rounded-xl px-3.5 py-2.5 text-base font-bold transition",
-                          active ? "text-[#C46E0E] bg-[#E8962C]/10" : "text-[#161E2C] hover:bg-[#161E2C]/[0.05]",
+                          "flex items-center justify-between rounded-xl px-3.5 py-2.5 text-base font-bold transition hover:bg-[#161E2C]/[0.05]",
+                          active ? "text-[#C46E0E]" : "text-[#161E2C]",
                         )}
                       >
-                        {item.label}
+                        <span>{item.label}</span>
+                        <ChevronRight className="size-4 text-[#C46E0E]" aria-hidden />
                       </Link>
                     );
                   }

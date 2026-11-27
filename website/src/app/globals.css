@@ -236,3 +236,41 @@ to{transform:translateX(90px)}
 .motion-lift{transition:none}
 }
 .olx[data-paused] *{animation-play-state:paused}
+
+/* Applications diagram (Item M11): moving dots along the active power links. */
+@keyframes appFlow { to { stroke-dashoffset: -28; } }
+.app-flow { animation: appFlow 0.9s linear infinite; }
+.app-flow-rev { animation: appFlow 0.9s linear infinite reverse; }
+@media (prefers-reduced-motion: reduce) {
+  .app-flow, .app-flow-rev { animation: none; }
+}
+
+/* Inverters and energy storage slide: power moving through conduits, live inverter waveform. */
+@keyframes sceneFlowY { to { background-position: 0 22px; } }
+@keyframes sceneFlowX { to { background-position: 22px 0; } }
+@keyframes sceneWave { to { transform: translateX(-50%); } }
+.scene-flow-y { animation: sceneFlowY 0.7s linear infinite; }
+.scene-flow-x { animation: sceneFlowX 0.7s linear infinite; }
+.scene-flow-reverse { animation-direction: reverse; }
+.scene-wave { animation: sceneWave 1.6s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .scene-flow-y, .scene-flow-x, .scene-wave { animation: none; }
+}
+
+/* Home banner live motion (components/home/HeroMotion.tsx). */
+@keyframes hmBreathe { 0%, 100% { opacity: 0.35; transform: scale(0.97); } 50% { opacity: 0.7; transform: scale(1.03); } }
+@keyframes hmSpin { to { transform: rotate(360deg); } }
+@keyframes hmFlow { to { stroke-dashoffset: -136; } }
+@keyframes hmWave { to { transform: translateX(-36px); } }
+@keyframes hmCharge { 0%, 15% { opacity: 0; } 30%, 70% { opacity: 0.32; } 85%, 100% { opacity: 0; } }
+@keyframes hmRise { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(-260px); } }
+.hero-motion .hm-breathe { animation: hmBreathe 6s ease-in-out infinite; mix-blend-mode: screen; }
+.hero-motion .hm-spin { animation: hmSpin 90s linear infinite; }
+.hero-motion .hm-flow { animation: hmFlow 2.4s linear infinite; filter: drop-shadow(0 0 4px rgba(255, 177, 46, 0.9)); }
+.hero-motion .hm-wave { animation: hmWave 1.4s linear infinite; }
+.hero-motion .hm-charge { animation: hmCharge 3.6s ease-in-out infinite; opacity: 0; }
+.hero-motion .hm-rise { animation: hmRise 7s ease-out infinite; opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-motion * { animation: none !important; }
+  .hero-motion .hm-flow, .hero-motion .hm-rise, .hero-motion .hm-charge { display: none; }
+}

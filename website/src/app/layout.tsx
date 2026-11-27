@@ -8,7 +8,7 @@ const figtree = Figtree({ subsets: ["latin"], weight: ["400", "500", "600", "700
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: { default: `${siteConfig.name} — Clean energy for India`, template: `%s | ${siteConfig.name}` },
+  title: { default: `${siteConfig.name} | Hybrid inverters and energy storage`, template: `%s | ${siteConfig.name}` },
   description: siteConfig.searchDescription,
   icons: {
     icon: "/favicon.ico",

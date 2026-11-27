@@ -165,7 +165,7 @@ export function ChannelPartnersExplorer() {
                     Distributors
                   </h3>
                   <p className={cn("text-xs sm:text-sm leading-relaxed", partnerType === "Distributors" ? "text-slate-300" : "text-slate-600")}>
-                    Regional stock holding, technical warehousing, and supply distribution for dealers and approved installers in your designated state or territory.
+                    Regional stock holding, technical warehousing, and supply distribution across your designated state or territory.
                   </p>
                 </div>
                 <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-semibold">
